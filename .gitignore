@@ -1,0 +1,6 @@
+.DS_Store
+/dist
+/node_modules
+/assets/images/*.ico
+/assets/images/*.icns
+/renderer/build

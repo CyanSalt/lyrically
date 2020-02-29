@@ -1,0 +1,35 @@
+{
+  "name": "lyrically",
+  "version": "0.0.1",
+  "productName": "Lyrically",
+  "description": "Music player inspired by Lyric Speaker",
+  "main": "main/index.js",
+  "scripts": {
+    "build": "webpack --mode=production && node makefile.js",
+    "dev": "webpack --mode=development && electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CyanSalt/lyrically.git"
+  },
+  "keywords": [
+    "player",
+    "lyric"
+  ],
+  "author": "CyanSalt",
+  "license": "MIT",
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "devDependencies": {
+    "css-loader": "^3.4.2",
+    "electron": "^8.0.2",
+    "electron-packager": "^14.2.1",
+    "mini-css-extract-plugin": "^0.9.0",
+    "vue": "^2.6.11",
+    "vue-loader": "^15.9.0",
+    "vue-template-compiler": "^2.6.11",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
+  }
+}
