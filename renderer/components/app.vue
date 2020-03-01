@@ -1,5 +1,5 @@
 <template>
-  <div id="root">
+  <div id="root" :class="[darkMode ? 'dark' : 'light', {vibrancy}]">
     <div class="full container">
       <input v-if="!playing" v-model="keyword" type="text" class="searcher" @change="search">
       <div
@@ -18,6 +18,12 @@
       </div>
       <div class="control-item" @click="toggleFullscreen">
         <span :class="['feather-icon', fullscreen ? 'icon-minimize' : 'icon-maximize']"></span>
+      </div>
+      <div class="control-item" @click="toggleDarkMode">
+        <span :class="['feather-icon', darkMode ? 'icon-sun' : 'icon-moon']"></span>
+      </div>
+      <div class="control-item" @click="toggleVibrancy">
+        <span :class="['feather-icon', vibrancy ? 'icon-cloud' : 'icon-cloud-off']"></span>
       </div>
       <div class="control-item" @click="play">
         <span :class="['feather-icon', playing ? 'icon-pause' : 'icon-play']"></span>
@@ -48,6 +54,8 @@ export default {
       currentIndex: -1,
       playing: false,
       fullscreen: false,
+      darkMode: false,
+      vibrancy: true,
     }
   },
   computed: {
@@ -69,11 +77,11 @@ export default {
     },
   },
   mounted() {
-    ipcRenderer.on('enter-full-screen', () => {
-      this.fullscreen = true
+    ipcRenderer.on('fullscreen-updated', (event, fullscreen) => {
+      this.fullscreen = fullscreen
     })
-    ipcRenderer.on('leave-full-screen', () => {
-      this.fullscreen = false
+    ipcRenderer.on('darkmode-updated', (event, darkMode) => {
+      this.darkMode = darkMode
     })
   },
   methods: {
@@ -111,10 +119,16 @@ export default {
       this.playing = false
     },
     toggleFullscreen() {
-      ipcRenderer.invoke('toggleFullscreen')
+      ipcRenderer.invoke('setFullscreen', !this.fullscreen)
     },
     close() {
       ipcRenderer.invoke('close')
+    },
+    toggleDarkMode() {
+      ipcRenderer.invoke('setDarkMode', !this.darkMode)
+    },
+    toggleVibrancy() {
+      this.vibrancy = !this.vibrancy
     },
     play() {
       if (!this.music) return
@@ -132,8 +146,8 @@ export default {
       }
       const rv = LCG(getHashCode(lyric))()
       if (rv < 0.2) {
-        style.background = 'black'
-        style.color = 'white'
+        style.background = 'var(--foreground)'
+        style.color = 'var(--background)'
       }
       const rand = LCG(getHashCode(lyric + type))
       if (type === 'outside') {
@@ -181,6 +195,17 @@ body {
   height: 100vh;
   position: relative;
   overflow: hidden;
+  --foreground: black;
+  --background: white;
+  transition: background 0.5s, color 0.5s;
+}
+#root.dark {
+  --foreground: white;
+  --background: black;
+  color: white;
+}
+#root:not(.vibrancy) {
+  background: var(--background);
 }
 .full {
   width: 100vw;
@@ -206,7 +231,7 @@ body {
 }
 .lyric {
   position: absolute;
-  transition: transform 1s ease-in-out, opacity 1s ease-in-out, filter 1s ease-in-out;
+  transition: background 0.5s, color 0.5s, transform 1s ease-in-out, opacity 1s ease-in-out, filter 1s ease-in-out;
 }
 .prev, .next {
   opacity: 0.25;
@@ -227,8 +252,9 @@ body {
   font: inherit;
   width: 50vw;
   text-align: center;
-  background: black;
-  color: white;
+  background: var(--foreground);
+  color: var(--background);
+  transition: background 0.5s, color 0.5s;
   animation: fade-in 0.5s ease-in-out;
   z-index: 1;
 }
@@ -242,10 +268,10 @@ body {
   padding: 0 0.2em;
   display: flex;
   border-radius: 1em;
-  background: black;
-  color: white;
-  transition: opacity 0.4s;
+  background: var(--foreground);
+  color: var(--background);
   opacity: 0;
+  transition: background 0.5s, color 0.5s, opacity 0.4s;
 }
 .control-bar:hover {
   opacity: 1;

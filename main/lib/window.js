@@ -12,7 +12,7 @@ function loadHTMLFile(frame, file) {
   }))
 }
 
-function createWindow(...args) {
+function createWindow() {
   const options = {
     show: false,
     title: app.name,
