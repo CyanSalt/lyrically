@@ -11,8 +11,8 @@ const options = {
   overwrite: true,
   asar: true,
   ignore: [
-    '^/(?!main|renderer|node_modules|package\\.json)',
-    '^/renderer/(?!assets|build|index\\.html)',
+    '^/(?!assets|main|renderer|node_modules|package\\.json)',
+    '^/renderer/(?!build|index\\.html)',
   ],
   appVersion: app.version,
   appCopyright: [
