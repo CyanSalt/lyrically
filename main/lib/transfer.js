@@ -28,6 +28,9 @@ function transferInvoking() {
     const frame = BrowserWindow.fromWebContents(event.sender)
     frame.close()
   })
+  ipcMain.handle('getDarkMode', () => {
+    return nativeTheme.shouldUseDarkColors
+  })
   ipcMain.handle('setDarkMode', (event, flag) => {
     nativeTheme.themeSource = flag ? 'dark' : 'light'
   })

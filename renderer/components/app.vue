@@ -80,11 +80,14 @@ export default {
       ]
     },
   },
-  mounted() {
+  created() {
     ipcRenderer.on('fullscreen-updated', (event, fullscreen) => {
       this.fullscreen = fullscreen
     })
     ipcRenderer.on('darkmode-updated', (event, darkMode) => {
+      this.darkMode = darkMode
+    })
+    ipcRenderer.invoke('getDarkMode').then(darkMode => {
       this.darkMode = darkMode
     })
   },
