@@ -5,8 +5,8 @@ const app = require('./package.json')
 
 const options = {
   dir: '.',
-  name: process.platform === 'win32' ?
-    app.name : app.productName,
+  name: process.platform === 'win32'
+    ? app.name : app.productName,
   out: 'dist/',
   overwrite: true,
   asar: true,

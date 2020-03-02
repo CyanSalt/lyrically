@@ -6,7 +6,8 @@
   "main": "main/index.js",
   "scripts": {
     "build": "webpack --mode=production && node makefile.js",
-    "dev": "webpack --mode=development && electron ."
+    "dev": "webpack --mode=development && electron .",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix ."
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,8 @@
     "css-loader": "^3.4.2",
     "electron": "^8.0.2",
     "electron-packager": "^14.2.1",
+    "eslint": "^6.8.0",
+    "eslint-plugin-vue": "^6.2.1",
     "mini-css-extract-plugin": "^0.9.0",
     "vue": "^2.6.11",
     "vue-loader": "^15.9.0",

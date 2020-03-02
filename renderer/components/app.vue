@@ -30,9 +30,13 @@
       </div>
     </div>
     <audio
-      ref="audio" :src="music" class="audio"
-      @pause="handlePause" @play="handlePlay"
-      @timeupdate="handleTimeUpdate" @ended="handleEnded"
+      ref="audio"
+      :src="music"
+      class="audio"
+      @pause="handlePause"
+      @play="handlePlay"
+      @timeupdate="handleTimeUpdate"
+      @ended="handleEnded"
     ></audio>
   </div>
 </template>
