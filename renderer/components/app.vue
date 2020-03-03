@@ -1,7 +1,6 @@
 <template>
   <div id="root" :class="[darkMode ? 'dark' : 'light', {vibrancy}]">
-    <div class="full container">
-      <input v-if="!playing" v-model="keyword" type="text" class="searcher" @change="search">
+    <div :class="['full', 'container', {distant: !playing}]">
       <div
         v-for="(index, order) in indexes"
         :key="index"
@@ -9,7 +8,7 @@
         :class="[classes[order], 'lyric']"
       >{{ lyrics[index] }}</div>
     </div>
-    <div class="control-bar">
+    <div :class="['control-bar', {resident: !playing}]">
       <div class="control-item move">
         <span class="feather-icon icon-move"></span>
       </div>
@@ -29,6 +28,7 @@
         <span :class="['feather-icon', playing ? 'icon-pause' : 'icon-play']"></span>
       </div>
     </div>
+    <input v-if="!playing" v-model="keyword" class="searcher" @change="search">
     <audio
       ref="audio"
       :src="music"
@@ -235,6 +235,11 @@ body {
   align-items: center;
   animation: shake 3s ease-in-out infinite;
   perspective: 100vmin;
+  transition: opacity 1s, filter 1s;
+}
+.container.distant {
+  opacity: 0.5;
+  filter: blur(0.1em);
 }
 .lyric {
   position: absolute;
@@ -253,17 +258,22 @@ body {
   animation: fade-in 1s ease-in-out;
 }
 .searcher {
+  position: fixed;
+  top: 50vh;
+  left: 50vw;
+  transform: translate(-50%, -50%);
+  display: flex;
   -webkit-appearance: none;
   border: none;
   outline: none;
   font: inherit;
   width: 50vw;
   text-align: center;
-  background: var(--foreground);
-  color: var(--background);
-  transition: background 0.5s, color 0.5s;
+  background: transparent;
+  color: var(--foreground);
+  border-bottom: 2px solid;
+  transition: color 0.5s;
   animation: fade-in 0.5s ease-in-out;
-  z-index: 1;
 }
 .audio {
   display: none;
@@ -278,7 +288,8 @@ body {
   opacity: 0;
   transition: color 0.5s, opacity 0.4s;
 }
-.control-bar:hover {
+.control-bar:hover,
+.control-bar.resident {
   opacity: 1;
 }
 .control-item {
