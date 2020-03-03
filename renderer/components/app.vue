@@ -272,13 +272,11 @@ body {
   position: fixed;
   top: 0.5em;
   left: 0.5em;
-  padding: 0 0.2em;
   display: flex;
   border-radius: 1em;
-  background: var(--foreground);
-  color: var(--background);
+  color: var(--foreground);
   opacity: 0;
-  transition: background 0.5s, color 0.5s, opacity 0.4s;
+  transition: color 0.5s, opacity 0.4s;
 }
 .control-bar:hover {
   opacity: 1;
