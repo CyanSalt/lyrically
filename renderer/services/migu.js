@@ -1,8 +1,8 @@
 import * as http from 'http'
+import * as crypto from 'crypto'
+import CryptoJS from 'crypto-js'
 import {fetchify} from '../utils/fetch'
 import {getPlainText} from '../utils/helper'
-import CryptoJS from 'crypto-js'
-import JSEncrypt from 'node-jsencrypt'
 
 const get = fetchify(http.get)
 
@@ -18,13 +18,15 @@ function encrypt(data) {
     'ZosTByYp4Xwpb1+WAQIDAQAB',
     '-----END PUBLIC KEY-----',
   ].join('\n')
-  const encryption = new JSEncrypt()
-  encryption.setPublicKey(publicKey)
   const source = JSON.stringify(data)
-  const key = CryptoJS.SHA256(String(1e3 * Math.random())).toString()
-  const encrypted = CryptoJS.lib.Cipher._createHelper(CryptoJS.algo.AES)
-    .encrypt(source, key).toString()
-  const secret = encryption.encrypt(key)
+  const key = crypto.createHash('sha256')
+    .update(String(1e3 * Math.random()), 'utf8')
+    .digest('hex')
+  const encrypted = CryptoJS.AES.encrypt(source, key).toString()
+  const secret = crypto.publicEncrypt({
+    key: publicKey,
+    padding: crypto.constants.RSA_PKCS1_PADDING,
+  }, Buffer.from(key, 'utf8')).toString('base64')
   return {
     encrypted,
     secret,

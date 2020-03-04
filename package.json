@@ -36,7 +36,6 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
-    "crypto-js": "^4.0.0",
-    "node-jsencrypt": "^1.0.0"
+    "crypto-js": "^4.0.0"
   }
 }
