@@ -5,13 +5,22 @@ export function parseTime(source) {
 }
 
 export function parseLRC(source) {
-  const rows = source.trim().split(/\n\s*/)
-  return rows.map(row => {
-    const matches = row.match(/^\s*\[(\d.*)\](.*)$/)
-    if (!matches) return {time: 0, text: ''}
-    const progress = matches[1].trim()
+  const rows = source.trim().split(/\r?\n\s*/)
+  let offset = 0
+  return rows.flatMap(row => {
+    const matches = row.match(/^(\s*\[.+\])+(.*)$/)
+    if (!matches) return []
+    const tags = matches[1].match(/\[.+?\]/g)
     const text = matches[2].trim()
-    const time = parseTime(progress)
-    return {time, text}
+    return tags.reduce((result, tag) => {
+      tag = tag.slice(1, -1).trim()
+      if (tag.startsWith('offset:')) {
+        offset = Number(tag.slice('offset:'.length)) / 1000
+      } else {
+        const time = parseTime(tag) + offset
+        result.push({time, text})
+      }
+      return result
+    }, [])
   }).sort((a, b) => a.time - b.time)
 }

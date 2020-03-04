@@ -44,15 +44,18 @@
 <script>
 import {ipcRenderer} from 'electron'
 import {getHashCode, LCG} from '../utils/helper'
-import {searchSong, getLyrics, getMusicURL} from '../utils/netease'
+// import NeteaseService from '../services/netease'
+import MiguService from '../services/migu'
 import {parseLRC} from '../utils/lrc'
 
 export default {
   name: 'App',
   data() {
     return {
+      service: MiguService, // NeteaseService,
       keyword: '',
       song: null,
+      info: null,
       lrc: [],
       music: '',
       currentIndex: -1,
@@ -92,18 +95,18 @@ export default {
     })
   },
   methods: {
-    async load(name) {
-      const songs = await searchSong(name)
+    async load(keyword) {
+      const songs = await this.service.search(keyword)
       const song = songs[0]
       if (!song) return
       this.song = song
-      const lyrics = await getLyrics(song.id)
+      const {info, lyric, music} = await this.service.getData(song)
+      this.info = info
+      this.lrc = parseLRC(lyric)
+      this.music = music
       this.currentIndex = -1
-      this.lrc = parseLRC(lyrics.lrc.lyric)
-      this.music = getMusicURL(song.id)
       await this.$nextTick()
       this.$refs.audio.play()
-      this.keyword = song.name
     },
     search(event) {
       const keyword = event.target.value
@@ -114,6 +117,7 @@ export default {
     },
     handlePlay() {
       this.playing = true
+      if (this.info) this.keyword = this.info.name
     },
     handleTimeUpdate(event) {
       const time = event.target.currentTime

@@ -14,3 +14,10 @@ export function LCG(seed) {
     return (2 ** 31 - 1 & seed) / 2 ** 31
   }
 }
+
+let element
+export function getPlainText(html) {
+  if (!element) element = document.createElement('div')
+  element.innerHTML = html
+  return element.textContent
+}
