@@ -4,6 +4,8 @@
 
 export default {
 
+  icon: '../assets/vendors/netease.png',
+
   async search(keyword) {
     const result = await fetch(
       `http://music.163.com/api/search/get/web?s=${encodeURIComponent(keyword)}&type=1&offset=0&total=true&limit=1`

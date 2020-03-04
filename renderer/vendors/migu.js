@@ -35,6 +35,8 @@ function encrypt(data) {
 
 export default {
 
+  icon: '../assets/vendors/migu.png',
+
   async search(keyword) {
     const result = await fetch(
       `http://music.migu.cn/v2/async/search?keyword=${encodeURIComponent(keyword)}`
@@ -50,15 +52,17 @@ export default {
       copyrightId: song.fullSongCopyrightId,
       auditionsFlag: 0,
     })
-    const musicData = await get(
-      `http://music.migu.cn/v3/api/music/audioPlayer/getPlayInfo?dataType=2&data=${encodeURIComponent(encrypted)}&secKey=${encodeURIComponent(secret)}`,
-      {headers: {Referer: 'http://music.migu.cn/v3/music/player/audio'}}
-    ).then(response => response.json())
+    const [musicData, lyricData] = await Promise.all([
+      get(
+        `http://music.migu.cn/v3/api/music/audioPlayer/getPlayInfo?dataType=2&data=${encodeURIComponent(encrypted)}&secKey=${encodeURIComponent(secret)}`,
+        {headers: {Referer: 'http://music.migu.cn/v3/music/player/audio'}}
+      ).then(response => response.json()),
+      get(
+        `http://music.migu.cn/v3/api/music/audioPlayer/getLyric?copyrightId=${song.fullSongCopyrightId}`,
+        {headers: {Referer: 'http://music.migu.cn/v3/music/player/audio'}}
+      ).then(response => response.json()),
+    ])
     const music = musicData.data.hqPlayInfo.playUrl
-    const lyricData = await get(
-      `http://music.migu.cn/v3/api/music/audioPlayer/getLyric?copyrightId=${song.fullSongCopyrightId}`,
-      {headers: {Referer: 'http://music.migu.cn/v3/music/player/audio'}}
-    ).then(response => response.json())
     const lyric = lyricData.lyric
     return {
       info,

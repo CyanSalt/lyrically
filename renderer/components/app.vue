@@ -28,7 +28,18 @@
         <span :class="['feather-icon', playing ? 'icon-pause' : 'icon-play']"></span>
       </div>
     </div>
-    <input v-if="!playing" v-model="keyword" class="searcher" @change="search">
+    <div v-if="!playing" class="searcher">
+      <input v-model="keyword" class="searcher-input" @change="search">
+      <div class="vendor-list">
+        <img
+          v-for="vendor in vendors"
+          :key="vendor.icon"
+          :class="['vendor-icon', {active: service === vendor}]"
+          :src="vendor.icon"
+          @click="activate(vendor)"
+        >
+      </div>
+    </div>
     <audio
       ref="audio"
       :src="music"
@@ -44,15 +55,15 @@
 <script>
 import {ipcRenderer} from 'electron'
 import {getHashCode, LCG} from '../utils/helper'
-// import NeteaseService from '../services/netease'
-import MiguService from '../services/migu'
+import NeteaseService from '../vendors/netease'
+import MiguService from '../vendors/migu'
 import {parseLRC} from '../utils/lrc'
 
 export default {
   name: 'App',
   data() {
     return {
-      service: MiguService, // NeteaseService,
+      service: NeteaseService,
       keyword: '',
       song: null,
       info: null,
@@ -63,6 +74,10 @@ export default {
       fullscreen: false,
       darkMode: false,
       vibrancy: true,
+      vendors: [
+        NeteaseService,
+        MiguService,
+      ],
     }
   },
   computed: {
@@ -149,6 +164,9 @@ export default {
       } else {
         audio.pause()
       }
+    },
+    activate(vendor) {
+      this.service = vendor
     },
     generateStyle(lyric, type) {
       const style = {}
@@ -266,18 +284,40 @@ body {
   top: 50vh;
   left: 50vw;
   transform: translate(-50%, -50%);
-  display: flex;
+  color: var(--foreground);
+  transition: color 0.5s;
+  animation: fade-in 0.5s ease-in-out;
+}
+.searcher-input {
   -webkit-appearance: none;
   border: none;
   outline: none;
   font: inherit;
+  color: inherit;
+  background: transparent;
   width: 50vw;
   text-align: center;
-  background: transparent;
-  color: var(--foreground);
   border-bottom: 2px solid;
-  transition: color 0.5s;
-  animation: fade-in 0.5s ease-in-out;
+}
+.vendor-list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 1em;
+}
+.vendor-icon {
+  width: 0.5em;
+  height: 0.5em;
+  cursor: pointer;
+  filter: grayscale(1);
+  opacity: 0.25;
+  transition: opacity 0.4s;
+}
+.vendor-icon.active {
+  opacity: 1;
+}
+.vendor-icon + .vendor-icon {
+  margin-left: 0.5em;
 }
 .audio {
   display: none;
