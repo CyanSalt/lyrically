@@ -1,6 +1,6 @@
 <template>
-  <div id="root" :class="[darkMode ? 'dark' : 'light', {vibrancy}]">
-    <div :class="['full', 'container', {distant: !playing}]">
+  <div :class="['app', darkMode ? 'dark' : 'light', { vibrancy }]">
+    <div :class="['full', 'container', { distant: !isPlaying }]">
       <div
         v-for="(index, order) in indexes"
         :key="index"
@@ -8,7 +8,7 @@
         :class="[classes[order], 'lyric']"
       >{{ lyrics[index] }}</div>
     </div>
-    <div :class="['control-bar', {resident: !playing}]">
+    <div :class="['control-bar', { resident: !isPlaying }]">
       <div class="control-item move">
         <span class="feather-icon icon-move"></span>
       </div>
@@ -25,16 +25,16 @@
         <span :class="['feather-icon', vibrancy ? 'icon-cloud' : 'icon-cloud-off']"></span>
       </div>
       <div class="control-item" @click="play">
-        <span :class="['feather-icon', playing ? 'icon-pause' : 'icon-play']"></span>
+        <span :class="['feather-icon', isPlaying ? 'icon-pause' : 'icon-play']"></span>
       </div>
     </div>
-    <div v-if="!playing" class="searcher">
+    <div v-if="!isPlaying" class="searcher">
       <input v-model="keyword" class="searcher-input" @change="search">
       <div class="vendor-list">
         <img
           v-for="vendor in vendors"
           :key="vendor.icon"
-          :class="['vendor-icon', {active: service === vendor}]"
+          :class="['vendor-icon', { active: service === vendor }]"
           :src="vendor.icon"
           @click="activate(vendor)"
         >
@@ -52,124 +52,51 @@
   </div>
 </template>
 
-<script>
-import {ipcRenderer} from 'electron'
-import {getHashCode, LCG} from '../utils/helper'
+<script lang="ts">
+import { ipcRenderer } from 'electron'
+import { computed, nextTick, shallowRef, ref, unref } from 'vue'
+import { useFullscreen, useThemeSource, useVibrancy } from '../hooks/frame'
+import { getHashCode, LCG } from '../utils/helper'
+import type { LyricRow } from '../utils/lrc'
+import { parseLRC } from '../utils/lrc'
 import NeteaseService from '../vendors/netease'
-import MiguService from '../vendors/migu'
-import {parseLRC} from '../utils/lrc'
+import type { MusicInfo, MusicService } from '../vendors/types'
 
 export default {
-  name: 'App',
-  data() {
-    return {
-      service: NeteaseService,
-      keyword: '',
-      song: null,
-      info: null,
-      lrc: [],
-      music: '',
-      currentIndex: -1,
-      playing: false,
-      fullscreen: false,
-      darkMode: false,
-      vibrancy: true,
-      vendors: [
-        NeteaseService,
-        MiguService,
-      ],
-    }
-  },
-  computed: {
-    lyrics() {
-      return this.lrc.map(row => row.text)
-    },
-    classes() {
-      return ['next', 'current', 'prev']
-    },
-    indexes() {
-      return [this.currentIndex + 1, this.currentIndex, this.currentIndex - 1]
-    },
-    styles() {
-      return [
-        this.generateStyle(this.lyrics[this.indexes[0]], 'edge'),
-        this.generateStyle(this.lyrics[this.indexes[1]], 'inside'),
-        this.generateStyle(this.lyrics[this.indexes[2]], 'outside'),
-      ]
-    },
-  },
-  created() {
-    ipcRenderer.on('fullscreen-updated', (event, fullscreen) => {
-      this.fullscreen = fullscreen
+  name: 'app',
+  setup() {
+    const themeSourceRef = useThemeSource()
+    const darkModeRef = computed(() => {
+      return unref(themeSourceRef) === 'dark'
     })
-    ipcRenderer.on('darkmode-updated', (event, darkMode) => {
-      this.darkMode = darkMode
+
+    const fullscreenRef = useFullscreen()
+    const vibrancyRef = useVibrancy()
+
+    const isPlayingRef = ref(false)
+    const currentIndexRef = ref(-1)
+    const serviceRef = shallowRef<MusicService<any>>(NeteaseService)
+    const infoRef = ref<MusicInfo>()
+    const lrcRef = ref<LyricRow[]>([])
+    const musicRef = ref('')
+    const keywordRef = ref('')
+
+    const audioRef = ref<HTMLAudioElement | null>(null)
+
+    const indexesRef = computed(() => {
+      const currentIndex = unref(currentIndexRef)
+      return [currentIndex + 1, currentIndex, currentIndex - 1]
     })
-    ipcRenderer.invoke('getDarkMode').then(darkMode => {
-      this.darkMode = darkMode
+
+    const lyricsRef = computed(() => {
+      const lrc = unref(lrcRef)
+      return lrc.map(row => row.text)
     })
-  },
-  methods: {
-    async load(keyword) {
-      const songs = await this.service.search(keyword)
-      const song = songs[0]
-      if (!song) return
-      this.song = song
-      const {info, lyric, music} = await this.service.getData(song)
-      this.info = info
-      this.lrc = parseLRC(lyric)
-      this.music = music
-      this.currentIndex = -1
-      await this.$nextTick()
-      this.$refs.audio.play()
-    },
-    search(event) {
-      const keyword = event.target.value
-      if (keyword) this.load(keyword)
-    },
-    handlePause() {
-      this.playing = false
-    },
-    handlePlay() {
-      this.playing = true
-      if (this.info) this.keyword = this.info.name
-    },
-    handleTimeUpdate(event) {
-      const time = event.target.currentTime
-      const animationTime = 1
-      this.currentIndex = this.lrc
-        .map(row => time >= (row.time - animationTime))
-        .lastIndexOf(true)
-    },
-    handleEnded() {
-      this.playing = false
-    },
-    toggleFullscreen() {
-      ipcRenderer.invoke('setFullscreen', !this.fullscreen)
-    },
-    close() {
-      ipcRenderer.invoke('close')
-    },
-    toggleDarkMode() {
-      ipcRenderer.invoke('setDarkMode', !this.darkMode)
-    },
-    toggleVibrancy() {
-      this.vibrancy = !this.vibrancy
-    },
-    play() {
-      if (!this.music) return
-      const audio = this.$refs.audio
-      if (audio.paused) {
-        audio.play()
-      } else {
-        audio.pause()
-      }
-    },
-    activate(vendor) {
-      this.service = vendor
-    },
-    generateStyle(lyric, type) {
-      const style = {}
+
+    const classes = ['next', 'current', 'prev']
+
+    function generateStyle(lyric, type) {
+      const style: Partial<CSSStyleDeclaration> = {}
       if (!lyric) {
         return style
       }
@@ -209,17 +136,134 @@ export default {
         style.transform = `translate(${x1}, ${y1}) rotate3d(${r1}, ${r2}, ${r3}, ${a}deg)`
       }
       return style
-    },
+    }
+
+    const stylesRef = computed(() => {
+      const lyrics = unref(lyricsRef)
+      const indexes = unref(indexesRef)
+      return [
+        generateStyle(lyrics[indexes[0]], 'edge'),
+        generateStyle(lyrics[indexes[1]], 'inside'),
+        generateStyle(lyrics[indexes[2]], 'outside'),
+      ]
+    })
+
+    const vendors = [
+      NeteaseService,
+    ]
+
+    function close() {
+      ipcRenderer.invoke('close')
+    }
+
+    function toggleFullscreen() {
+      fullscreenRef.value = !fullscreenRef.value
+    }
+
+    function toggleDarkMode() {
+      const darkMode = unref(darkModeRef)
+      themeSourceRef.value = darkMode ? 'light' : 'dark'
+    }
+
+    function toggleVibrancy() {
+      vibrancyRef.value = vibrancyRef.value ? null : 'selection'
+    }
+
+    function play() {
+      const music = unref(musicRef)
+      if (!music) return
+      const audio = unref(audioRef)
+      if (!audio) return
+      if (audio.paused) {
+        audio.play()
+      } else {
+        audio.pause()
+      }
+    }
+
+    async function load(keyword) {
+      const service = unref(serviceRef)
+      const songs = await service.search(keyword)
+      const song = songs[0]
+      if (!song) return
+      const { info, lyric, music } = await service.getData(song)
+      infoRef.value = info
+      lrcRef.value = parseLRC(lyric)
+      musicRef.value = music
+      currentIndexRef.value = -1
+      await nextTick()
+      const audio = unref(audioRef)
+      if (audio) {
+        audio.play()
+      }
+    }
+
+    function search(event) {
+      const keyword = event.target.value
+      if (keyword) load(keyword)
+    }
+
+    function activate(vendor) {
+      serviceRef.value = vendor
+    }
+
+    function handlePause() {
+      isPlayingRef.value = false
+    }
+
+    function handlePlay() {
+      isPlayingRef.value = true
+      const info = unref(infoRef)
+      if (info) keywordRef.value = info.name
+    }
+
+    function handleTimeUpdate(event) {
+      const time = event.target.currentTime
+      const animationTime = 1
+      currentIndexRef.value = unref(lrcRef)
+        .map(row => time >= (row.time - animationTime))
+        .lastIndexOf(true)
+    }
+
+    function handleEnded() {
+      isPlayingRef.value = false
+    }
+
+    return {
+      darkMode: darkModeRef,
+      fullscreen: fullscreenRef,
+      vibrancy: vibrancyRef,
+      isPlaying: isPlayingRef,
+      indexes: indexesRef,
+      classes,
+      styles: stylesRef,
+      lyrics: lyricsRef,
+      keyword: keywordRef,
+      music: musicRef,
+      audio: audioRef,
+      vendors,
+      close,
+      toggleFullscreen,
+      toggleDarkMode,
+      toggleVibrancy,
+      play,
+      search,
+      activate,
+      handlePause,
+      handlePlay,
+      handleTimeUpdate,
+      handleEnded,
+    }
   },
 }
 </script>
 
-<style>
-body {
+<style lang="scss" scoped>
+:global(body) {
   margin: 0;
   font-size: 10vmin;
 }
-#root {
+.app {
   width: 100vw;
   height: 100vh;
   position: relative;
@@ -227,14 +271,14 @@ body {
   --foreground: black;
   --background: white;
   transition: background 0.5s, color 0.5s;
-}
-#root.dark {
-  --foreground: white;
-  --background: black;
-  color: white;
-}
-#root:not(.vibrancy) {
-  background: var(--background);
+  &.dark {
+    --foreground: white;
+    --background: black;
+    color: white;
+  }
+  &:not(.vibrancy) {
+    background: var(--background);
+  }
 }
 .full {
   width: 100vw;
@@ -258,10 +302,10 @@ body {
   animation: shake 3s ease-in-out infinite;
   perspective: 100vmin;
   transition: opacity 1s, filter 1s;
-}
-.container.distant {
-  opacity: 0.5;
-  filter: blur(0.1em);
+  &.distant {
+    opacity: 0.5;
+    filter: blur(0.1em);
+  }
 }
 .lyric {
   position: absolute;
@@ -289,7 +333,7 @@ body {
   animation: fade-in 0.5s ease-in-out;
 }
 .searcher-input {
-  -webkit-appearance: none;
+  appearance: none;
   border: none;
   outline: none;
   font: inherit;
@@ -312,12 +356,12 @@ body {
   filter: grayscale(1);
   opacity: 0.25;
   transition: opacity 0.4s;
-}
-.vendor-icon.active {
-  opacity: 1;
-}
-.vendor-icon + .vendor-icon {
-  margin-left: 0.5em;
+  &.active {
+    opacity: 1;
+  }
+  & + & {
+    margin-left: 0.5em;
+  }
 }
 .audio {
   display: none;
@@ -331,10 +375,10 @@ body {
   color: var(--foreground);
   opacity: 0;
   transition: color 0.5s, opacity 0.4s;
-}
-.control-bar:hover,
-.control-bar.resident {
-  opacity: 1;
+  &:hover,
+  &.resident {
+    opacity: 1;
+  }
 }
 .control-item {
   font-size: 0.375em;
@@ -345,11 +389,11 @@ body {
   cursor: pointer;
   opacity: 0.5;
   transition: opacity 0.2s;
-}
-.control-item:hover {
-  opacity: 1;
-}
-.control-item.move {
-  -webkit-app-region: drag;
+  &:hover {
+    opacity: 1;
+  }
+  &.move {
+    -webkit-app-region: drag;
+  }
 }
 </style>

@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html data-commas>
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="script-src 'self'">
-  <link rel="stylesheet" href="build/index.css">
-  <link rel="stylesheet" href="../assets/fonts/feather.css">
-  <link rel="preload" href="../assets/fonts/feather.woff" as="font">
-  <link rel="preload" href="build/index.js" as="script">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http: https:; img-src 'self' blob: http: https:; style-src 'self' 'unsafe-inline'; media-src http: https:">
+  <link rel="stylesheet" href="dist/style.css">
+  <link rel="stylesheet" href="assets/fonts/feather.css">
+  <link rel="preload" href="assets/fonts/feather.woff" as="font">
+  <!-- <link rel="modulepreload" href="dist/app.mjs" as="script"> -->
+  <link rel="preload" href="dist/app.cjs.js" as="script">
 </head>
 <body>
-  <div id="root"></div>
-  <script src="build/index.js"></script>
+  <div id="app"></div>
+  <!-- <script type="module" src="dist/app.mjs"></script> -->
+  <script src="dist/app.cjs.js"></script>
 </body>
 </html>

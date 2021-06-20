@@ -2,40 +2,50 @@
   "name": "lyrically",
   "version": "0.0.1",
   "productName": "Lyrically",
+  "author": "CyanSalt",
   "description": "Music player inspired by Lyric Speaker",
-  "main": "main/index.js",
+  "main": "main/dist/index.js",
   "scripts": {
-    "build": "webpack --mode=production && node makefile.js",
-    "dev": "webpack --mode=development && electron .",
-    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix ."
+    "postinstall": "node post-install.js",
+    "build": "node build/build.js && node build/pack.js",
+    "dev": "node build/build.js && electron .",
+    "lint:script": "eslint --ignore-path .gitignore --ext .js,.ts,.vue --cache --fix .",
+    "lint:style": "stylelint --ignore-path .gitignore --cache --fix ./**/*.{css,vue}",
+    "lint": "npm run lint:script && npm run lint:style"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CyanSalt/lyrically.git"
+    "url": "https://github.com/CyanSalt/lyrically.git"
   },
-  "keywords": [
-    "player",
-    "lyric"
-  ],
-  "author": "CyanSalt",
-  "license": "MIT",
+  "license": "ISC",
   "engines": {
     "node": ">=10.0.0"
   },
   "devDependencies": {
-    "css-loader": "^3.4.2",
-    "electron": "^8.0.2",
-    "electron-packager": "^14.2.1",
-    "eslint": "^6.8.0",
-    "eslint-plugin-vue": "^6.2.1",
-    "mini-css-extract-plugin": "^0.9.0",
-    "vue": "^2.6.11",
-    "vue-loader": "^15.9.0",
-    "vue-template-compiler": "^2.6.11",
-    "webpack": "^4.41.6",
-    "webpack-cli": "^3.3.11"
-  },
-  "dependencies": {
-    "crypto-js": "^4.0.0"
+    "@cyansalt/eslint-config": "^1.10.0",
+    "@cyansalt/stylelint-config": "^1.5.2",
+    "@cyansalt/tsconfig": "^1.1.1",
+    "@types/lodash-es": "^4.17.4",
+    "@typescript-eslint/eslint-plugin": "^4.26.1",
+    "@typescript-eslint/parser": "^4.26.1",
+    "@vitejs/plugin-vue": "^1.2.3",
+    "@vue/compiler-sfc": "^3.1.1",
+    "chalk": "^4.1.1",
+    "electron": "^13.1.2",
+    "electron-packager": "^15.2.0",
+    "esbuild": "^0.12.8",
+    "eslint": "^7.28.0",
+    "eslint-plugin-galaxy": "^1.2.2",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-unicorn": "^33.0.1",
+    "eslint-plugin-vue": "^7.10.0",
+    "eslint-plugin-vue-scoped-css": "^1.2.1",
+    "lodash-es": "^4.17.21",
+    "sass": "^1.34.1",
+    "stylelint": "^13.13.1",
+    "stylelint-scss": "^3.19.0",
+    "typescript": "^4.3.2",
+    "vite": "^2.3.7",
+    "vue": "^3.1.1"
   }
 }
