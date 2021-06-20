@@ -1,4 +1,4 @@
-import type { BrowserWindowConstructorOptions, NativeTheme } from 'electron'
+import type { BrowserWindowConstructorOptions } from 'electron'
 import { memoize } from 'lodash-es'
 import { injectIPC } from '../utils/hooks'
 
@@ -10,6 +10,6 @@ export const useVibrancy = memoize(() => {
   return injectIPC<BrowserWindowConstructorOptions['vibrancy']>('vibrancy', 'selection')
 })
 
-export const useThemeSource = memoize(() => {
-  return injectIPC<NativeTheme['themeSource']>('theme-source', 'system')
+export const useDarkMode = memoize(() => {
+  return injectIPC('dark-mode', false)
 })
