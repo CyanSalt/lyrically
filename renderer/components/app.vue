@@ -1,5 +1,5 @@
 <template>
-  <div :class="['app', darkMode ? 'dark' : 'light', { vibrancy }]">
+  <div :class="['app', { vibrancy }]">
     <div :class="['full', 'container', { distant: !isPlaying }]">
       <div
         v-for="(index, order) in indexes"
@@ -267,13 +267,13 @@ export default {
   --foreground: black;
   --background: white;
   transition: background 0.5s, color 0.5s;
-  &.dark {
+  &:not(.vibrancy) {
+    background: var(--background);
+  }
+  @media (prefers-color-scheme: dark) {
     --foreground: white;
     --background: black;
     color: white;
-  }
-  &:not(.vibrancy) {
-    background: var(--background);
   }
 }
 .full {
