@@ -1,5 +1,5 @@
 <template>
-  <div :class="['app', darkMode ? 'dark' : 'light']">
+  <div class="app">
     <div :class="['full', 'container', { distant: !isPlaying }]">
       <div
         v-for="(index, order) in indexes"
@@ -45,7 +45,6 @@
 
 <script lang="ts">
 import { computed, nextTick, shallowRef, ref, unref } from 'vue'
-import { useDarkMode } from '../hooks/frame'
 import { getHashCode, LCG } from '../utils/helper'
 import type { LyricRow } from '../utils/lrc'
 import { parseLRC } from '../utils/lrc'
@@ -55,8 +54,6 @@ import type { MusicInfo, MusicService } from '../vendors/types'
 export default {
   name: 'app-lite',
   setup() {
-    const darkModeRef = useDarkMode()
-
     const isPlayingRef = ref(false)
     const currentIndexRef = ref(-1)
     const serviceRef = shallowRef<MusicService<any>>(NeteaseService)
@@ -201,7 +198,6 @@ export default {
     }
 
     return {
-      darkMode: darkModeRef,
       isPlaying: isPlayingRef,
       indexes: indexesRef,
       classes,
@@ -237,7 +233,7 @@ export default {
   --foreground: black;
   --background: white;
   transition: background 0.5s, color 0.5s;
-  &.dark {
+  @media (prefers-color-scheme: dark) {
     --foreground: white;
     --background: black;
     color: white;
