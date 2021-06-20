@@ -166,7 +166,7 @@ export default {
     }
 
     function toggleVibrancy() {
-      vibrancyRef.value = vibrancyRef.value ? null : 'selection'
+      vibrancyRef.value = vibrancyRef.value ? undefined : 'selection'
     }
 
     function play() {
