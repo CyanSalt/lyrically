@@ -1,4 +1,4 @@
-import type { BrowserWindowConstructorOptions, NativeTheme } from 'electron'
+import type { BrowserWindowConstructorOptions } from 'electron'
 import { BrowserWindow, ipcMain, nativeTheme } from 'electron'
 import { broadcast } from './frame'
 
@@ -38,14 +38,14 @@ function handleMessages() {
     frame['__vibrancy'] = value ?? null
     frame.webContents.send('update-ref:vibrancy', frame['__vibrancy'])
   })
-  ipcMain.handle('get-ref:theme-source', () => {
-    return nativeTheme.themeSource
+  ipcMain.handle('get-ref:dark-mode', () => {
+    return nativeTheme.shouldUseDarkColors
   })
-  ipcMain.handle('set-ref:theme-source', (event, value: NativeTheme['themeSource']) => {
-    nativeTheme.themeSource = value
+  ipcMain.handle('set-ref:dark-mode', (event, value: boolean) => {
+    nativeTheme.themeSource = value ? 'dark' : 'light'
   })
   nativeTheme.on('updated', () => {
-    broadcast('update-ref:theme-source', nativeTheme.themeSource)
+    broadcast('update-ref:dark-mode', nativeTheme.shouldUseDarkColors)
   })
 }
 

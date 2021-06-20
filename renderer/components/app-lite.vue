@@ -1,5 +1,5 @@
 <template>
-  <div :class="['app', darkMode ? 'dark' : 'light', { vibrancy }]">
+  <div :class="['app', darkMode ? 'dark' : 'light']">
     <div :class="['full', 'container', { distant: !isPlaying }]">
       <div
         v-for="(index, order) in indexes"
@@ -14,15 +14,6 @@
       </div>
       <div class="control-item" @click="close">
         <span class="feather-icon icon-x"></span>
-      </div>
-      <div class="control-item" @click="toggleFullscreen">
-        <span :class="['feather-icon', fullscreen ? 'icon-minimize' : 'icon-maximize']"></span>
-      </div>
-      <div class="control-item" @click="toggleDarkMode">
-        <span :class="['feather-icon', darkMode ? 'icon-sun' : 'icon-moon']"></span>
-      </div>
-      <div class="control-item" @click="toggleVibrancy">
-        <span :class="['feather-icon', vibrancy ? 'icon-cloud' : 'icon-cloud-off']"></span>
       </div>
       <div class="control-item" @click="play">
         <span :class="['feather-icon', isPlaying ? 'icon-pause' : 'icon-play']"></span>
@@ -53,9 +44,8 @@
 </template>
 
 <script lang="ts">
-import { ipcRenderer } from 'electron'
 import { computed, nextTick, shallowRef, ref, unref } from 'vue'
-import { useDarkMode, useFullscreen, useVibrancy } from '../hooks/frame'
+import { useDarkMode } from '../hooks/frame'
 import { getHashCode, LCG } from '../utils/helper'
 import type { LyricRow } from '../utils/lrc'
 import { parseLRC } from '../utils/lrc'
@@ -63,12 +53,9 @@ import NeteaseService from '../vendors/netease'
 import type { MusicInfo, MusicService } from '../vendors/types'
 
 export default {
-  name: 'app',
+  name: 'app-lite',
   setup() {
     const darkModeRef = useDarkMode()
-
-    const fullscreenRef = useFullscreen()
-    const vibrancyRef = useVibrancy()
 
     const isPlayingRef = ref(false)
     const currentIndexRef = ref(-1)
@@ -150,19 +137,7 @@ export default {
     ]
 
     function close() {
-      ipcRenderer.invoke('close')
-    }
-
-    function toggleFullscreen() {
-      fullscreenRef.value = !fullscreenRef.value
-    }
-
-    function toggleDarkMode() {
-      darkModeRef.value = !darkModeRef.value
-    }
-
-    function toggleVibrancy() {
-      vibrancyRef.value = vibrancyRef.value ? undefined : 'selection'
+      window.close()
     }
 
     function play() {
@@ -227,8 +202,6 @@ export default {
 
     return {
       darkMode: darkModeRef,
-      fullscreen: fullscreenRef,
-      vibrancy: vibrancyRef,
       isPlaying: isPlayingRef,
       indexes: indexesRef,
       classes,
@@ -239,9 +212,6 @@ export default {
       audio: audioRef,
       vendors,
       close,
-      toggleFullscreen,
-      toggleDarkMode,
-      toggleVibrancy,
       play,
       search,
       activate,
@@ -271,9 +241,6 @@ export default {
     --foreground: white;
     --background: black;
     color: white;
-  }
-  &:not(.vibrancy) {
-    background: var(--background);
   }
 }
 .full {
@@ -345,6 +312,7 @@ export default {
   align-items: center;
   height: 1em;
 }
+// eslint-disable-next-line vue-scoped-css/no-unused-selector
 .vendor-icon {
   width: 0.5em;
   height: 0.5em;
