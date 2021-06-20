@@ -36,6 +36,7 @@ function handleMessages() {
     if (!frame) return
     frame.setVibrancy(value ?? null)
     frame['__vibrancy'] = value ?? null
+    frame.webContents.send('update-ref:vibrancy', frame['__vibrancy'])
   })
   ipcMain.handle('get-ref:theme-source', () => {
     return nativeTheme.themeSource
