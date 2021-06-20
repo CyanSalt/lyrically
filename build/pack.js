@@ -4,6 +4,7 @@ const path = require('path')
 const util = require('util')
 const chalk = require('chalk')
 const packager = require('electron-packager')
+const png2icons = require('png2icons')
 const app = require('../package.json')
 
 const execa = util.promisify(childProcess.exec)
@@ -23,6 +24,25 @@ const logger = {
   },
 }
 
+async function generateAppIcon(input, icon, suffix) {
+  // Check icon file
+  const iconPath = `${icon}.${suffix}`
+  try {
+    await fs.promises.access(iconPath)
+    return
+  } catch {
+    // ignore error
+  }
+  try {
+    logger.info(`Generating ${suffix.toUpperCase()} icon for application...`)
+    const builder = suffix === 'icns' ? png2icons.createICNS : png2icons.createICO
+    const output = builder(input, png2icons.BICUBIC2, 0, false, true)
+    await fs.promises.writeFile(iconPath, output)
+  } catch {
+    // ignore error
+  }
+}
+
 const options = {
   dir: '.',
   platform: ['darwin', 'linux', 'win32'],
@@ -31,14 +51,12 @@ const options = {
   out: 'dist/',
   overwrite: true,
   asar: true,
+  icon: 'resources/images/icon',
   ignore: [
-    '^/(?!addons|bin|main|node_modules|renderer|resources|package\\.json)',
+    '^/(?!main|node_modules|renderer|resources|package\\.json)',
     '^/main/(?!dist)$',
     '^/renderer/(?!dist|index\\.html)$',
     '^/resources/.*\\.(ico|icns)$',
-  ],
-  extraResource: [
-    'bin',
   ],
   appVersion: app.version,
   appCopyright: [
@@ -70,6 +88,11 @@ async function compressPackage(dir) {
 async function pack() {
   // Generate icons
   const startedAt = Date.now()
+  const input = await fs.promises.readFile(`${options.icon}.png`)
+  await Promise.all([
+    generateAppIcon(input, options.icon, 'ico'),
+    generateAppIcon(input, options.icon, 'icns'),
+  ])
   // Equivalent to { type: 'development' } for electron-osx-sign
   if (process.platform === 'darwin') {
     options.osxSign = {
