@@ -1,10 +1,11 @@
+import { defineMusicService } from './types'
+
 /**
  * {@link https://cloud.tencent.com/developer/article/1543945}
  */
+export default defineMusicService<{ id: string, name: string }>({
 
-export default {
-
-  icon: '../assets/vendors/netease.png',
+  icon: './assets/vendors/netease.png',
 
   async search(keyword) {
     const result = await fetch(
@@ -29,4 +30,4 @@ export default {
     }
   },
 
-}
+})
