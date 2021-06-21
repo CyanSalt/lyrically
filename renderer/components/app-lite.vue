@@ -15,6 +15,9 @@
       <div class="control-item" @click="close">
         <span class="feather-icon icon-x"></span>
       </div>
+      <div class="control-item" @click="toggleFullscreen">
+        <span :class="['feather-icon', fullscreen ? 'icon-minimize' : 'icon-maximize']"></span>
+      </div>
       <div class="control-item" @click="play">
         <span :class="['feather-icon', isPlaying ? 'icon-pause' : 'icon-play']"></span>
       </div>
@@ -46,6 +49,7 @@
 <script lang="ts">
 import { computed, nextTick, shallowRef, ref, unref } from 'vue'
 import { getHashCode, LCG } from '../utils/helper'
+import { injectIPC } from '../utils/hooks'
 import type { LyricRow } from '../utils/lrc'
 import { parseLRC } from '../utils/lrc'
 import NeteaseService from '../vendors/netease'
@@ -54,6 +58,8 @@ import type { MusicInfo, MusicService } from '../vendors/types'
 export default {
   name: 'app-lite',
   setup() {
+    const fullscreenRef = injectIPC('fullscreen', false)
+
     const isPlayingRef = ref(false)
     const currentIndexRef = ref(-1)
     const serviceRef = shallowRef<MusicService<any>>(NeteaseService)
@@ -137,6 +143,10 @@ export default {
       window.close()
     }
 
+    function toggleFullscreen() {
+      fullscreenRef.value = !fullscreenRef.value
+    }
+
     function play() {
       const music = unref(musicRef)
       if (!music) return
@@ -198,6 +208,7 @@ export default {
     }
 
     return {
+      fullscreen: fullscreenRef,
       isPlaying: isPlayingRef,
       indexes: indexesRef,
       classes,
@@ -208,6 +219,7 @@ export default {
       audio: audioRef,
       vendors,
       close,
+      toggleFullscreen,
       play,
       search,
       activate,
