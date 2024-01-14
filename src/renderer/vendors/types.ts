@@ -12,7 +12,7 @@ export interface MusicService<T> {
   name: string,
   icon: string,
   search: (keyword: string) => Promise<T[]>,
-  getData: (song: T) => Promise<MusicData>,
+  load: (song: T) => Promise<MusicData>,
 }
 
 export function defineMusicService<T>(service: MusicService<T>) {

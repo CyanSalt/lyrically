@@ -16,7 +16,7 @@ let vibrancy = $(useVibrancy())
 let isPlaying = $ref(false)
 let currentIndex = $ref(-1)
 let service = $shallowRef<MusicService<any>>(NeteaseService)
-let currentInfo = $ref<MusicInfo>()
+let musicInfo = $ref<MusicInfo>()
 let lrc = $ref<LyricRow[]>([])
 let audioURL = $ref('')
 let keyword = $ref('')
@@ -45,30 +45,30 @@ function generateStyle(lyric: string, type: 'edge' | 'inside' | 'outside') {
   }
   const rand = LCG(getHashCode(lyric + type))
   if (type === 'outside') {
-    const x = (n => (n > 0 ? 50 : -50) + n * 50)(rand() * 2 - 1)
+    const x = (n => (n > 0 ? 50 : -50) + n * 50)(rand() * 2 - 1) // -100 ~ -50, 50 ~ 100
     const y = (n => (n > 0 ? 50 : -50) + n * 50)(rand() * 2 - 1)
-    const r1 = rand() * 2 - 1
+    const r1 = rand() * 2 - 1 // -1 ~ 1
     const r2 = rand() * 2 - 1
     const r3 = rand() * 2 - 1
-    const a = (rand() * 2 - 1) * 180
-    const s = rand() * 0.5
+    const a = (rand() * 2 - 1) * 180 // -180 ~ 180
+    const s = rand() * 0.5 // 0 ~ 0.5
     style.transform = `translate(${x}vw, ${y}vh) rotate3d(${r1}, ${r2}, ${r3}, ${a}deg) scale(${s})`
   } else if (type === 'edge') {
-    const x = (n => (n > 0 ? 25 : -25) + n * 25)(rand() * 2 - 1)
+    const x = (n => (n > 0 ? 25 : -25) + n * 25)(rand() * 2 - 1) // -50 ~ -25, 25 ~ 50
     const y = (n => (n > 0 ? 25 : -25) + n * 25)(rand() * 2 - 1)
-    const r1 = rand() * 2 - 1
+    const r1 = rand() * 2 - 1 // -1 ~ 1
     const r2 = rand() * 2 - 1
     const r3 = rand() * 2 - 1
-    const a = (rand() * 2 - 1) * 90
-    const s = rand() * 0.5 + 0.25
+    const a = (rand() * 2 - 1) * 90 // -90 ~ 90
+    const s = rand() * 0.5 + 0.25 // 0.25 ~ 0.75
     style.transform = `translate(${x}vw, ${y}vh) rotate3d(${r1}, ${r2}, ${r3}, ${a}deg) scale(${s})`
   } else {
-    const x = (rand() * 2 - 1) * 25
+    const x = (rand() * 2 - 1) * 25 // -25 ~ 25
     const y = (rand() * 2 - 1) * 25
-    const r1 = rand() * 2 - 1
+    const r1 = rand() * 2 - 1 // -1 ~ 1
     const r2 = rand() * 2 - 1
     const r3 = rand() * 2 - 1
-    const a = (rand() * 2 - 1) * 45
+    const a = (rand() * 2 - 1) * 45 // -45 ~ 45
     const x1 = `calc(${x}vw ${x > 0 ? '-' : '+'} ${Math.abs(x)}%)`
     const y1 = `calc(${y}vh ${y > 0 ? '-' : '+'} ${Math.abs(y)}%)`
     style.transform = `translate(${x1}, ${y1}) rotate3d(${r1}, ${r2}, ${r3}, ${a}deg)`
@@ -118,8 +118,8 @@ async function load(query: string) {
   const songs = await service.search(query)
   const song = songs[0]
   if (!song) return
-  const { info, lyric, music } = await service.getData(song)
-  currentInfo = info
+  const { info, lyric, music } = await service.load(song)
+  musicInfo = info
   lrc = parseLRC(lyric)
   audioURL = music
   currentIndex = -1
@@ -146,13 +146,13 @@ function handlePause() {
 
 function handlePlay() {
   isPlaying = true
-  if (currentInfo) {
-    keyword = currentInfo.name
+  if (musicInfo) {
+    keyword = musicInfo.name
   }
 }
 
-function handleTimeUpdate(event) {
-  const time = event.target.currentTime
+function handleTimeUpdate(event: Event) {
+  const time = (event.target as HTMLAudioElement).currentTime
   const animationTime = 1
   currentIndex = lrc
     .map(row => time >= (row.time - animationTime))
@@ -165,8 +165,8 @@ function handleEnded() {
 </script>
 
 <template>
-  <div :class="['app', { vibrancy }]">
-    <div :class="['full', 'container', { distant: !isPlaying }]">
+  <div :class="['app', { 'is-vibrant': vibrancy }]">
+    <div :class="['container', { 'is-distant': !isPlaying }]">
       <div
         v-for="(index, order) in indexes"
         :key="index"
@@ -174,7 +174,7 @@ function handleEnded() {
         :class="[classes[order], 'lyric']"
       >{{ lyrics[index] }}</div>
     </div>
-    <div :class="['control-bar', { resident: !isPlaying }]">
+    <div :class="['control-bar', { 'is-resident': !isPlaying }]">
       <div class="control-item move">
         <LucideMove />
       </div>
@@ -240,13 +240,9 @@ function handleEnded() {
     --background: black;
     color: white;
   }
-  &:not(.vibrancy) {
+  &:not(.is-vibrant) {
     background: var(--background);
   }
-}
-.full {
-  width: 100vw;
-  height: 100vh;
 }
 @keyframes shake {
   0% {
@@ -263,10 +259,12 @@ function handleEnded() {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100vw;
+  height: 100vh;
   perspective: 100vmin;
   transition: opacity 1s, filter 1s;
   animation: shake 3s ease-in-out infinite;
-  &.distant {
+  &.is-distant {
     opacity: 0.5;
     filter: blur(0.1em);
   }
@@ -335,21 +333,24 @@ function handleEnded() {
   top: 0.5em;
   left: 0.5em;
   display: flex;
+  flex-wrap: wrap;
+  max-width: calc(100vw - 1em);
   color: var(--foreground);
+  font-size: 48px;
   border-radius: 1em;
   opacity: 0;
   transition: color 0.5s, opacity 0.4s;
   &:hover,
-  &.resident {
+  &.is-resident {
     opacity: 1;
   }
 }
 .control-item {
-  width: 2em;
-  height: 2em;
-  font-size: 0.375em;
-  line-height: 2em;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1em;
+  height: 1em;
   opacity: 0.5;
   transition: opacity 0.2s;
   cursor: pointer;

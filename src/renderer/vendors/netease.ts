@@ -9,11 +9,11 @@ export default defineMusicService<{ id: string, name: string }>({
   icon: NeteaseIcon,
   async search(keyword) {
     const result = await fetch(
-      `http://music.163.com/api/search/get/web?s=${encodeURIComponent(keyword)}&type=1&offset=0&total=true&limit=1`,
+      `https://music.163.com/api/search/get/web?s=${encodeURIComponent(keyword)}&type=1&offset=0&total=true&limit=1`,
     ).then(response => response.json())
     return result.result.songs
   },
-  async getData(song) {
+  async load(song) {
     const info = {
       name: song.name,
     }
