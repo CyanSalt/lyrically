@@ -1,12 +1,11 @@
 {
-  "extends": "@cyansalt/tsconfig/tsconfig.common",
+  "extends": "@cyansalt/tsconfig/tsconfig.app",
   "compilerOptions": {
-    "target": "ESNext",
-    "sourceMap": true,
+    "checkJs": true,
+    "sourceMap": true
   },
   "exclude": [
     "**/dist",
-    "**/examples",
     "**/node_modules"
   ]
 }
