@@ -1,4 +1,4 @@
-import NeteaseIcon from './netease.png'
+import NeteaseIcon from './netease.svg'
 import { defineMusicService } from './types'
 
 /**

@@ -1,5 +1,6 @@
 export interface MusicInfo {
   name: string,
+  picture?: string,
 }
 
 export interface MusicData {

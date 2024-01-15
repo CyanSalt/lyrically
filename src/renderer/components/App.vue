@@ -4,10 +4,9 @@ import type { CSSProperties } from 'vue'
 import { nextTick } from 'vue'
 import { useDarkMode, useFullscreen, useVibrancy } from '../compositions/frame'
 import { getHashCode, LCG } from '../utils/helper'
-import type { LyricRow } from '../utils/lrc'
 import { parseLRC } from '../utils/lrc'
 import NeteaseService from '../vendors/netease'
-import type { MusicInfo, MusicService } from '../vendors/types'
+import type { MusicData, MusicService } from '../vendors/types'
 
 let darkMode = $(useDarkMode())
 let fullscreen = $(useFullscreen())
@@ -16,10 +15,8 @@ let vibrancy = $(useVibrancy())
 let isPlaying = $ref(false)
 let currentIndex = $ref(-1)
 let service = $shallowRef<MusicService<any>>(NeteaseService)
-let musicInfo = $ref<MusicInfo>()
-let lrc = $ref<LyricRow[]>([])
-let audioURL = $ref('')
 let keyword = $ref('')
+let data = $ref<MusicData>()
 
 const audio = $ref<HTMLAudioElement>()
 
@@ -27,8 +24,23 @@ const indexes = $computed(() => {
   return [currentIndex + 1, currentIndex, currentIndex - 1]
 })
 
+const info = $computed(() => {
+  if (!data) return undefined
+  return data.info
+})
+
+const music = $computed(() => {
+  if (!data) return undefined
+  return data.music
+})
+
 const lyrics = $computed(() => {
-  return lrc.map(row => row.text)
+  if (!data) return []
+  return parseLRC(data.lyric)
+})
+
+const lyricTexts = $computed(() => {
+  return lyrics.map(item => item.text)
 })
 
 const classes = ['next', 'current', 'prev']
@@ -78,9 +90,9 @@ function generateStyle(lyric: string, type: 'edge' | 'inside' | 'outside') {
 
 const styles = $computed(() => {
   return [
-    generateStyle(lyrics[indexes[0]], 'edge'),
-    generateStyle(lyrics[indexes[1]], 'inside'),
-    generateStyle(lyrics[indexes[2]], 'outside'),
+    generateStyle(lyricTexts[indexes[0]], 'edge'),
+    generateStyle(lyricTexts[indexes[1]], 'inside'),
+    generateStyle(lyricTexts[indexes[2]], 'outside'),
   ]
 })
 
@@ -105,7 +117,7 @@ function toggleVibrancy() {
 }
 
 function play() {
-  if (!audioURL) return
+  if (!music) return
   if (!audio) return
   if (audio.paused) {
     audio.play()
@@ -118,10 +130,7 @@ async function load(query: string) {
   const songs = await service.search(query)
   const song = songs[0]
   if (!song) return
-  const { info, lyric, music } = await service.load(song)
-  musicInfo = info
-  lrc = parseLRC(lyric)
-  audioURL = music
+  data = await service.load(song)
   currentIndex = -1
   await nextTick()
   if (audio) {
@@ -146,15 +155,15 @@ function handlePause() {
 
 function handlePlay() {
   isPlaying = true
-  if (musicInfo) {
-    keyword = musicInfo.name
+  if (info) {
+    keyword = info.name
   }
 }
 
 function handleTimeUpdate(event: Event) {
   const time = (event.target as HTMLAudioElement).currentTime
   const animationTime = 1
-  currentIndex = lrc
+  currentIndex = lyrics
     .map(row => time >= (row.time - animationTime))
     .lastIndexOf(true)
 }
@@ -172,7 +181,7 @@ function handleEnded() {
         :key="index"
         :style="styles[order]"
         :class="[classes[order], 'lyric']"
-      >{{ lyrics[index] }}</div>
+      >{{ lyricTexts[index] }}</div>
     </div>
     <div :class="['control-bar', { 'is-resident': !isPlaying }]">
       <div class="control-item move">
@@ -201,18 +210,19 @@ function handleEnded() {
     <div v-if="!isPlaying" class="searcher">
       <input v-model="keyword" class="searcher-input" @change="search">
       <div class="vendor-list">
-        <img
+        <div
           v-for="vendor in vendors"
           :key="vendor.name"
-          :class="['vendor-icon', { active: service === vendor }]"
-          :src="vendor.icon"
+          :class="['vendor-item', { 'is-active': service === vendor }]"
           @click="activate(vendor)"
         >
+          <img :src="vendor.icon" class="vendor-icon">
+        </div>
       </div>
     </div>
     <audio
       ref="audio"
-      :src="audioURL"
+      :src="music"
       class="audio"
       @pause="handlePause"
       @play="handlePlay"
@@ -241,7 +251,7 @@ function handleEnded() {
     color: white;
   }
   &:not(.is-vibrant) {
-    background: var(--background);
+    background-color: var(--background);
   }
 }
 @keyframes shake {
@@ -310,20 +320,25 @@ function handleEnded() {
   justify-content: center;
   align-items: center;
   height: 1em;
+  font-size: 48px;
 }
-.vendor-icon {
-  width: 0.5em;
-  height: 0.5em;
+.vendor-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1em;
+  height: 1em;
   opacity: 0.25;
   filter: grayscale(1);
   transition: opacity 0.4s;
   cursor: pointer;
-  &.active {
+  &.is-active {
     opacity: 1;
   }
-  & + & {
-    margin-left: 0.5em;
-  }
+}
+.vendor-icon {
+  width: 0.5em;
+  height: 0.5em;
 }
 .audio {
   display: none;
