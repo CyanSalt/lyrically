@@ -20,6 +20,7 @@ let info = $ref<MusicInfo>()
 let data = $ref<MusicData>()
 
 let isConnected = $ref(false)
+let connectedInfo = $ref<MusicInfo>()
 
 const audio = $ref<HTMLAudioElement>()
 
@@ -153,10 +154,8 @@ async function load(query: string, properties?: MusicInfo) {
     if (properties?.artist && resolved.artist !== properties.artist) return false
     return true
   }) ?? songs[0]
-  info = song
-    ? Object.assign(properties ?? {}, service.resolve(song))
-    : properties
   if (!song) return
+  info = service.resolve(song)
   data = await service.load(song)
 }
 
@@ -207,14 +206,15 @@ watchEffect(onInvalidate => {
       if (result) {
         isPlaying = result[0] === 'playing' // or 'paused'
         currentTime = result[1]
-        if (!info || info.key !== result[2] || info.name !== result[3]) {
+        if (!connectedInfo || connectedInfo.key !== result[2] || connectedInfo.name !== result[3]) {
           keyword = result[3]
-          load(keyword, {
+          connectedInfo = {
             key: result[2],
             name: result[3],
             artist: result[4],
             album: result[5],
-          })
+          }
+          load(keyword, connectedInfo)
         }
       } else {
         isPlaying = false
