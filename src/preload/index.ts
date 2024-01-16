@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 import type { WorldBridge } from './types'
 
 const worldBridge: WorldBridge = {
+  platform: process.platform,
   getRef(key, token) {
     return ipcRenderer.invoke(`get-ref:${key}`, token)
   },
@@ -16,6 +17,9 @@ const worldBridge: WorldBridge = {
   },
   close() {
     ipcRenderer.send('close')
+  },
+  applescript(script) {
+    return ipcRenderer.invoke('applescript', script)
   },
 }
 

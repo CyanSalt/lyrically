@@ -1,6 +1,10 @@
+import * as util from 'node:util'
+import applescript from 'applescript'
 import type { BrowserWindowConstructorOptions } from 'electron'
 import { BrowserWindow, ipcMain, nativeTheme } from 'electron'
 import { broadcast } from './frame'
+
+const executeApplescript = util.promisify(applescript.execString)
 
 function handleMessages() {
   ipcMain.handle('close', event => {
@@ -38,6 +42,9 @@ function handleMessages() {
   })
   nativeTheme.on('updated', () => {
     broadcast('update-ref:dark-mode', nativeTheme.shouldUseDarkColors)
+  })
+  ipcMain.handle('applescript', (event, script: string) => {
+    return executeApplescript(script)
   })
 }
 

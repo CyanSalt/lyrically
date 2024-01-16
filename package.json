@@ -51,6 +51,7 @@
     "vue": "^3.4.13"
   },
   "dependencies": {
-    "@vue/reactivity": "^3.4.13"
+    "@vue/reactivity": "^3.4.13",
+    "applescript": "^1.0.0"
   }
 }

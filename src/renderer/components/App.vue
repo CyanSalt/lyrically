@@ -1,35 +1,30 @@
 <script lang="ts" setup>
-import { LucideCloud, LucideCloudOff, LucideMaximize, LucideMinimize, LucideMoon, LucideMove, LucidePause, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
+import { LucideCloud, LucideCloudOff, LucideMaximize, LucideMinimize, LucideMonitor, LucideMonitorOff, LucideMonitorPause, LucideMonitorPlay, LucideMoon, LucideMove, LucidePause, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
 import type { CSSProperties } from 'vue'
-import { nextTick } from 'vue'
+import { nextTick, watchEffect } from 'vue'
 import { useDarkMode, useFullscreen, useVibrancy } from '../compositions/frame'
 import { getHashCode, LCG } from '../utils/helper'
 import { parseLRC } from '../utils/lrc'
 import NeteaseService from '../vendors/netease'
-import type { MusicData, MusicService } from '../vendors/types'
+import type { MusicData, MusicInfo, MusicService } from '../vendors/types'
 
 let darkMode = $(useDarkMode())
 let fullscreen = $(useFullscreen())
 let vibrancy = $(useVibrancy())
 
 let isPlaying = $ref(false)
-let currentIndex = $ref(-1)
+let currentTime = $ref(0)
 let service = $shallowRef<MusicService<any>>(NeteaseService)
 let keyword = $ref('')
+let info = $ref<MusicInfo>()
 let data = $ref<MusicData>()
+
+let isConnected = $ref(false)
 
 const audio = $ref<HTMLAudioElement>()
 
-const indexes = $computed(() => {
-  return [currentIndex + 1, currentIndex, currentIndex - 1]
-})
-
-const info = $computed(() => {
-  if (!data) return undefined
-  return data.info
-})
-
 const music = $computed(() => {
+  if (isConnected) return undefined
   if (!data) return undefined
   return data.music
 })
@@ -41,6 +36,17 @@ const lyrics = $computed(() => {
 
 const lyricTexts = $computed(() => {
   return lyrics.map(item => item.text)
+})
+
+const currentIndex = $computed(() => {
+  const animationTime = 1
+  return lyrics
+    .map(row => currentTime >= (row.time - animationTime))
+    .lastIndexOf(true)
+})
+
+const indexes = $computed(() => {
+  return [currentIndex + 1, currentIndex, currentIndex - 1]
 })
 
 const classes = ['next', 'current', 'prev']
@@ -117,6 +123,13 @@ function toggleVibrancy() {
 }
 
 function play() {
+  if (isConnected) {
+    if (isPlaying) {
+      worldBridge.applescript('if application "Music" is running then tell application "Music" to pause')
+    } else {
+      worldBridge.applescript('if application "Music" is running then tell application "Music" to play')
+    }
+  }
   if (!music) return
   if (!audio) return
   if (audio.paused) {
@@ -126,17 +139,36 @@ function play() {
   }
 }
 
-async function load(query: string) {
+const isMacOS = worldBridge.platform === 'darwin'
+
+function connect() {
+  isConnected = !isConnected
+}
+
+async function load(query: string, properties?: MusicInfo) {
   const songs = await service.search(query)
-  const song = songs[0]
+  const song = songs.find(item => {
+    const resolved = service.resolve(item)
+    if (properties?.album && resolved.album !== properties.album) return false
+    if (properties?.artist && resolved.artist !== properties.artist) return false
+    return true
+  }) ?? songs[0]
+  info = song
+    ? Object.assign(properties ?? {}, service.resolve(song))
+    : properties
   if (!song) return
   data = await service.load(song)
-  currentIndex = -1
-  await nextTick()
-  if (audio) {
-    audio.play()
-  }
 }
+
+watchEffect(async () => {
+  if (music) {
+    currentTime = 0
+    await nextTick()
+    if (audio) {
+      audio.play()
+    }
+  }
+})
 
 function search(event: InputEvent) {
   const query = (event.target as HTMLInputElement).value
@@ -161,16 +193,41 @@ function handlePlay() {
 }
 
 function handleTimeUpdate(event: Event) {
-  const time = (event.target as HTMLAudioElement).currentTime
-  const animationTime = 1
-  currentIndex = lyrics
-    .map(row => time >= (row.time - animationTime))
-    .lastIndexOf(true)
+  currentTime = (event.target as HTMLAudioElement).currentTime
 }
 
 function handleEnded() {
   isPlaying = false
 }
+
+watchEffect(onInvalidate => {
+  if (isConnected) {
+    const timer = setInterval(async () => {
+      const result = await worldBridge.applescript('if application "Music" is running then tell application "Music" to get player state & (get player position) & (get {id, name, artist, album} of current track)')
+      if (result) {
+        isPlaying = result[0] === 'playing' // or 'paused'
+        currentTime = result[1]
+        if (!info || info.key !== result[2] || info.name !== result[3]) {
+          keyword = result[3]
+          load(keyword, {
+            key: result[2],
+            name: result[3],
+            artist: result[4],
+            album: result[5],
+          })
+        }
+      } else {
+        isPlaying = false
+        currentTime = 0
+        keyword = ''
+        data = undefined
+      }
+    }, 1000)
+    onInvalidate(() => {
+      clearInterval(timer)
+    })
+  }
+})
 </script>
 
 <template>
@@ -203,20 +260,32 @@ function handleEnded() {
         <LucideCloudOff v-else />
       </div>
       <div class="control-item" @click="play">
-        <LucidePause v-if="isPlaying" />
-        <LucidePlay v-else />
+        <template v-if="isConnected">
+          <LucideMonitorPause v-if="isPlaying" />
+          <LucideMonitorPlay v-else />
+        </template>
+        <template v-else>
+          <LucidePause v-if="isPlaying" />
+          <LucidePlay v-else />
+        </template>
       </div>
     </div>
     <div v-if="!isPlaying" class="searcher">
-      <input v-model="keyword" class="searcher-input" @change="search">
-      <div class="vendor-list">
-        <div
-          v-for="vendor in vendors"
-          :key="vendor.name"
-          :class="['vendor-item', { 'is-active': service === vendor }]"
-          @click="activate(vendor)"
-        >
-          <img :src="vendor.icon" class="vendor-icon">
+      <input v-model="keyword" :readonly="isConnected" class="searcher-input" @change="search">
+      <div class="searcher-bar">
+        <div v-if="isMacOS" class="control-item" @click="connect">
+          <LucideMonitorOff v-if="isConnected" />
+          <LucideMonitor v-else />
+        </div>
+        <div class="vendor-list">
+          <div
+            v-for="vendor in vendors"
+            :key="vendor.name"
+            :class="['vendor-item', { 'is-active': service === vendor }]"
+            @click="activate(vendor)"
+          >
+            <img :src="vendor.icon" class="vendor-icon">
+          </div>
         </div>
       </div>
     </div>
@@ -313,14 +382,26 @@ function handleEnded() {
   font: inherit;
   text-align: center;
   background: transparent;
+  border-image-source: linear-gradient(to right, currentColor, currentColor);
+  border-image-slice: 1;
   outline: none;
+  transition: border-image-source 0.5s;
+  &:read-only {
+    border-image-source: linear-gradient(to right, transparent, currentColor, transparent);
+  }
+}
+.searcher-bar {
+  display: flex;
+  gap: 1em;
+  justify-content: center;
+  align-items: center;
+  height: 1em;
+  font-size: 48px;
 }
 .vendor-list {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 1em;
-  font-size: 48px;
 }
 .vendor-item {
   display: flex;
