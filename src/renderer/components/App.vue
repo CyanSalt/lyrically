@@ -5,6 +5,7 @@ import { nextTick, watchEffect } from 'vue'
 import { useDarkMode, useFullscreen, useVibrancy } from '../compositions/frame'
 import { getHashCode, LCG } from '../utils/helper'
 import { parseLRC } from '../utils/lrc'
+import KugouService from '../vendors/kugou'
 import NeteaseService from '../vendors/netease'
 import type { MusicData, MusicInfo, MusicService } from '../vendors/types'
 
@@ -105,6 +106,7 @@ const styles = $computed(() => {
 
 const vendors = [
   NeteaseService,
+  KugouService,
 ]
 
 function close() {
