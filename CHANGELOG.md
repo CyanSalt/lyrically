@@ -1,5 +1,24 @@
 
 
+## 0.1.0 (2024-01-17)
+
+
+### Features
+
+* add app-lite for commas ([1850d5d](https://github.com/CyanSalt/lyrically/commit/1850d5df8d2218ab4350725ed4834c9e76e06f57))
+* add icon ([60e330c](https://github.com/CyanSalt/lyrically/commit/60e330c67ab70b6ff57deb004554d2253518cf0e))
+* add kugou vendor ([f2389cf](https://github.com/CyanSalt/lyrically/commit/f2389cfbe4f4dedb85d8aaf1744a4f3fb79f83cf))
+* connecting mode ([52581bc](https://github.com/CyanSalt/lyrically/commit/52581bc2b018418951867225f00712848800379e))
+* refine ([c69f22f](https://github.com/CyanSalt/lyrically/commit/c69f22f631b14977e3c14bc1289d8d617b814274))
+* replace icon ([6b6511f](https://github.com/CyanSalt/lyrically/commit/6b6511f5dcc4462a72d58f3ba182ab58adac984c))
+
+
+### Bug Fixes
+
+* add fullscreen to lite ([91bb9f3](https://github.com/CyanSalt/lyrically/commit/91bb9f346f6cf95178414d0a51352e9633bdba70))
+* connected info ([608f9e3](https://github.com/CyanSalt/lyrically/commit/608f9e31b7ff2600929d21e51409757bbd96543f))
+* typing ([9a26c08](https://github.com/CyanSalt/lyrically/commit/9a26c080b319aeb58ce9256ace4447c49c5eb231))
+
 ## [1.0.2](https://github.com/CyanSalt/re-pwsbh/compare/v1.0.1...v1.0.2) (2023-11-06)
 
 
