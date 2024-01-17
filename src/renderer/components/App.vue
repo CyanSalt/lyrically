@@ -6,6 +6,7 @@ import { useAlwaysOnTop, useDarkMode, useFullscreen, useVibrancy } from '../comp
 import { checkConnectable, getConnectedData, pauseConnected, playConnected } from '../utils/connection'
 import { getHashCode, LCG } from '../utils/helper'
 import { parseLRC } from '../utils/lrc'
+import { escapeHTML, splitSegments } from '../utils/string'
 import KugouService from '../vendors/kugou'
 import NeteaseService from '../vendors/netease'
 import type { MusicData, MusicInfo, MusicService } from '../vendors/types'
@@ -35,6 +36,29 @@ const lyrics = $computed(() => {
 
 const lyricTexts = $computed(() => {
   return lyrics.map(item => item.text)
+})
+
+const SEGMENT_PATTERN = /^\p{sc=Han}{3,}$/u
+
+function highlightSegments(text: string) {
+  const segments = splitSegments(text)
+  return segments.reduce(({ html, flag }, segment) => {
+    if (!flag && SEGMENT_PATTERN.test(segment)) {
+      return {
+        html: html + `<strong>${escapeHTML(segment)}</strong>`,
+        flag: true,
+      }
+    } else {
+      return {
+        html: html + escapeHTML(segment),
+        flag: false,
+      }
+    }
+  }, { html: '', flag: false }).html
+}
+
+const lyricHTML = $computed(() => {
+  return lyricTexts.map(text => highlightSegments(text))
 })
 
 const currentIndex = $computed(() => {
@@ -253,7 +277,8 @@ watchEffect(onInvalidate => {
         :key="index"
         :style="styles[order]"
         :class="[classes[order], 'lyric']"
-      >{{ lyricTexts[index] }}</div>
+        v-html="lyricHTML[index] ?? ''"
+      ></div>
     </div>
     <div :class="['control-bar', { 'is-resident': !isPlaying }]">
       <div class="control-item move">
@@ -370,6 +395,10 @@ watchEffect(onInvalidate => {
 .lyric {
   position: absolute;
   transition: background 0.5s, color 0.5s, transform 1s ease-in-out, opacity 1s ease-in-out, filter 1s ease-in-out;
+  :deep(strong) {
+    font-weight: 900;
+    font-size: 1.25em;
+  }
 }
 .prev, .next {
   opacity: 0.25;
