@@ -1,6 +1,6 @@
 {
   "name": "lyrically",
-  "version": "0.1.0",
+  "version": "0.1.0-0",
   "productName": "Lyrically",
   "description": "Music player inspired by Lyric Speaker",
   "main": "dist/main/index.js",
@@ -21,9 +21,9 @@
   "author": "CyanSalt",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/CyanSalt/re-pwsbh/issues"
+    "url": "https://github.com/CyanSalt/lyrically/issues"
   },
-  "homepage": "https://github.com/CyanSalt/re-pwsbh#readme",
+  "homepage": "https://github.com/CyanSalt/lyrically#readme",
   "engines": {
     "node": ">=14.0.0"
   },
