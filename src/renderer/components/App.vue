@@ -3,6 +3,7 @@ import { LucideCloud, LucideCloudOff, LucideMaximize, LucideMinimize, LucideMoni
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
 import { useDarkMode, useFullscreen, useVibrancy } from '../compositions/frame'
+import { checkConnectable, getConnectedData, pauseConnected, playConnected } from '../utils/connection'
 import { getHashCode, LCG } from '../utils/helper'
 import { parseLRC } from '../utils/lrc'
 import KugouService from '../vendors/kugou'
@@ -128,9 +129,9 @@ function toggleVibrancy() {
 function play() {
   if (isConnected) {
     if (isPlaying) {
-      worldBridge.applescript('if application "Music" is running then tell application "Music" to pause')
+      pauseConnected()
     } else {
-      worldBridge.applescript('if application "Music" is running then tell application "Music" to play')
+      playConnected()
     }
     return
   }
@@ -143,7 +144,7 @@ function play() {
   }
 }
 
-const isMacOS = worldBridge.platform === 'darwin'
+const isConnectable = checkConnectable()
 
 function connect() {
   isConnected = !isConnected
@@ -210,9 +211,9 @@ function handleEnded() {
 watchEffect(onInvalidate => {
   if (isConnected) {
     const timer = setInterval(async () => {
-      const result = await worldBridge.applescript('if application "Music" is running then tell application "Music" to get player state & (get player position) & (get {id, name, artist, album} of current track)')
+      const result = await getConnectedData()
       if (result) {
-        isPlaying = result[0] === 'playing' // or 'paused'
+        isPlaying = result[0] === 'playing'
         currentTime = result[1]
         if (!connectedInfo || connectedInfo.key !== result[2] || connectedInfo.name !== result[3]) {
           keyword = result[3]
@@ -282,7 +283,7 @@ watchEffect(onInvalidate => {
     <div v-if="!isPlaying" class="searcher">
       <input v-model="keyword" :readonly="isConnected" class="searcher-input" @change="search">
       <div class="searcher-bar">
-        <div v-if="isMacOS" class="control-item" @click="connect">
+        <div v-if="isConnectable" class="control-item" @click="connect">
           <LucideMonitorOff v-if="isConnected" />
           <LucideMonitor v-else />
         </div>
