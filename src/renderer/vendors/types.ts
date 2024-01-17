@@ -5,18 +5,19 @@ export interface MusicInfo {
   album?: string,
 }
 
-export interface MusicData {
-  music: string,
+export interface MusicData<T = never> {
   lyric: string,
   picture?: string,
+  detail?: T,
 }
 
-export interface MusicService<T> {
+export interface MusicService<T, U = never> {
   name: string,
   icon: string,
   search: (keyword: string, info?: MusicInfo) => Promise<T[]>,
-  resolve: (song: T) => MusicInfo,
+  transform: (song: T) => MusicInfo,
   load: (song: T) => Promise<MusicData>,
+  prepare?: (song: T, detail: U) => string | Promise<string>,
 }
 
 export function defineMusicService<T>(service: MusicService<T>) {

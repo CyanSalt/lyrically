@@ -15,21 +15,16 @@ let vibrancy = $(useVibrancy())
 
 let isPlaying = $ref(false)
 let currentTime = $ref(0)
-let service = $shallowRef<MusicService<any>>(NeteaseService)
+let service = $shallowRef<MusicService<any, any>>(NeteaseService)
 let keyword = $ref('')
 let info = $ref<MusicInfo>()
 let data = $ref<MusicData>()
+let music = $ref<string>()
 
 let isConnected = $ref(false)
 let connectedInfo = $ref<MusicInfo>()
 
 const audio = $ref<HTMLAudioElement>()
-
-const music = $computed(() => {
-  if (isConnected) return undefined
-  if (!data) return undefined
-  return data.music
-})
 
 const lyrics = $computed(() => {
   if (!data) return []
@@ -104,10 +99,15 @@ const styles = $computed(() => {
   ]
 })
 
-const vendors = [
+const allVendors = [
   NeteaseService,
   KugouService,
 ]
+
+const vendors = $computed(() => {
+  if (isConnected) return allVendors
+  return allVendors.filter(vendor => vendor.prepare)
+})
 
 function close() {
   worldBridge.close()
@@ -132,6 +132,7 @@ function play() {
     } else {
       worldBridge.applescript('if application "Music" is running then tell application "Music" to play')
     }
+    return
   }
   if (!music) return
   if (!audio) return
@@ -151,14 +152,19 @@ function connect() {
 async function load(query: string, properties?: MusicInfo) {
   const songs = await service.search(query)
   const song = songs.find(item => {
-    const resolved = service.resolve(item)
-    if (properties?.album && resolved.album !== properties.album) return false
-    if (properties?.artist && resolved.artist !== properties.artist) return false
+    const transformed = service.transform(item)
+    if (properties?.album && transformed.album !== properties.album) return false
+    if (properties?.artist && transformed.artist !== properties.artist) return false
     return true
   }) ?? songs[0]
   if (!song) return
-  info = service.resolve(song)
+  info = service.transform(song)
   data = await service.load(song)
+  if (!properties && service.prepare) {
+    music = await service.prepare(song, data.detail)
+  } else {
+    music = undefined
+  }
 }
 
 watchEffect(async () => {
@@ -223,6 +229,7 @@ watchEffect(onInvalidate => {
         currentTime = 0
         keyword = ''
         data = undefined
+        music = undefined
       }
     }, 1000)
     onInvalidate(() => {

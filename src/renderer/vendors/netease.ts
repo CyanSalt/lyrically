@@ -18,7 +18,7 @@ export default defineMusicService<{
     ).then(response => response.json())
     return result.result ? result.result.songs : []
   },
-  resolve(song) {
+  transform(song) {
     return {
       key: song.id,
       name: song.name,
@@ -27,14 +27,15 @@ export default defineMusicService<{
     }
   },
   async load(song) {
-    const music = `http://music.163.com/song/media/outer/url?id=${song.id}.mp3`
     const lyrics = await fetch(
       `https://music.163.com/api/song/lyric?id=${song.id}&lv=1&kv=1&tv=-1`,
     ).then(response => response.json())
     const lyric = lyrics.lrc.lyric
     return {
-      music,
       lyric,
     }
+  },
+  prepare(song) {
+    return `http://music.163.com/song/media/outer/url?id=${song.id}.mp3`
   },
 })

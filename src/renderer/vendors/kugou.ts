@@ -24,7 +24,7 @@ export default defineMusicService<{
     ).then(response => response.json())
     return result.data ? result.data.info : []
   },
-  resolve(song) {
+  transform(song) {
     return {
       key: song.hash,
       name: song.songname,
@@ -33,25 +33,22 @@ export default defineMusicService<{
     }
   },
   async load(song) {
-    const loadLyric = async () => {
-      const result = await fetch(
-        `https://lyrics.kugou.com/search?ver=1&man=yes&client=pc&hash=${song.hash}`,
-      ).then(response => response.json())
-      const info = result.candidates[0]
-      const lyric = await fetch(
-        `https://lyrics.kugou.com/download?ver=1&client=pc&id=${info.id}&accesskey=${info.accesskey}&fmt=lrc&charset=utf8`,
-      ).then(response => response.json())
-      return decodeANSI(atob(lyric.content))
+    const result = await fetch(
+      `https://lyrics.kugou.com/search?ver=1&man=yes&client=pc&hash=${song.hash}`,
+    ).then(response => response.json())
+    const info = result.candidates[0]
+    const data = await fetch(
+      `https://lyrics.kugou.com/download?ver=1&client=pc&id=${info.id}&accesskey=${info.accesskey}&fmt=lrc&charset=utf8`,
+    ).then(response => response.json())
+    const lyric = decodeANSI(atob(data.content))
+    return {
+      lyric,
     }
-    const loadingLyric = loadLyric()
+  },
+  async prepare(song) {
     const result = await fetch(
       `https://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash=${song.hash}`,
     ).then(response => response.json())
-    const music = result.url
-    const lyric = await loadingLyric
-    return {
-      music,
-      lyric,
-    }
+    return result.url
   },
 })
