@@ -16,7 +16,7 @@ const worldBridge: WorldBridge = {
     }
   },
   close() {
-    ipcRenderer.send('close')
+    ipcRenderer.invoke('close')
   },
   applescript(script) {
     return ipcRenderer.invoke('applescript', script)
