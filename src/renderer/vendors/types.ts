@@ -16,10 +16,10 @@ export interface MusicService<T, U = never> {
   icon: string,
   search: (keyword: string, info?: MusicInfo) => Promise<T[]>,
   transform: (song: T) => MusicInfo,
-  load: (song: T) => Promise<MusicData>,
+  load: (song: T) => Promise<MusicData<U>>,
   prepare?: (song: T, detail: U) => string | Promise<string>,
 }
 
-export function defineMusicService<T>(service: MusicService<T>) {
+export function defineMusicService<T, U = never>(service: MusicService<T, U>) {
   return service
 }

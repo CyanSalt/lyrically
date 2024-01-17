@@ -15,6 +15,8 @@ export default defineMusicService<{
   songname: string,
   singername: string,
   group?: { album_name: string }[],
+}, {
+  url: string,
 }>({
   name: 'netease',
   icon: KugouIcon,
@@ -33,6 +35,12 @@ export default defineMusicService<{
     }
   },
   async load(song) {
+    const loadDetail = async () => {
+      return fetch(
+        `https://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash=${song.hash}`,
+      ).then(response => response.json())
+    }
+    const loadingDetail = loadDetail()
     const result = await fetch(
       `https://lyrics.kugou.com/search?ver=1&man=yes&client=pc&hash=${song.hash}`,
     ).then(response => response.json())
@@ -41,14 +49,15 @@ export default defineMusicService<{
       `https://lyrics.kugou.com/download?ver=1&client=pc&id=${info.id}&accesskey=${info.accesskey}&fmt=lrc&charset=utf8`,
     ).then(response => response.json())
     const lyric = decodeANSI(atob(data.content))
+    const detail = await loadingDetail
+    const picture = detail.album_img.replace(/\{size\}/g, '400')
     return {
       lyric,
+      picture,
+      detail,
     }
   },
-  async prepare(song) {
-    const result = await fetch(
-      `https://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash=${song.hash}`,
-    ).then(response => response.json())
-    return result.url
+  prepare(song, detail) {
+    return detail.url
   },
 })

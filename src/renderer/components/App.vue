@@ -21,7 +21,7 @@ let currentTime = $ref(0)
 let service = $shallowRef<MusicService<any, any>>(NeteaseService)
 let keyword = $ref('')
 let info = $ref<MusicInfo>()
-let data = $ref<MusicData>()
+let data = $ref<MusicData<any>>()
 let music = $ref<string>()
 
 let isConnected = $ref(false)
@@ -34,8 +34,11 @@ const lyrics = $computed(() => {
   return parseLRC(data.lyric)
 })
 
-const lyricTexts = $computed(() => {
-  return lyrics.map(item => item.text)
+const durations = $computed(() => {
+  return lyrics.map((lyric, index) => {
+    if (index === lyrics.length - 1) return 0
+    return lyrics[index + 1].time - lyric.time
+  })
 })
 
 function highlightSegments(text: string) {
@@ -52,8 +55,17 @@ function highlightSegments(text: string) {
   }).join('')
 }
 
+const pictureURL = $computed(() => {
+  if (!data || !data.picture) return undefined
+  return `url(${data.picture})`
+})
+
 const lyricHTML = $computed(() => {
-  return lyricTexts.map(text => highlightSegments(text))
+  return lyrics.map((lyric, index) => {
+    return pictureURL && !lyric.text.trim() && durations[index] > 5
+      ? `<div class="picture"></div>`
+      : highlightSegments(lyric.text)
+  })
 })
 
 const currentIndex = $computed(() => {
@@ -69,17 +81,15 @@ const indexes = $computed(() => {
 
 const classes = ['next', 'current', 'prev']
 
-function generateStyle(lyric: string, type: 'edge' | 'inside' | 'outside') {
+function generateStyle(lyric: string | undefined, key: string, type: 'edge' | 'inside' | 'outside') {
   const style: CSSProperties = {}
-  if (!lyric) {
-    return style
-  }
-  const rv = LCG(getHashCode(lyric))()
-  if (rv < 0.2) {
+  if (typeof lyric !== 'string') return style
+  const rv = LCG(getHashCode(lyric + key))()
+  if (lyric && rv < 0.2) {
     style.background = 'var(--foreground)'
     style.color = 'var(--background)'
   }
-  const rand = LCG(getHashCode(lyric + type))
+  const rand = LCG(getHashCode(lyric + key + type))
   if (type === 'outside') {
     const x = (n => (n > 0 ? 50 : -50) + n * 50)(rand() * 2 - 1) // -100 ~ -50, 50 ~ 100
     const y = (n => (n > 0 ? 50 : -50) + n * 50)(rand() * 2 - 1)
@@ -114,9 +124,9 @@ function generateStyle(lyric: string, type: 'edge' | 'inside' | 'outside') {
 
 const styles = $computed(() => {
   return [
-    generateStyle(lyricTexts[indexes[0]], 'edge'),
-    generateStyle(lyricTexts[indexes[1]], 'inside'),
-    generateStyle(lyricTexts[indexes[2]], 'outside'),
+    generateStyle(lyrics[indexes[0]]?.text, String(indexes[0]), 'edge'),
+    generateStyle(lyrics[indexes[1]]?.text, String(indexes[1]), 'inside'),
+    generateStyle(lyrics[indexes[2]]?.text, String(indexes[2]), 'outside'),
   ]
 })
 
@@ -209,7 +219,7 @@ function search(event: InputEvent) {
   }
 }
 
-function activate(vendor: MusicService<any>) {
+function activate(vendor: MusicService<any, any>) {
   service = vendor
 }
 
@@ -265,7 +275,7 @@ watchEffect(onInvalidate => {
 </script>
 
 <template>
-  <div :class="['app', { 'is-vibrant': vibrancy }]">
+  <div :class="['app', { 'is-vibrant': vibrancy }]" :style="{ '--picture': pictureURL }">
     <div :class="['container', { 'is-distant': !isPlaying }]">
       <div
         v-for="(index, order) in indexes"
@@ -393,6 +403,14 @@ watchEffect(onInvalidate => {
   :deep(strong) {
     font-weight: 900;
     font-size: 1.25em;
+  }
+  :deep(.picture) {
+    width: 3.75em;
+    height: 3.75em;
+    background-image: var(--picture);
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
   }
 }
 .prev, .next {
