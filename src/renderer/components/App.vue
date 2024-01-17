@@ -38,23 +38,18 @@ const lyricTexts = $computed(() => {
   return lyrics.map(item => item.text)
 })
 
-const SEGMENT_PATTERN = /^\p{sc=Han}{3,}$/u
-
 function highlightSegments(text: string) {
   const segments = splitSegments(text)
-  return segments.reduce(({ html, flag }, segment) => {
-    if (!flag && SEGMENT_PATTERN.test(segment)) {
-      return {
-        html: html + `<strong>${escapeHTML(segment)}</strong>`,
-        flag: true,
-      }
-    } else {
-      return {
-        html: html + escapeHTML(segment),
-        flag: false,
-      }
-    }
-  }, { html: '', flag: false }).html
+  if (!segments.length) return text
+  const rv = LCG(getHashCode(text))()
+  const maxLength = Math.max(...segments.map(segment => segment.trim().length))
+  const maxLengthIndexes = Array.from(segments.entries())
+    .filter(([index, value]) => value.trim().length === maxLength)
+    .map(([index, value]) => index)
+  const luckyIndex = maxLengthIndexes[Math.floor(rv * maxLengthIndexes.length)]
+  return segments.map((segment, index) => {
+    return index === luckyIndex ? `<strong>${escapeHTML(segment)}</strong>` : escapeHTML(segment)
+  }).join('')
 }
 
 const lyricHTML = $computed(() => {
