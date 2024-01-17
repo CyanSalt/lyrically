@@ -11,6 +11,7 @@ export function createWindow() {
     frame: false,
     transparent: true,
     vibrancy: 'hud' as const,
+    visualEffectState: 'active',
     webPreferences: {
       preload: path.resolve(__dirname, '../preload/index.js'),
     },
