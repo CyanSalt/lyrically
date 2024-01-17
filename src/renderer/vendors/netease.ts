@@ -27,12 +27,21 @@ export default defineMusicService<{
     }
   },
   async load(song) {
+    // const loadPicture = async () => {
+    //   const detail = await fetch(
+    //     `https://music.163.com/api/song/detail?id=${song.id}&ids=[${song.id}]`,
+    //   ).then(response => response.json())
+    //   return detail.songs[0].album.picUrl
+    // }
+    // const loadingPicture = loadPicture()
     const lyrics = await fetch(
       `https://music.163.com/api/song/lyric?id=${song.id}&lv=1&kv=1&tv=-1`,
     ).then(response => response.json())
     const lyric = lyrics.lrc.lyric
+    // const picture = await loadingPicture
     return {
       lyric,
+      // picture,
     }
   },
   prepare(song) {
