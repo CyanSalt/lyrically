@@ -34,6 +34,16 @@ function handleMessages() {
     frame['__vibrancy'] = value ?? null
     frame.webContents.send('update-ref:vibrancy', frame['__vibrancy'])
   })
+  ipcMain.handle('get-ref:always-on-top', (event) => {
+    const frame = BrowserWindow.fromWebContents(event.sender)
+    if (!frame) return null
+    return frame.isAlwaysOnTop()
+  })
+  ipcMain.handle('set-ref:always-on-top', (event, value: boolean) => {
+    const frame = BrowserWindow.fromWebContents(event.sender)
+    if (!frame) return null
+    frame.setAlwaysOnTop(value)
+  })
   ipcMain.handle('get-ref:dark-mode', () => {
     return nativeTheme.shouldUseDarkColors
   })
@@ -66,6 +76,9 @@ function handleEvents(frame: BrowserWindow) {
   })
   frame.on('leave-full-screen', () => {
     frame.webContents.send('update-ref:fullscreen', false)
+  })
+  frame.on('always-on-top-changed', (event, isAlwaysOnTop) => {
+    frame.webContents.send('update-ref:always-on-top', isAlwaysOnTop)
   })
   frame['__vibrancy'] = 'hud'
 }

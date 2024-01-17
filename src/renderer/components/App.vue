@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { LucideCloud, LucideCloudOff, LucideMaximize, LucideMinimize, LucideMonitor, LucideMonitorOff, LucideMonitorPause, LucideMonitorPlay, LucideMoon, LucideMove, LucidePause, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
+import { LucideCloud, LucideCloudOff, LucideMaximize, LucideMinimize, LucideMonitor, LucideMonitorOff, LucideMonitorPause, LucideMonitorPlay, LucideMoon, LucideMove, LucidePause, LucidePin, LucidePinOff, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
-import { useDarkMode, useFullscreen, useVibrancy } from '../compositions/frame'
+import { useAlwaysOnTop, useDarkMode, useFullscreen, useVibrancy } from '../compositions/frame'
 import { checkConnectable, getConnectedData, pauseConnected, playConnected } from '../utils/connection'
 import { getHashCode, LCG } from '../utils/helper'
 import { parseLRC } from '../utils/lrc'
@@ -11,8 +11,9 @@ import NeteaseService from '../vendors/netease'
 import type { MusicData, MusicInfo, MusicService } from '../vendors/types'
 
 let darkMode = $(useDarkMode())
-let fullscreen = $(useFullscreen())
+let isFullscreen = $(useFullscreen())
 let vibrancy = $(useVibrancy())
+let isAlwaysOnTop = $(useAlwaysOnTop())
 
 let isPlaying = $ref(false)
 let currentTime = $ref(0)
@@ -115,7 +116,7 @@ function close() {
 }
 
 function toggleFullscreen() {
-  fullscreen = !fullscreen
+  isFullscreen = !isFullscreen
 }
 
 function toggleDarkMode() {
@@ -124,6 +125,10 @@ function toggleDarkMode() {
 
 function toggleVibrancy() {
   vibrancy = vibrancy ? undefined : 'hud'
+}
+
+function toggleAlwaysOnTop() {
+  isAlwaysOnTop = !isAlwaysOnTop
 }
 
 function play() {
@@ -258,8 +263,12 @@ watchEffect(onInvalidate => {
         <LucideX />
       </div>
       <div class="control-item" @click="toggleFullscreen">
-        <LucideMinimize v-if="fullscreen" />
+        <LucideMinimize v-if="isFullscreen" />
         <LucideMaximize v-else />
+      </div>
+      <div class="control-item" @click="toggleAlwaysOnTop">
+        <LucidePinOff v-if="isAlwaysOnTop" />
+        <LucidePin v-else />
       </div>
       <div class="control-item" @click="toggleDarkMode">
         <LucideSun v-if="darkMode" />
