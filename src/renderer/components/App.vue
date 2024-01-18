@@ -5,6 +5,7 @@ import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
 import { useAlwaysOnTop, useDarkMode, useFullscreen, useVibrancy } from '../compositions/frame'
 import { checkConnectable, getConnectedData, pauseConnected, playConnected } from '../utils/connection'
+import { checkVibrancySupport } from '../utils/frame'
 import { getHashCode, LCG } from '../utils/helper'
 import { parseLRC } from '../utils/lrc'
 import { escapeHTML, splitSegments } from '../utils/string'
@@ -188,6 +189,8 @@ function toggleDarkMode() {
   darkMode = !darkMode
 }
 
+const supportsVibrancy = checkVibrancySupport()
+
 function toggleVibrancy() {
   vibrancy = vibrancy ? undefined : 'hud'
 }
@@ -364,11 +367,11 @@ watchEffect(onInvalidate => {
         <LucidePinOff v-if="isAlwaysOnTop" />
         <LucidePin v-else />
       </div>
-      <div class="control-item" @click="toggleDarkMode">
+      <div class="control-item style" @click="toggleDarkMode">
         <LucideSun v-if="darkMode" />
         <LucideMoon v-else />
       </div>
-      <div class="control-item" @click="toggleVibrancy">
+      <div v-if="supportsVibrancy" class="control-item style" @click="toggleVibrancy">
         <LucideCloud v-if="vibrancy" />
         <LucideCloudOff v-else />
       </div>
@@ -552,6 +555,7 @@ watchEffect(onInvalidate => {
 .control-bar {
   position: fixed;
   top: 0.5em;
+  right: 0.5em;
   left: 0.5em;
   display: flex;
   flex-wrap: wrap;
@@ -580,6 +584,13 @@ watchEffect(onInvalidate => {
   }
   &.move {
     -webkit-app-region: drag;
+  }
+  &.style {
+    order: 1;
+    margin-left: auto;
+    & ~ & {
+      margin-left: unset;
+    }
   }
 }
 </style>
