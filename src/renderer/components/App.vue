@@ -233,7 +233,7 @@ function connect() {
   isConnected = !isConnected
 }
 
-async function load(query: string, properties?: MusicInfo) {
+async function load(query: string, properties?: MusicInfo, force?: boolean) {
   const songs = await service.search(query)
   const song = songs.find(item => {
     const transformed = service.transform(item)
@@ -244,7 +244,7 @@ async function load(query: string, properties?: MusicInfo) {
   if (!song) return
   info = service.transform(song)
   data = await service.load(song)
-  if (!properties && service.prepare) {
+  if ((force || !properties) && service.prepare) {
     music = await service.prepare(song, data.detail)
   } else {
     music = undefined
@@ -269,7 +269,11 @@ function search(event: InputEvent) {
 }
 
 function activate(vendor: MusicService<any, any>) {
+  const oldService = service
   service = vendor
+  if (service !== oldService) {
+    load(keyword, connectedInfo)
+  }
 }
 
 function handlePause() {
@@ -291,6 +295,13 @@ function handleEnded() {
   isPlaying = false
 }
 
+function reset() {
+  isPlaying = false
+  currentTime = 0
+  data = undefined
+  music = undefined
+}
+
 watchEffect(onInvalidate => {
   if (isConnected) {
     const timer = setInterval(async () => {
@@ -309,16 +320,20 @@ watchEffect(onInvalidate => {
           load(keyword, connectedInfo)
         }
       } else {
-        isPlaying = false
-        currentTime = 0
+        reset()
         keyword = ''
-        data = undefined
-        music = undefined
+        connectedInfo = undefined
       }
     }, 1000 * CONNECTING_INTERVAL_TIME)
     onInvalidate(() => {
       clearInterval(timer)
     })
+  } else {
+    reset()
+    if (keyword && connectedInfo) {
+      load(keyword, connectedInfo, true)
+    }
+    connectedInfo = undefined
   }
 })
 </script>
@@ -402,7 +417,6 @@ watchEffect(onInvalidate => {
 <style lang="scss" scoped>
 :global(body) {
   margin: 0;
-  font-size: 10vmin;
 }
 .app {
   --foreground: black;
@@ -410,6 +424,7 @@ watchEffect(onInvalidate => {
   position: relative;
   width: 100vw;
   height: 100vh;
+  font-size: 10vmin;
   overflow: hidden;
   transition: background 0.5s, color 0.5s;
   @media (prefers-color-scheme: dark) {
