@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { findLastIndex } from 'lodash-es'
 import { LucideCloud, LucideCloudOff, LucideMaximize, LucideMinimize, LucideMonitor, LucideMonitorOff, LucideMonitorPause, LucideMonitorPlay, LucideMoon, LucideMove, LucidePause, LucidePin, LucidePinOff, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
@@ -69,18 +70,54 @@ const lyricHTML = $computed(() => {
   })
 })
 
+const ANIMATION_TIME = 1
+const CONNECTING_INTERVAL_TIME = 1
+
 const currentIndex = $computed(() => {
-  const animationTime = 1
-  return lyrics
-    .map(row => currentTime >= (row.time - animationTime))
-    .lastIndexOf(true)
+  return findLastIndex(lyrics, row => currentTime >= (row.time - ANIMATION_TIME))
+})
+
+// for performance
+const lastIndex = $computed(() => {
+  return findLastIndex(lyrics, row => currentTime + CONNECTING_INTERVAL_TIME >= (row.time - ANIMATION_TIME))
+})
+
+const firstIndex = $computed(() => {
+  return findLastIndex(lyrics, row => currentTime - CONNECTING_INTERVAL_TIME >= (row.time - ANIMATION_TIME))
 })
 
 const indexes = $computed(() => {
-  return [currentIndex + 1, currentIndex, currentIndex - 1]
+  let fromIndex = firstIndex
+  let toIndex = lastIndex
+  if (fromIndex === -1 && currentIndex > 0) {
+    fromIndex = currentIndex - 1
+  }
+  if (toIndex === -1) {
+    if (fromIndex === -1) return []
+    toIndex = lyrics.length - 1
+  }
+  // `fromIndex` could be equal with `currentIndex`
+  if (toIndex === currentIndex && currentIndex >= 0 && currentIndex < lyrics.length - 1) {
+    toIndex = currentIndex + 1
+  }
+  return Array.from({ length: toIndex - fromIndex + 1 }, (_, index) => firstIndex + index)
 })
 
-const classes = ['next', 'current', 'prev']
+const classes = $computed(() => {
+  return indexes.map(index => {
+    if (index < currentIndex) return 'prev'
+    if (index > currentIndex) return 'next'
+    return 'current'
+  })
+})
+
+const types = $computed(() => {
+  return indexes.map(index => {
+    if (index < currentIndex) return 'outside'
+    if (index > currentIndex) return 'edge'
+    return 'inside'
+  })
+})
 
 function generateStyle(lyric: string | undefined, key: string, type: 'edge' | 'inside' | 'outside') {
   const style: CSSProperties = {}
@@ -124,11 +161,9 @@ function generateStyle(lyric: string | undefined, key: string, type: 'edge' | 'i
 }
 
 const styles = $computed(() => {
-  return [
-    generateStyle(lyrics[indexes[0]]?.text, String(indexes[0]), 'edge'),
-    generateStyle(lyrics[indexes[1]]?.text, String(indexes[1]), 'inside'),
-    generateStyle(lyrics[indexes[2]]?.text, String(indexes[2]), 'outside'),
-  ]
+  return indexes.map((index, order) => {
+    return generateStyle(lyrics[index]?.text, String(index), types[order])
+  })
 })
 
 const allVendors = [
@@ -280,7 +315,7 @@ watchEffect(onInvalidate => {
         data = undefined
         music = undefined
       }
-    }, 1000)
+    }, 1000 * CONNECTING_INTERVAL_TIME)
     onInvalidate(() => {
       clearInterval(timer)
     })
