@@ -43,15 +43,16 @@ const durations = $computed(() => {
 
 function highlightSegments(text: string) {
   const segments = splitSegments(text)
-  if (!segments.length) return text
+  const lengths = segments.map(item => (item.isWordLike ? item.segment.length : 0))
+  const maxLength = Math.max(...lengths)
+  if (maxLength <= 0) return text
+  const maxLengthIndexes = Array.from(lengths.entries())
+    .filter(([index, value]) => value === maxLength)
+    .map(([index, item]) => index)
   const rv = LCG(getHashCode(text))()
-  const maxLength = Math.max(...segments.map(segment => segment.trim().length))
-  const maxLengthIndexes = Array.from(segments.entries())
-    .filter(([index, value]) => value.trim().length === maxLength)
-    .map(([index, value]) => index)
   const luckyIndex = maxLengthIndexes[Math.floor(rv * maxLengthIndexes.length)]
-  return segments.map((segment, index) => {
-    return index === luckyIndex ? `<strong>${escapeHTML(segment)}</strong>` : escapeHTML(segment)
+  return segments.map((item, index) => {
+    return index === luckyIndex ? `<strong>${escapeHTML(item.segment)}</strong>` : escapeHTML(item.segment)
   }).join('')
 }
 

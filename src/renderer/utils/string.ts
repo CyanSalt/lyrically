@@ -1,7 +1,7 @@
-const segmenter = new Intl.Segmenter('cn', { granularity: 'word' })
+const segmenter = new Intl.Segmenter([], { granularity: 'word' })
 
 export function splitSegments(text: string) {
-  return Array.from(segmenter.segment(text), item => item.segment)
+  return Array.from(segmenter.segment(text))
 }
 
 const escaper = document.createElement('div')
