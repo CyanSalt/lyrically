@@ -179,6 +179,19 @@ function play() {
   }
 }
 
+watchEffect(onInvalidate => {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.target === document.body && event.key === ' ') {
+      event.preventDefault()
+      play()
+    }
+  }
+  window.addEventListener('keydown', handleKeyDown)
+  onInvalidate(() => {
+    window.removeEventListener('keydown', handleKeyDown)
+  })
+})
+
 const isConnectable = checkConnectable()
 
 function connect() {
