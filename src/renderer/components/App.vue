@@ -12,6 +12,7 @@ import { escapeHTML, splitSegments } from '../utils/string'
 import KugouService from '../vendors/kugou'
 import NeteaseService from '../vendors/netease'
 import type { MusicData, MusicInfo, MusicService } from '../vendors/types'
+import Slider from './Slider.vue'
 
 let darkMode = $(useDarkMode())
 let isFullscreen = $(useFullscreen())
@@ -20,6 +21,7 @@ let isAlwaysOnTop = $(useAlwaysOnTop())
 
 let isPlaying = $ref(false)
 let currentTime = $ref(0)
+let offsetTime = $ref(0)
 let service = $shallowRef<MusicService<any, any>>(NeteaseService)
 let keyword = $ref('')
 let info = $ref<MusicInfo>()
@@ -31,6 +33,8 @@ let connectedInfo = $ref<MusicInfo>()
 let connectedSong = $ref<any>()
 
 const audio = $ref<HTMLAudioElement>()
+
+const playingTime = $computed(() => currentTime + offsetTime)
 
 const lyrics = $computed(() => {
   if (!data) return []
@@ -76,16 +80,16 @@ const ANIMATION_TIME = 1
 const CONNECTING_INTERVAL_TIME = 1
 
 const currentIndex = $computed(() => {
-  return findLastIndex(lyrics, row => currentTime >= (row.time - ANIMATION_TIME))
+  return findLastIndex(lyrics, row => playingTime >= (row.time - ANIMATION_TIME))
 })
 
 // for performance
 const lastIndex = $computed(() => {
-  return findLastIndex(lyrics, row => currentTime + CONNECTING_INTERVAL_TIME >= (row.time - ANIMATION_TIME))
+  return findLastIndex(lyrics, row => playingTime + CONNECTING_INTERVAL_TIME >= (row.time - ANIMATION_TIME))
 })
 
 const firstIndex = $computed(() => {
-  return findLastIndex(lyrics, row => currentTime - CONNECTING_INTERVAL_TIME >= (row.time - ANIMATION_TIME))
+  return findLastIndex(lyrics, row => playingTime - CONNECTING_INTERVAL_TIME >= (row.time - ANIMATION_TIME))
 })
 
 const indexes = $computed(() => {
@@ -242,6 +246,7 @@ async function prepare(song: any, detail: any, autoplay = false) {
   if (!music) return
   if (autoplay) {
     currentTime = 0
+    offsetTime = 0
   }
   await nextTick()
   if (audio) {
@@ -416,6 +421,7 @@ watchEffect(onInvalidate => {
         </div>
       </div>
     </div>
+    <Slider v-if="data && !isPlaying" v-model="offsetTime" />
     <audio
       ref="audio"
       :src="music"
@@ -431,6 +437,11 @@ watchEffect(onInvalidate => {
 <style lang="scss" scoped>
 :global(body) {
   margin: 0;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
 }
 .app {
   --foreground: black;
@@ -448,6 +459,15 @@ watchEffect(onInvalidate => {
   }
   &:not(.is-vibrant) {
     background-color: var(--background);
+  }
+  :deep(.slider) {
+    position: fixed;
+    bottom: 1em;
+    left: 50%;
+    font-size: 48px;
+    transform: translateX(-50%);
+    transition: opacity 0.4s;
+    animation: fade-in 0.5s ease-in-out;
   }
 }
 @keyframes shake {
@@ -494,11 +514,6 @@ watchEffect(onInvalidate => {
 .prev, .next {
   opacity: 0.25;
   filter: blur(0.075em);
-}
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
 }
 .next {
   animation: fade-in 1s ease-in-out;
