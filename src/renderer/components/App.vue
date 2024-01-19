@@ -22,7 +22,7 @@ let isAlwaysOnTop = $(useAlwaysOnTop())
 let isPlaying = $ref(false)
 let currentTime = $ref(0)
 let offsetTime = $ref(0)
-let service = $shallowRef<MusicService<any, any>>(NeteaseService)
+let service = $shallowRef<MusicService<any, any>>(KugouService)
 let keyword = $ref('')
 let info = $ref<MusicInfo>()
 let data = $ref<MusicData<any>>()
@@ -65,7 +65,7 @@ function highlightSegments(text: string) {
 
 const pictureURL = $computed(() => {
   if (!data || !data.picture) return undefined
-  return `url(${data.picture})`
+  return `url("${data.picture}")`
 })
 
 const lyricHTML = $computed(() => {
@@ -173,13 +173,17 @@ const styles = $computed(() => {
 })
 
 const allVendors = [
-  NeteaseService,
   KugouService,
+  NeteaseService,
 ]
 
 const vendors = $computed(() => {
   if (isConnected) return allVendors
   return allVendors.filter(vendor => vendor.prepare)
+})
+
+const vendorIconURLs = $computed(() => {
+  return vendors.map(vendor => `url("${vendor.icon}")`)
 })
 
 function close() {
@@ -294,7 +298,7 @@ function search(event: InputEvent) {
 function activate(vendor: MusicService<any, any>) {
   const oldService = service
   service = vendor
-  if (service !== oldService) {
+  if (service !== oldService && keyword) {
     load(keyword, connectedInfo)
   }
 }
@@ -411,12 +415,14 @@ watchEffect(onInvalidate => {
         </div>
         <div class="vendor-list">
           <div
-            v-for="vendor in vendors"
+            v-for="(vendor, index) in vendors"
             :key="vendor.name"
             :class="['vendor-item', { 'is-active': service === vendor }]"
+            :style="{ '--icon': vendorIconURLs[index] }"
+            :data-icon="vendor.icon"
             @click="activate(vendor)"
           >
-            <img :src="vendor.icon" class="vendor-icon">
+            <div class="vendor-icon"></div>
           </div>
         </div>
       </div>
@@ -574,6 +580,9 @@ watchEffect(onInvalidate => {
 .vendor-icon {
   width: 0.5em;
   height: 0.5em;
+  background-color: var(--foreground);
+  mask-image: var(--icon);
+  transition: background-color 0.5s;
 }
 .audio {
   display: none;
