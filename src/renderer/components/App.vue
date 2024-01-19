@@ -28,7 +28,7 @@ let music = $ref<string>()
 
 let isConnected = $ref(false)
 let connectedInfo = $ref<MusicInfo>()
-let connectedArgs = $ref<[any, any]>()
+let connectedSong = $ref<any>()
 
 const audio = $ref<HTMLAudioElement>()
 
@@ -237,8 +237,8 @@ function connect() {
   isConnected = !isConnected
 }
 
-async function prepare(args: [any, any], autoplay = false) {
-  music = await service.prepare?.(args[0], args[1])
+async function prepare(song: any, detail: any, autoplay = false) {
+  music = await service.prepare?.(song, detail)
   if (!music) return
   if (autoplay) {
     currentTime = 0
@@ -253,7 +253,15 @@ async function prepare(args: [any, any], autoplay = false) {
   }
 }
 
+function unload() {
+  info = undefined
+  data = undefined
+  music = undefined
+  connectedSong = undefined
+}
+
 async function load(query: string, properties?: MusicInfo) {
+  unload()
   const songs = await service.search(query)
   const song = songs.find(item => {
     const transformed = service.transform(item)
@@ -264,11 +272,10 @@ async function load(query: string, properties?: MusicInfo) {
   if (!song) return
   info = service.transform(song)
   data = await service.load(song)
-  const args: [any, any] = [song, data.detail]
   if (properties) {
-    connectedArgs = args
+    connectedSong = song
   } else {
-    await prepare(args, true)
+    await prepare(song, data.detail, true)
   }
 }
 
@@ -308,7 +315,6 @@ function handleEnded() {
 
 function reset() {
   isPlaying = false
-  music = undefined
   connectedInfo = undefined
 }
 
@@ -326,6 +332,7 @@ watchEffect(onInvalidate => {
         }
       } else {
         reset()
+        unload()
       }
     }, 1000 * CONNECTING_INTERVAL_TIME)
     onInvalidate(() => {
@@ -333,9 +340,9 @@ watchEffect(onInvalidate => {
     })
   } else {
     reset()
-    if (connectedArgs) {
-      prepare(connectedArgs)
-      connectedArgs = undefined
+    if (connectedSong && data) {
+      prepare(connectedSong, data.detail)
+      connectedSong = undefined
     }
   }
 })
