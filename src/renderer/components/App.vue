@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { findLastIndex } from 'lodash-es'
+import { difference, findLastIndex } from 'lodash-es'
 import { LucideCloud, LucideCloudOff, LucideMaximize, LucideMinimize, LucideMonitor, LucideMonitorOff, LucideMonitorPause, LucideMonitorPlay, LucideMoon, LucideMove, LucidePause, LucidePin, LucidePinOff, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
@@ -258,7 +258,7 @@ async function load(query: string, properties?: MusicInfo) {
   const song = songs.find(item => {
     const transformed = service.transform(item)
     if (properties?.album && transformed.album !== properties.album) return false
-    if (properties?.artist && transformed.artist !== properties.artist) return false
+    if (properties?.artists && difference(properties.artists, transformed.artists ?? []).length) return false
     return true
   }) ?? songs[0]
   if (!song) return
@@ -317,16 +317,11 @@ watchEffect(onInvalidate => {
     const timer = setInterval(async () => {
       const result = await getConnectedData()
       if (result) {
-        isPlaying = result[0] === 'playing'
-        currentTime = result[1]
-        if (!connectedInfo || connectedInfo.key !== result[2] || connectedInfo.name !== result[3]) {
-          keyword = result[3]
-          connectedInfo = {
-            key: result[2],
-            name: result[3],
-            artist: result[4],
-            album: result[5],
-          }
+        isPlaying = result.isPlaying
+        currentTime = result.currentTime
+        if (!connectedInfo || connectedInfo.key !== result.info.key || connectedInfo.name !== result.info.name) {
+          connectedInfo = result.info
+          keyword = result.info.name
           load(keyword, connectedInfo)
         }
       } else {

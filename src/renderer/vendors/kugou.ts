@@ -30,7 +30,7 @@ export default defineMusicService<{
     return {
       key: song.hash,
       name: song.songname,
-      artist: song.singername,
+      artists: song.singername.split('、'),
       album: song.group?.[0]?.album_name,
     }
   },

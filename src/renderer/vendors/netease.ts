@@ -22,7 +22,7 @@ export default defineMusicService<{
     return {
       key: song.id,
       name: song.name,
-      artist: song.artists?.[0]?.name,
+      artists: song.artists?.map(artist => artist.name),
       album: song.album?.name,
     }
   },

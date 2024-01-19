@@ -1,7 +1,7 @@
 export interface MusicInfo {
   key: any,
   name: string,
-  artist?: string,
+  artists?: string[],
   album?: string,
 }
 
