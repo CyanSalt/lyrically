@@ -28,6 +28,7 @@ let music = $ref<string>()
 
 let isConnected = $ref(false)
 let connectedInfo = $ref<MusicInfo>()
+let connectedArgs = $ref<[any, any]>()
 
 const audio = $ref<HTMLAudioElement>()
 
@@ -236,7 +237,23 @@ function connect() {
   isConnected = !isConnected
 }
 
-async function load(query: string, properties?: MusicInfo, force?: boolean) {
+async function prepare(args: [any, any], autoplay = false) {
+  music = await service.prepare?.(args[0], args[1])
+  if (!music) return
+  if (autoplay) {
+    currentTime = 0
+  }
+  await nextTick()
+  if (audio) {
+    if (autoplay) {
+      audio.play()
+    } else {
+      audio.currentTime = currentTime
+    }
+  }
+}
+
+async function load(query: string, properties?: MusicInfo) {
   const songs = await service.search(query)
   const song = songs.find(item => {
     const transformed = service.transform(item)
@@ -247,22 +264,13 @@ async function load(query: string, properties?: MusicInfo, force?: boolean) {
   if (!song) return
   info = service.transform(song)
   data = await service.load(song)
-  if ((force || !properties) && service.prepare) {
-    music = await service.prepare(song, data.detail)
+  const args: [any, any] = [song, data.detail]
+  if (properties) {
+    connectedArgs = args
   } else {
-    music = undefined
+    await prepare(args, true)
   }
 }
-
-watchEffect(async () => {
-  if (music) {
-    currentTime = 0
-    await nextTick()
-    if (audio) {
-      audio.play()
-    }
-  }
-})
 
 function search(event: InputEvent) {
   const query = (event.target as HTMLInputElement).value
@@ -300,9 +308,8 @@ function handleEnded() {
 
 function reset() {
   isPlaying = false
-  currentTime = 0
-  data = undefined
   music = undefined
+  connectedInfo = undefined
 }
 
 watchEffect(onInvalidate => {
@@ -324,8 +331,6 @@ watchEffect(onInvalidate => {
         }
       } else {
         reset()
-        keyword = ''
-        connectedInfo = undefined
       }
     }, 1000 * CONNECTING_INTERVAL_TIME)
     onInvalidate(() => {
@@ -333,10 +338,10 @@ watchEffect(onInvalidate => {
     })
   } else {
     reset()
-    if (keyword && connectedInfo) {
-      load(keyword, connectedInfo, true)
+    if (connectedArgs) {
+      prepare(connectedArgs)
+      connectedArgs = undefined
     }
-    connectedInfo = undefined
   }
 })
 </script>
