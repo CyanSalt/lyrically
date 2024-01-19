@@ -353,37 +353,41 @@ watchEffect(onInvalidate => {
       ></div>
     </div>
     <div :class="['control-bar', { 'is-resident': !isPlaying }]">
-      <div class="control-item move">
-        <LucideMove />
+      <div class="control-area">
+        <div class="control-item move">
+          <LucideMove />
+        </div>
+        <div class="control-item" @click="close">
+          <LucideX />
+        </div>
+        <div class="control-item" @click="toggleFullscreen">
+          <LucideMinimize v-if="isFullscreen" />
+          <LucideMaximize v-else />
+        </div>
+        <div class="control-item" @click="toggleAlwaysOnTop">
+          <LucidePinOff v-if="isAlwaysOnTop" />
+          <LucidePin v-else />
+        </div>
+        <div class="control-item" @click="play">
+          <template v-if="isConnected">
+            <LucideMonitorPause v-if="isPlaying" />
+            <LucideMonitorPlay v-else />
+          </template>
+          <template v-else>
+            <LucidePause v-if="isPlaying" />
+            <LucidePlay v-else />
+          </template>
+        </div>
       </div>
-      <div class="control-item" @click="close">
-        <LucideX />
-      </div>
-      <div class="control-item" @click="toggleFullscreen">
-        <LucideMinimize v-if="isFullscreen" />
-        <LucideMaximize v-else />
-      </div>
-      <div class="control-item" @click="toggleAlwaysOnTop">
-        <LucidePinOff v-if="isAlwaysOnTop" />
-        <LucidePin v-else />
-      </div>
-      <div class="control-item style" @click="toggleDarkMode">
-        <LucideSun v-if="darkMode" />
-        <LucideMoon v-else />
-      </div>
-      <div v-if="supportsVibrancy" class="control-item style" @click="toggleVibrancy">
-        <LucideCloud v-if="vibrancy" />
-        <LucideCloudOff v-else />
-      </div>
-      <div class="control-item" @click="play">
-        <template v-if="isConnected">
-          <LucideMonitorPause v-if="isPlaying" />
-          <LucideMonitorPlay v-else />
-        </template>
-        <template v-else>
-          <LucidePause v-if="isPlaying" />
-          <LucidePlay v-else />
-        </template>
+      <div class="control-area">
+        <div class="control-item style" @click="toggleDarkMode">
+          <LucideSun v-if="darkMode" />
+          <LucideMoon v-else />
+        </div>
+        <div v-if="supportsVibrancy" class="control-item style" @click="toggleVibrancy">
+          <LucideCloud v-if="vibrancy" />
+          <LucideCloudOff v-else />
+        </div>
       </div>
     </div>
     <div v-if="!isPlaying" class="searcher">
@@ -558,17 +562,21 @@ watchEffect(onInvalidate => {
   right: 0.5em;
   left: 0.5em;
   display: flex;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
   max-width: calc(100vw - 1em);
   color: var(--foreground);
   font-size: 48px;
-  border-radius: 1em;
   opacity: 0;
   transition: color 0.5s, opacity 0.4s;
   &:hover,
   &.is-resident {
     opacity: 1;
   }
+}
+.control-area {
+  display: flex;
+  flex-wrap: wrap;
 }
 .control-item {
   display: flex;
@@ -584,13 +592,6 @@ watchEffect(onInvalidate => {
   }
   &.move {
     -webkit-app-region: drag;
-  }
-  &.style {
-    order: 1;
-    margin-left: auto;
-    & ~ & {
-      margin-left: unset;
-    }
   }
 }
 </style>
