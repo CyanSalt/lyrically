@@ -536,8 +536,8 @@ watchEffect(async onInvalidate => {
     font-size: 1.25em;
   }
   :deep(.picture) {
-    width: 3.75em;
-    height: 3.75em;
+    width: 5em;
+    height: 5em;
     background-image: var(--picture);
     background-position: center;
     background-size: contain;
