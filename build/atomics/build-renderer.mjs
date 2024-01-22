@@ -32,12 +32,5 @@ export default (versions) => vite.build({
     target: `chrome${versions.chrome.split('.')[0]}`,
     assetsDir: '.',
     minify: false,
-    rollupOptions: {
-      output: {
-        format: 'cjs',
-        exports: 'named',
-        freeze: false,
-      },
-    },
   },
 })

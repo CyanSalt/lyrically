@@ -9,7 +9,8 @@ import { checkConnectable, getConnectedData, pauseConnected, playConnected } fro
 import { checkVibrancySupport } from '../utils/frame'
 import { getHashCode, LCG } from '../utils/helper'
 import { parseLRC } from '../utils/lrc'
-import { escapeHTML, splitSegments } from '../utils/string'
+import type { Segmenter } from '../utils/string'
+import { defaultSegmenter, escapeHTML, getChineseSegmenter, isChineseText } from '../utils/string'
 import KugouService from '../vendors/kugou'
 import NeteaseService from '../vendors/netease'
 import type { MusicData, MusicInfo, MusicService } from '../vendors/types'
@@ -49,8 +50,9 @@ const durations = $computed(() => {
   })
 })
 
-function highlightSegments(text: string) {
-  const segments = splitSegments(text)
+function highlightSegments(text: string, segmenter: Segmenter | undefined) {
+  if (!segmenter) return text
+  const segments = segmenter(text)
   const lengths = segments.map(item => (item.isWordLike ? item.segment.length : 0))
   const maxLength = Math.max(...lengths)
   if (maxLength <= 0) return text
@@ -69,11 +71,23 @@ const pictureURL = $computed(() => {
   return `url("${data.picture}")`
 })
 
+let segmenter = $ref<Segmenter>()
+
+watchEffect(async () => {
+  const lyricText = lyrics.map(lyric => lyric.text).join('')
+  if (isChineseText(lyricText)) {
+    segmenter = undefined
+    segmenter = await getChineseSegmenter()
+  } else {
+    segmenter = defaultSegmenter
+  }
+})
+
 const lyricHTML = $computed(() => {
   return lyrics.map((lyric, index) => {
     return pictureURL && !lyric.text.trim() && durations[index] > 5
       ? `<div class="picture"></div>`
-      : highlightSegments(lyric.text)
+      : highlightSegments(lyric.text, segmenter)
   })
 })
 
