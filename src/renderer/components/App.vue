@@ -412,7 +412,9 @@ function toggleGradient() {
     }]"
     :style="{ '--picture': pictureURL }"
   >
-    <GradientAnimation v-if="isUsingGradient" :animated="isPlaying" />
+    <Transition name="fade">
+      <GradientAnimation v-if="isUsingGradient" :animated="isPlaying" />
+    </Transition>
     <div :class="['container', { 'is-distant': !isPlaying }]">
       <div
         v-for="(index, order) in indexes"
@@ -464,7 +466,7 @@ function toggleGradient() {
         </div>
       </div>
     </div>
-    <div v-if="!isPlaying" class="searcher">
+    <div :class="['searcher', { 'is-resident': !isPlaying }]">
       <input v-model="keyword" :readonly="isConnected" class="searcher-input" @change="search">
       <div class="searcher-bar">
         <div v-if="isConnectable" class="control-item" @click="connect">
@@ -485,7 +487,9 @@ function toggleGradient() {
         </div>
       </div>
     </div>
-    <Slider v-if="data && !isPlaying" v-model="offsetTime" />
+    <Transition name="fade">
+      <Slider v-if="data && !isPlaying" v-model="offsetTime" />
+    </Transition>
     <audio
       ref="audio"
       :src="music"
@@ -502,10 +506,13 @@ function toggleGradient() {
 :global(body) {
   margin: 0;
 }
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.4s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 .app {
   --foreground: black;
@@ -533,8 +540,6 @@ function toggleGradient() {
     left: 50%;
     font-size: 48px;
     transform: translateX(-50%);
-    transition: opacity 0.4s;
-    animation: fade-in 0.5s ease-in-out;
   }
 }
 @keyframes shake {
@@ -582,6 +587,11 @@ function toggleGradient() {
   opacity: 0.25;
   filter: blur(0.075em);
 }
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
 .next {
   animation: fade-in 1s ease-in-out;
 }
@@ -590,9 +600,12 @@ function toggleGradient() {
   top: 50vh;
   left: 50vw;
   color: var(--foreground);
+  opacity: 0;
   transform: translate(-50%, -50%);
-  transition: color 0.5s;
-  animation: fade-in 0.5s ease-in-out;
+  transition: color 0.5s, opacity 0.4s;
+  &.is-resident {
+    opacity: 1;
+  }
 }
 .searcher-input {
   appearance: none;
