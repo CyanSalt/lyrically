@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useDocumentVisibility, useIdle } from '@vueuse/core'
 import { difference, findLastIndex } from 'lodash-es'
-import { LucideCloud, LucideCloudOff, LucideMaximize, LucideMinimize, LucideMonitor, LucideMonitorOff, LucideMonitorPause, LucideMonitorPlay, LucideMoon, LucideMove, LucidePause, LucidePin, LucidePinOff, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
+import { LucideCloud, LucideCloudOff, LucideDna, LucideDnaOff, LucideMaximize, LucideMinimize, LucideMonitor, LucideMonitorOff, LucideMonitorPause, LucideMonitorPlay, LucideMoon, LucideMove, LucidePause, LucidePin, LucidePinOff, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
 import { useAlwaysOnTop, useDarkMode, useFullscreen, useVibrancy } from '../compositions/frame'
@@ -14,6 +14,7 @@ import { defaultSegmenter, escapeHTML, getChineseSegmenter, isChineseText } from
 import KugouService from '../vendors/kugou'
 import NeteaseService from '../vendors/netease'
 import type { MusicData, MusicInfo, MusicService } from '../vendors/types'
+import GradientAnimation from './GradientAnimation.vue'
 import Slider from './Slider.vue'
 
 let darkMode = $(useDarkMode())
@@ -390,13 +391,28 @@ watchEffect(async onInvalidate => {
     onInvalidate(dispose)
   }
 })
+
+let isGradientEnabled = $ref(false)
+
+const isUsingGradient = $computed(() => {
+  return isGradientEnabled && Boolean(pictureURL)
+})
+
+function toggleGradient() {
+  isGradientEnabled = !isGradientEnabled
+}
 </script>
 
 <template>
   <div
-    :class="['app', { 'is-vibrant': vibrancy, 'is-immersive': isPlaying && idle }]"
+    :class="['app', {
+      'is-dark': darkMode || isUsingGradient,
+      'is-vibrant': vibrancy && !isUsingGradient,
+      'is-immersive': isPlaying && idle,
+    }]"
     :style="{ '--picture': pictureURL }"
   >
+    <GradientAnimation v-if="isUsingGradient" :animated="isPlaying" />
     <div :class="['container', { 'is-distant': !isPlaying }]">
       <div
         v-for="(index, order) in indexes"
@@ -439,8 +455,12 @@ watchEffect(async onInvalidate => {
           <LucideMoon v-else />
         </div>
         <div v-if="supportsVibrancy" class="control-item style" @click="toggleVibrancy">
-          <LucideCloud v-if="vibrancy" />
-          <LucideCloudOff v-else />
+          <LucideCloudOff v-if="vibrancy" />
+          <LucideCloud v-else />
+        </div>
+        <div v-if="pictureURL" class="control-item style" @click="toggleGradient">
+          <LucideDnaOff v-if="isGradientEnabled" />
+          <LucideDna v-else />
         </div>
       </div>
     </div>
@@ -496,7 +516,7 @@ watchEffect(async onInvalidate => {
   font-size: 10vmin;
   overflow: hidden;
   transition: background 0.5s, color 0.5s;
-  @media (prefers-color-scheme: dark) {
+  &.is-dark {
     --foreground: white;
     --background: black;
     color: white;
