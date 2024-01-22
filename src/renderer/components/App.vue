@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useIdle } from '@vueuse/core'
 import { difference, findLastIndex } from 'lodash-es'
 import { LucideCloud, LucideCloudOff, LucideMaximize, LucideMinimize, LucideMonitor, LucideMonitorOff, LucideMonitorPause, LucideMonitorPlay, LucideMoon, LucideMove, LucidePause, LucidePin, LucidePinOff, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
 import type { CSSProperties } from 'vue'
@@ -355,10 +356,15 @@ watchEffect(onInvalidate => {
     }
   }
 })
+
+let { idle } = $(useIdle(5000))
 </script>
 
 <template>
-  <div :class="['app', { 'is-vibrant': vibrancy }]" :style="{ '--picture': pictureURL }">
+  <div
+    :class="['app', { 'is-vibrant': vibrancy, 'is-immersive': isPlaying && idle }]"
+    :style="{ '--picture': pictureURL }"
+  >
     <div :class="['container', { 'is-distant': !isPlaying }]">
       <div
         v-for="(index, order) in indexes"
@@ -465,6 +471,9 @@ watchEffect(onInvalidate => {
   }
   &:not(.is-vibrant) {
     background-color: var(--background);
+  }
+  &.is-immersive {
+    cursor: none;
   }
   :deep(.slider) {
     position: fixed;
