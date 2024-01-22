@@ -21,6 +21,13 @@ const worldBridge: WorldBridge = {
   applescript(script) {
     return ipcRenderer.invoke('applescript', script)
   },
+  preventDisplaySleep() {
+    const request = ipcRenderer.invoke('prevent-display-sleep')
+    return async () => {
+      const id = await request
+      return ipcRenderer.invoke('resume-display-sleep', id)
+    }
+  },
 }
 
 contextBridge.exposeInMainWorld('worldBridge', worldBridge)

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useIdle } from '@vueuse/core'
+import { useDocumentVisibility, useIdle } from '@vueuse/core'
 import { difference, findLastIndex } from 'lodash-es'
 import { LucideCloud, LucideCloudOff, LucideMaximize, LucideMinimize, LucideMonitor, LucideMonitorOff, LucideMonitorPause, LucideMonitorPlay, LucideMoon, LucideMove, LucidePause, LucidePin, LucidePinOff, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
 import type { CSSProperties } from 'vue'
@@ -368,6 +368,14 @@ watchEffect(onInvalidate => {
 })
 
 let { idle } = $(useIdle(5000))
+const visibility = $(useDocumentVisibility())
+
+watchEffect(async onInvalidate => {
+  if (isPlaying && visibility === 'visible') {
+    const dispose = worldBridge.preventDisplaySleep()
+    onInvalidate(dispose)
+  }
+})
 </script>
 
 <template>

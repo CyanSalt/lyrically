@@ -7,4 +7,5 @@ export interface WorldBridge {
   onUpdateRef<T>(key: string, handler: (event: IpcRendererEvent, value: T, token?: string) => void): () => void,
   close(): void,
   applescript<T>(script: string): Promise<T>,
+  preventDisplaySleep(): () => Promise<void>,
 }
