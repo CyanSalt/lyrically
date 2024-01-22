@@ -11,20 +11,25 @@ const deactivate = debounce(() => {
   isActive = false
 }, 500)
 
-function start(startingEvent: MouseEvent) {
+function start(startingEvent: PointerEvent) {
   let initialValue = modelValue
   isActive = true
-  function handleMove(movingEvent: MouseEvent) {
+  const target = startingEvent.target as HTMLElement
+  target.setPointerCapture(startingEvent.pointerId)
+  function handleMove(movingEvent: PointerEvent) {
     modelValue = initialValue + (startingEvent.clientX - movingEvent.clientX) / GRID_SIZE
   }
-  function handleUp(stoppingEvent: MouseEvent) {
+  function handleStop(stoppingEvent: PointerEvent) {
     deactivate()
     modelValue = initialValue + (startingEvent.clientX - stoppingEvent.clientX) / GRID_SIZE
-    window.removeEventListener('mousemove', handleMove)
-    window.removeEventListener('mouseup', handleUp)
+    target.releasePointerCapture(startingEvent.pointerId)
+    window.removeEventListener('pointermove', handleMove)
+    window.removeEventListener('pointerup', handleStop)
+    window.removeEventListener('pointercancel', handleStop)
   }
-  window.addEventListener('mousemove', handleMove, { passive: true })
-  window.addEventListener('mouseup', handleUp)
+  window.addEventListener('pointermove', handleMove, { passive: true })
+  window.addEventListener('pointerup', handleStop)
+  window.addEventListener('pointercancel', handleStop)
 }
 
 function reset() {
@@ -37,7 +42,7 @@ function reset() {
     :class="['slider', { 'is-active': isActive }]"
     :style="{ '--position-offset': `calc(${modelValue * -1} * var(--grid-size))` }"
   >
-    <div class="control" @mousedown="start" @dblclick="reset"></div>
+    <div class="control" @pointerdown="start" @dblclick="reset"></div>
     <div class="track"></div>
   </div>
 </template>
@@ -66,7 +71,7 @@ function reset() {
   width: 1em;
   height: 1em;
   transform: translateX(-50%);
-  cursor: pointer;
+  cursor: col-resize;
   &::before {
     content: '';
     position: absolute;
