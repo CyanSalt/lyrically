@@ -229,9 +229,19 @@ function play() {
 
 watchEffect(onInvalidate => {
   const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.target === document.body && event.key === ' ') {
-      event.preventDefault()
-      play()
+    if (event.target === document.body) {
+      switch (event.key) {
+        case ' ':
+          event.preventDefault()
+          play()
+          break
+        case 'Escape':
+          if (isFullscreen) {
+            event.preventDefault()
+            isFullscreen = false
+          }
+          break
+      }
     }
   }
   window.addEventListener('keydown', handleKeyDown)
