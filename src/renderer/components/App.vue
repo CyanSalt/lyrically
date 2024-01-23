@@ -2,13 +2,13 @@
 import { useDocumentVisibility, useIdle } from '@vueuse/core'
 import { difference, findLastIndex } from 'lodash-es'
 import { LucideCloud, LucideCloudOff, LucideDna, LucideDnaOff, LucideMaximize, LucideMinimize, LucideMonitor, LucideMonitorOff, LucideMonitorPause, LucideMonitorPlay, LucideMoon, LucideMove, LucidePause, LucidePin, LucidePinOff, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
+import seedrandom from 'seedrandom'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
 import { useAlwaysOnTop, useDarkMode, useDisplaySleepPrevented, useFullscreen, useVibrancy } from '../compositions/frame'
 import { useKeyboardShortcuts } from '../compositions/interactive'
 import { checkConnectable, getConnectedData, pauseConnected, playConnected } from '../utils/connection'
 import { checkVibrancySupport } from '../utils/frame'
-import { getHashCode, LCG } from '../utils/helper'
 import { parseLRC } from '../utils/lrc'
 import type { Segmenter } from '../utils/string'
 import { defaultSegmenter, escapeHTML, getChineseSegmenter, isChineseText } from '../utils/string'
@@ -61,7 +61,7 @@ function highlightSegments(text: string, segmenter: Segmenter | undefined) {
   const maxLengthIndexes = Array.from(lengths.entries())
     .filter(([index, value]) => value === maxLength)
     .map(([index, item]) => index)
-  const rv = LCG(getHashCode(text))()
+  const rv = seedrandom(text)()
   const luckyIndex = maxLengthIndexes[Math.floor(rv * maxLengthIndexes.length)]
   return segments.map((item, index) => {
     return index === luckyIndex ? `<strong>${escapeHTML(item.segment)}</strong>` : escapeHTML(item.segment)
@@ -145,12 +145,12 @@ const types = $computed(() => {
 function generateStyle(lyric: string | undefined, key: string, type: 'edge' | 'inside' | 'outside') {
   const style: CSSProperties = {}
   if (typeof lyric !== 'string') return style
-  const rv = LCG(getHashCode(lyric + key))()
+  const rv = seedrandom(lyric + key)()
   if (lyric && rv < 0.2) {
     style.background = 'var(--foreground)'
     style.color = 'var(--background)'
   }
-  const rand = LCG(getHashCode(lyric + key + type))
+  const rand = seedrandom(lyric + key + type)
   if (type === 'outside') {
     const x = (n => (n > 0 ? 50 : -50) + n * 50)(rand() * 2 - 1) // -100 ~ -50, 50 ~ 100
     const y = (n => (n > 0 ? 50 : -50) + n * 50)(rand() * 2 - 1)
