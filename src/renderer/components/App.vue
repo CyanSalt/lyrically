@@ -4,7 +4,8 @@ import { difference, findLastIndex } from 'lodash-es'
 import { LucideCloud, LucideCloudOff, LucideDna, LucideDnaOff, LucideMaximize, LucideMinimize, LucideMonitor, LucideMonitorOff, LucideMonitorPause, LucideMonitorPlay, LucideMoon, LucideMove, LucidePause, LucidePin, LucidePinOff, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
-import { useAlwaysOnTop, useDarkMode, useFullscreen, useVibrancy } from '../compositions/frame'
+import { useAlwaysOnTop, useDarkMode, useDisplaySleepPrevented, useFullscreen, useVibrancy } from '../compositions/frame'
+import { useKeyboardShortcuts } from '../compositions/interactive'
 import { checkConnectable, getConnectedData, pauseConnected, playConnected } from '../utils/connection'
 import { checkVibrancySupport } from '../utils/frame'
 import { getHashCode, LCG } from '../utils/helper'
@@ -242,27 +243,19 @@ function play() {
   }
 }
 
-watchEffect(onInvalidate => {
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.target === document.body) {
-      switch (event.key) {
-        case ' ':
-          event.preventDefault()
-          play()
-          break
-        case 'Escape':
-          if (isFullscreen) {
-            event.preventDefault()
-            isFullscreen = false
-          }
-          break
+useKeyboardShortcuts(event => {
+  switch (event.key) {
+    case ' ':
+      event.preventDefault()
+      play()
+      break
+    case 'Escape':
+      if (isFullscreen) {
+        event.preventDefault()
+        isFullscreen = false
       }
-    }
+      break
   }
-  window.addEventListener('keydown', handleKeyDown)
-  onInvalidate(() => {
-    window.removeEventListener('keydown', handleKeyDown)
-  })
 })
 
 const isConnectable = checkConnectable()
@@ -385,11 +378,8 @@ watchEffect(onInvalidate => {
 let { idle } = $(useIdle(5000))
 const visibility = $(useDocumentVisibility())
 
-watchEffect(async onInvalidate => {
-  if (isPlaying && visibility === 'visible') {
-    const dispose = worldBridge.preventDisplaySleep()
-    onInvalidate(dispose)
-  }
+useDisplaySleepPrevented(() => {
+  return isPlaying && visibility === 'visible'
 })
 
 let isGradientEnabled = $ref(false)

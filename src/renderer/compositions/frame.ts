@@ -1,5 +1,7 @@
 import type { BrowserWindowConstructorOptions } from 'electron'
 import { memoize } from 'lodash-es'
+import type { MaybeRefOrGetter } from 'vue'
+import { toValue, watchEffect } from 'vue'
 import { injectIPC } from '../utils/compositions'
 
 export const useFullscreen = memoize(() => {
@@ -17,3 +19,12 @@ export const useAlwaysOnTop = memoize(() => {
 export const useDarkMode = memoize(() => {
   return injectIPC('dark-mode', false)
 })
+
+export function useDisplaySleepPrevented(refOrGetter: MaybeRefOrGetter<boolean>) {
+  return watchEffect(async onInvalidate => {
+    if (toValue(refOrGetter)) {
+      const dispose = worldBridge.preventDisplaySleep()
+      onInvalidate(dispose)
+    }
+  })
+}
