@@ -676,6 +676,9 @@ function toggleGradient() {
 .control-area {
   display: flex;
   flex-wrap: wrap;
+  &:last-child {
+    justify-content: flex-end;
+  }
 }
 .control-item {
   display: flex;
