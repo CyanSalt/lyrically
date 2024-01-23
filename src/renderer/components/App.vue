@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { useDocumentVisibility, useIdle } from '@vueuse/core'
+import { average } from 'color.js'
+import { colord } from 'colord'
 import { difference, findLastIndex } from 'lodash-es'
 import { LucideCloud, LucideCloudOff, LucideDna, LucideDnaOff, LucideMaximize, LucideMinimize, LucideMonitor, LucideMonitorOff, LucideMonitorPause, LucideMonitorPlay, LucideMoon, LucideMove, LucidePause, LucidePin, LucidePinOff, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
 import seedrandom from 'seedrandom'
@@ -71,6 +73,19 @@ function highlightSegments(text: string, segmenter: Segmenter | undefined) {
 const pictureURL = $computed(() => {
   if (!data || !data.picture) return undefined
   return `url("${data.picture}")`
+})
+
+let pictureColor = $ref<string>()
+
+watchEffect(async () => {
+  pictureColor = undefined
+  if (!data || !data.picture) return
+  pictureColor = await average(data.picture, { format: 'hex' }) as string
+})
+
+const isLightPicture = $computed(() => {
+  if (!pictureColor) return false
+  return colord(pictureColor).isLight()
 })
 
 let segmenter = $ref<Segmenter>()
@@ -388,6 +403,10 @@ const isUsingGradient = $computed(() => {
   return isGradientEnabled && Boolean(pictureURL)
 })
 
+const isUsingDarkGradient = $computed(() => {
+  return isUsingGradient && !isLightPicture
+})
+
 function toggleGradient() {
   isGradientEnabled = !isGradientEnabled
 }
@@ -396,7 +415,7 @@ function toggleGradient() {
 <template>
   <div
     :class="['app', {
-      'is-dark': darkMode || isUsingGradient,
+      'is-dark': darkMode || isUsingDarkGradient,
       'is-vibrant': vibrancy && !isUsingGradient,
       'is-immersive': isPlaying && idle,
     }]"
