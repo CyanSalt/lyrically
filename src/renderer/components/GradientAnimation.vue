@@ -44,12 +44,12 @@ const { animated } = defineProps<{
     right: calc(100vw - 100vmax);
     z-index: 10;
     mix-blend-mode: luminosity;
-    animation-duration: 33s;
+    animation-duration: #{30s + 3s};
   }
   &::after {
     bottom: calc(100vh - 100vmax);
     left: calc(100vw - 100vmax);
-    animation-duration: 27s;
+    animation-duration: #{30s - 3s};
   }
 }
 </style>

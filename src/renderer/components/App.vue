@@ -498,7 +498,7 @@ function toggleGradient() {
 }
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.4s;
+  transition: opacity var(--fade-duration);
 }
 .fade-enter-from,
 .fade-leave-to {
@@ -507,12 +507,16 @@ function toggleGradient() {
 .app {
   --foreground: black;
   --background: white;
+  --fade-duration: 0.4s;
+  --effect-duration: 0.5s;
+  --lyric-duration: 1s;
+  --interactive-duration: 0.2s;
   position: relative;
   width: 100vw;
   height: 100vh;
   font-size: 10vmin;
   overflow: hidden;
-  transition: background 0.5s, color 0.5s;
+  transition: background var(--effect-duration), color var(--effect-duration);
   &.is-dark {
     --foreground: white;
     --background: black;
@@ -550,7 +554,7 @@ function toggleGradient() {
   width: 100vw;
   height: 100vh;
   perspective: 100vmin;
-  transition: opacity 1s, filter 1s;
+  transition: opacity var(--lyric-duration), filter var(--lyric-duration);
   animation: shake 3s ease-in-out infinite;
   &.is-distant {
     opacity: 0.5;
@@ -559,7 +563,7 @@ function toggleGradient() {
 }
 .lyric {
   position: absolute;
-  transition: background 0.5s, color 0.5s, transform 1s ease-in-out, opacity 1s ease-in-out, filter 1s ease-in-out;
+  transition: background var(--effect-duration), color var(--effect-duration), transform var(--lyric-duration) ease-in-out, opacity var(--lyric-duration) ease-in-out, filter var(--lyric-duration) ease-in-out;
   :deep(strong) {
     font-weight: 900;
     font-size: 1.25em;
@@ -583,7 +587,7 @@ function toggleGradient() {
   }
 }
 .next {
-  animation: fade-in 1s ease-in-out;
+  animation: fade-in var(--lyric-duration) ease-in-out;
 }
 .searcher {
   position: fixed;
@@ -592,7 +596,7 @@ function toggleGradient() {
   color: var(--foreground);
   opacity: 0;
   transform: translate(-50%, -50%);
-  transition: color 0.5s, opacity 0.4s;
+  transition: color var(--effect-duration), opacity var(--fade-duration);
   &.is-resident {
     opacity: 1;
   }
@@ -609,7 +613,7 @@ function toggleGradient() {
   border-image-source: linear-gradient(to right, currentColor, currentColor);
   border-image-slice: 1;
   outline: none;
-  transition: border-image-source 0.5s;
+  transition: border-image-source var(--effect-duration);
   &:read-only {
     border-image-source: linear-gradient(to right, transparent, currentColor, transparent);
   }
@@ -635,7 +639,7 @@ function toggleGradient() {
   height: 1em;
   opacity: 0.25;
   filter: grayscale(1);
-  transition: opacity 0.4s;
+  transition: opacity var(--interactive-duration);
   cursor: pointer;
   &.is-active {
     opacity: 1;
@@ -646,7 +650,7 @@ function toggleGradient() {
   height: 0.5em;
   background-color: var(--foreground);
   mask-image: var(--icon);
-  transition: background-color 0.5s;
+  transition: background-color var(--effect-duration);
 }
 .audio {
   display: none;
@@ -663,7 +667,7 @@ function toggleGradient() {
   color: var(--foreground);
   font-size: 48px;
   opacity: 0;
-  transition: color 0.5s, opacity 0.4s;
+  transition: color var(--effect-duration), opacity var(--fade-duration);
   &:hover,
   &.is-resident {
     opacity: 1;
@@ -680,7 +684,7 @@ function toggleGradient() {
   width: 1em;
   height: 1em;
   opacity: 0.5;
-  transition: opacity 0.2s;
+  transition: opacity var(--interactive-duration);
   cursor: pointer;
   &:hover {
     opacity: 1;

@@ -95,7 +95,7 @@ function reset() {
   background-repeat: repeat-x;
   opacity: 0;
   transform: scaleY(-1);
-  transition: opacity 0.4s;
+  transition: opacity var(--fade-duration);
   .slider.is-active & {
     opacity: 1;
   }
