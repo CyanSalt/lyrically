@@ -3,7 +3,7 @@ import { useDocumentVisibility, useIdle } from '@vueuse/core'
 import { average } from 'color.js'
 import { colord } from 'colord'
 import { difference, findLastIndex } from 'lodash-es'
-import { LucideCloud, LucideCloudOff, LucideDna, LucideDnaOff, LucideMaximize, LucideMinimize, LucideMonitor, LucideMonitorOff, LucideMonitorPause, LucideMonitorPlay, LucideMoon, LucideMove, LucidePause, LucidePin, LucidePinOff, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
+import { LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucideMove, LucideMusic, LucidePause, LucidePin, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
 import seedrandom from 'seedrandom'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
@@ -204,15 +204,10 @@ const styles = $computed(() => {
   })
 })
 
-const allVendors = [
+const vendors = [
   KugouService,
   NeteaseService,
 ]
-
-const vendors = $computed(() => {
-  if (isConnected) return allVendors
-  return allVendors.filter(vendor => vendor.prepare)
-})
 
 const vendorIconURLs = $computed(() => {
   return vendors.map(vendor => `url("${vendor.icon}")`)
@@ -445,48 +440,53 @@ function toggleGradient() {
           <LucideMinimize v-if="isFullscreen" />
           <LucideMaximize v-else />
         </div>
-        <div class="control-item" @click="toggleAlwaysOnTop">
-          <LucidePinOff v-if="isAlwaysOnTop" />
-          <LucidePin v-else />
+        <div :class="['control-item', { 'is-active': isAlwaysOnTop }]" @click="toggleAlwaysOnTop">
+          <LucidePin />
         </div>
         <div class="control-item" @click="play">
-          <template v-if="isConnected">
-            <LucideMonitorPause v-if="isPlaying" />
-            <LucideMonitorPlay v-else />
-          </template>
-          <template v-else>
-            <LucidePause v-if="isPlaying" />
-            <LucidePlay v-else />
-          </template>
+          <LucidePause v-if="isPlaying" />
+          <LucidePlay v-else />
         </div>
       </div>
       <div class="control-area">
-        <div class="control-item style" @click="toggleDarkMode">
+        <div class="control-item" @click="toggleDarkMode">
           <LucideSun v-if="darkMode" />
           <LucideMoon v-else />
         </div>
-        <div v-if="supportsVibrancy" class="control-item style" @click="toggleVibrancy">
-          <LucideCloudOff v-if="vibrancy" />
-          <LucideCloud v-else />
+        <div
+          v-if="supportsVibrancy"
+          :class="['control-item', { 'is-active': vibrancy }]"
+          @click="toggleVibrancy"
+        >
+          <LucideCloudFog />
         </div>
-        <div v-if="pictureURL" class="control-item style" @click="toggleGradient">
-          <LucideDnaOff v-if="isGradientEnabled" />
-          <LucideDna v-else />
+        <div
+          v-if="pictureURL"
+          :class="['control-item', { 'is-active': isGradientEnabled }]"
+          @click="toggleGradient"
+        >
+          <LucideBlend />
         </div>
       </div>
     </div>
     <div :class="['searcher', { 'is-resident': !isPlaying }]">
       <input v-model="keyword" :readonly="isConnected" class="searcher-input" @change="search">
       <div class="searcher-bar">
-        <div v-if="isConnectable" class="control-item" @click="connect">
-          <LucideMonitorOff v-if="isConnected" />
-          <LucideMonitor v-else />
+        <div
+          v-if="isConnectable"
+          :class="['control-item', { 'is-active': isConnected }]"
+          @click="connect"
+        >
+          <LucideMusic />
         </div>
         <div class="vendor-list">
           <div
             v-for="(vendor, index) in vendors"
             :key="vendor.name"
-            :class="['vendor-item', { 'is-active': service === vendor }]"
+            :class="['control-item', {
+              'is-active': service === vendor,
+              'is-disabled': !isConnected && !vendor.prepare,
+            }]"
             :style="{ '--icon': vendorIconURLs[index] }"
             :data-icon="vendor.icon"
             @click="activate(vendor)"
@@ -531,6 +531,7 @@ function toggleGradient() {
   --lyric-duration: 1s;
   --interactive-duration: 0.2s;
   --icon-size: clamp(12px, 5vw, 24px);
+  --active-background-opacity: 8%;
   position: relative;
   width: 100vw;
   height: 100vh;
@@ -540,6 +541,7 @@ function toggleGradient() {
   &.is-dark {
     --foreground: white;
     --background: black;
+    --active-background-opacity: 16%;
     color: white;
   }
   &:not(.is-vibrant) {
@@ -643,27 +645,14 @@ function toggleGradient() {
   gap: 2em;
   justify-content: center;
   align-items: center;
-  height: 2em;
+  margin-top: 0.25em;
   font-size: var(--icon-size);
 }
 .vendor-list {
   display: flex;
+  gap: 0.25em;
   justify-content: center;
   align-items: center;
-}
-.vendor-item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 2em;
-  height: 2em;
-  opacity: 0.25;
-  filter: grayscale(1);
-  transition: opacity var(--interactive-duration);
-  cursor: pointer;
-  &.is-active {
-    opacity: 1;
-  }
 }
 .vendor-icon {
   width: 1em;
@@ -696,21 +685,30 @@ function toggleGradient() {
 .control-area {
   display: flex;
   flex-wrap: wrap;
+  gap: 0.25em;
   &:last-child {
     justify-content: flex-end;
   }
 }
 .control-item {
+  --background-opacity: 0;
+  --foreground-opacity: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 2em;
-  height: 2em;
-  opacity: 0.5;
-  transition: opacity var(--interactive-duration);
+  width: 1.75em;
+  height: 1.75em;
+  color: color-mix(in sRGB, var(--foreground) var(--foreground-opacity), transparent);
+  background-color: color-mix(in sRGB, var(--foreground) var(--background-opacity), transparent);
+  border-radius: 0.5em;
+  transition: color var(--interactive-duration), background-color var(--interactive-duration);
   cursor: pointer;
   &:hover {
-    opacity: 1;
+    --background-opacity: var(--active-background-opacity);
+    --foreground-opacity: 100%;
+  }
+  &.is-active {
+    --background-opacity: var(--active-background-opacity);
   }
   &.move {
     -webkit-app-region: drag;
@@ -718,6 +716,13 @@ function toggleGradient() {
   :deep(.lucide) {
     width: 1em;
     height: 1em;
+  }
+  .vendor-icon {
+    filter: opacity(var(--foreground-opacity));
+    transition: filter var(--interactive-duration);
+  }
+  &.is-active .vendor-icon {
+    filter: opacity(1);
   }
 }
 </style>
