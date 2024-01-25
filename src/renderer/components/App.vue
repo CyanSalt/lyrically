@@ -158,10 +158,12 @@ const types = $computed(() => {
 })
 
 function generateStyle(lyric: string | undefined, key: string, type: 'edge' | 'inside' | 'outside') {
-  const style: CSSProperties = {}
+  const rng = seedrandom(lyric + key)
+  const style: CSSProperties = {
+    '--picture-shadow': `${rng() < 0.5 ? -0.25 : 0.25}em ${rng() < 0.5 ? -0.25 : 0.25}em`,
+  }
   if (typeof lyric !== 'string') return style
-  const rv = seedrandom(lyric + key)()
-  if (lyric && rv < 0.2) {
+  if (lyric && rng() < 0.2) {
     style.background = 'var(--foreground)'
     style.color = 'var(--background)'
   }
@@ -597,6 +599,7 @@ function toggleGradient() {
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
+    box-shadow: var(--picture-shadow);
   }
 }
 .prev, .next {
