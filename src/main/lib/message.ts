@@ -54,7 +54,7 @@ function handleMessages() {
     broadcast('update-ref:dark-mode', nativeTheme.shouldUseDarkColors)
   })
   ipcMain.handle('applescript', (event, script: string) => {
-    return executeApplescript(script)
+    return executeApplescript(script).catch(() => undefined)
   })
   ipcMain.handle('prevent-display-sleep', () => {
     return powerSaveBlocker.start('prevent-display-sleep')

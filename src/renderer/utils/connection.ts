@@ -5,11 +5,11 @@ export function checkConnectable() {
 }
 
 export function playConnected() {
-  worldBridge.applescript('if application "Music" is running then tell application "Music" to play')
+  worldBridge.applescript('tell application "Music" to play')
 }
 
 export function pauseConnected() {
-  worldBridge.applescript('if application "Music" is running then tell application "Music" to pause')
+  worldBridge.applescript('tell application "Music" to pause')
 }
 
 export interface ConnectedData {
@@ -28,7 +28,7 @@ export type AppleMusicData = [
 ]
 
 export async function getConnectedData(): Promise<ConnectedData | undefined> {
-  const result = await worldBridge.applescript<AppleMusicData | undefined>('if application "Music" is running then tell application "Music" to get player state & (get player position) & (get {id, name, artist, album} of current track)')
+  const result = await worldBridge.applescript<AppleMusicData | undefined>('tell application "Music" to get player state & (get player position) & (get {id, name, artist, album} of current track)')
   if (!result) return undefined
   return {
     isPlaying: result[0] === 'playing',
