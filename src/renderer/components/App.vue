@@ -530,6 +530,7 @@ function toggleGradient() {
   --effect-duration: 0.5s;
   --lyric-duration: 1s;
   --interactive-duration: 0.2s;
+  --icon-size: clamp(12px, 5vw, 24px);
   position: relative;
   width: 100vw;
   height: 100vh;
@@ -551,7 +552,7 @@ function toggleGradient() {
     position: fixed;
     bottom: 1em;
     left: 50%;
-    font-size: 48px;
+    font-size: calc(var(--icon-size) * 2);
     transform: translateX(-50%);
   }
 }
@@ -639,11 +640,11 @@ function toggleGradient() {
 }
 .searcher-bar {
   display: flex;
-  gap: 1em;
+  gap: 2em;
   justify-content: center;
   align-items: center;
-  height: 1em;
-  font-size: 48px;
+  height: 2em;
+  font-size: var(--icon-size);
 }
 .vendor-list {
   display: flex;
@@ -654,8 +655,8 @@ function toggleGradient() {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 1em;
-  height: 1em;
+  width: 2em;
+  height: 2em;
   opacity: 0.25;
   filter: grayscale(1);
   transition: opacity var(--interactive-duration);
@@ -665,8 +666,8 @@ function toggleGradient() {
   }
 }
 .vendor-icon {
-  width: 0.5em;
-  height: 0.5em;
+  width: 1em;
+  height: 1em;
   background-color: var(--foreground);
   mask-image: var(--icon);
   transition: background-color var(--effect-duration);
@@ -676,15 +677,15 @@ function toggleGradient() {
 }
 .control-bar {
   position: fixed;
-  top: 0.5em;
-  right: 0.5em;
-  left: 0.5em;
+  top: 1em;
+  right: 1em;
+  left: 1em;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  max-width: calc(100vw - 1em);
+  max-width: calc(100vw - 2em);
   color: var(--foreground);
-  font-size: 48px;
+  font-size: var(--icon-size);
   opacity: 0;
   transition: color var(--effect-duration), opacity var(--fade-duration);
   &:hover,
@@ -703,8 +704,8 @@ function toggleGradient() {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 1em;
-  height: 1em;
+  width: 2em;
+  height: 2em;
   opacity: 0.5;
   transition: opacity var(--interactive-duration);
   cursor: pointer;
@@ -713,6 +714,10 @@ function toggleGradient() {
   }
   &.move {
     -webkit-app-region: drag;
+  }
+  :deep(.lucide) {
+    width: 1em;
+    height: 1em;
   }
 }
 </style>
