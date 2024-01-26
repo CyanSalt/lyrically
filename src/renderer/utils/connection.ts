@@ -28,7 +28,7 @@ export type AppleMusicData = [
 ]
 
 export async function getConnectedData(): Promise<ConnectedData | undefined> {
-  const result = await worldBridge.applescript<AppleMusicData | undefined>('tell application "Music" to get player state & (get player position) & (get {id, name, artist, album} of current track)')
+  const result = await worldBridge.applescript<AppleMusicData | undefined>('if application "Music" is running then tell application "Music" to get player state & (get player position) & (get {id, name, artist, album} of current track)')
   if (!result) return undefined
   return {
     isPlaying: result[0] === 'playing',
