@@ -7,7 +7,7 @@ import { LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon
 import seedrandom from 'seedrandom'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
-import { useAlwaysOnTop, useDarkMode, useDisplaySleepPrevented, useFullscreen, useVibrancy } from '../compositions/frame'
+import { useAlwaysOnTop, useDarkMode, useDisplaySleepPrevented, useFullscreen } from '../compositions/frame'
 import { useKeyboardShortcuts } from '../compositions/interactive'
 import { checkConnectable, getConnectedData, pauseConnected, playConnected } from '../utils/connection'
 import { checkVibrancySupport } from '../utils/frame'
@@ -20,10 +20,12 @@ import type { MusicData, MusicInfo, MusicService } from '../vendors/types'
 import GradientAnimation from './GradientAnimation.vue'
 import Slider from './Slider.vue'
 
-let darkMode = $(useDarkMode())
+const supportsVibrancy = checkVibrancySupport()
+
+let isDark = $(useDarkMode())
 let isFullscreen = $(useFullscreen())
-let vibrancy = $(useVibrancy())
 let isAlwaysOnTop = $(useAlwaysOnTop())
+let isTransparent = $ref(supportsVibrancy)
 
 let isPlaying = $ref(false)
 let currentTime = $ref(0)
@@ -224,13 +226,11 @@ function toggleFullscreen() {
 }
 
 function toggleDarkMode() {
-  darkMode = !darkMode
+  isDark = !isDark
 }
 
-const supportsVibrancy = checkVibrancySupport()
-
-function toggleVibrancy() {
-  vibrancy = vibrancy ? undefined : 'hud'
+function toggleTransparent() {
+  isTransparent = !isTransparent
 }
 
 function toggleAlwaysOnTop() {
@@ -412,8 +412,8 @@ function toggleGradient() {
 <template>
   <div
     :class="['app', {
-      'is-dark': darkMode || isUsingDarkGradient,
-      'is-vibrant': vibrancy && !isUsingGradient,
+      'is-dark': isDark || isUsingDarkGradient,
+      'is-transparent': isTransparent && !isUsingGradient,
       'is-immersive': isPlaying && idle,
     }]"
     :style="{ '--picture': pictureURL }"
@@ -452,13 +452,13 @@ function toggleGradient() {
       </div>
       <div class="control-area">
         <div class="control-item" @click="toggleDarkMode">
-          <LucideSun v-if="darkMode" />
+          <LucideSun v-if="isDark" />
           <LucideMoon v-else />
         </div>
         <div
           v-if="supportsVibrancy"
-          :class="['control-item', { 'is-active': vibrancy }]"
-          @click="toggleVibrancy"
+          :class="['control-item', { 'is-active': isTransparent }]"
+          @click="toggleTransparent"
         >
           <LucideCloudFog />
         </div>
@@ -546,7 +546,7 @@ function toggleGradient() {
     --active-background-opacity: 16%;
     color: white;
   }
-  &:not(.is-vibrant) {
+  &:not(.is-transparent) {
     background-color: var(--background);
   }
   &.is-immersive {

@@ -1,4 +1,3 @@
-import type { BrowserWindowConstructorOptions } from 'electron'
 import { memoize } from 'lodash-es'
 import type { MaybeRefOrGetter } from 'vue'
 import { toValue, watchEffect } from 'vue'
@@ -6,10 +5,6 @@ import { injectIPC } from '../utils/compositions'
 
 export const useFullscreen = memoize(() => {
   return injectIPC('fullscreen', false)
-})
-
-export const useVibrancy = memoize(() => {
-  return injectIPC<BrowserWindowConstructorOptions['vibrancy']>('vibrancy', 'selection')
 })
 
 export const useAlwaysOnTop = memoize(() => {

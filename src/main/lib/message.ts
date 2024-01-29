@@ -1,6 +1,5 @@
 import * as util from 'node:util'
 import applescript from 'applescript'
-import type { BrowserWindowConstructorOptions } from 'electron'
 import { BrowserWindow, ipcMain, nativeTheme, powerSaveBlocker } from 'electron'
 import { broadcast } from './frame'
 
@@ -21,18 +20,6 @@ function handleMessages() {
     const frame = BrowserWindow.fromWebContents(event.sender)
     if (!frame) return
     frame.setFullScreen(value)
-  })
-  ipcMain.handle('get-ref:vibrancy', (event) => {
-    const frame = BrowserWindow.fromWebContents(event.sender)
-    if (!frame) return null
-    return frame['__vibrancy'] ?? 'hud'
-  })
-  ipcMain.handle('set-ref:vibrancy', (event, value: Exclude<BrowserWindowConstructorOptions['vibrancy'], 'appearance-based'>) => {
-    const frame = BrowserWindow.fromWebContents(event.sender)
-    if (!frame) return
-    frame.setVibrancy(value ?? null)
-    frame['__vibrancy'] = value ?? null
-    frame.webContents.send('update-ref:vibrancy', frame['__vibrancy'])
   })
   ipcMain.handle('get-ref:always-on-top', (event) => {
     const frame = BrowserWindow.fromWebContents(event.sender)
@@ -86,7 +73,6 @@ function handleEvents(frame: BrowserWindow) {
   frame.on('always-on-top-changed', (event, isAlwaysOnTop) => {
     frame.webContents.send('update-ref:always-on-top', isAlwaysOnTop)
   })
-  frame['__vibrancy'] = 'hud'
 }
 
 export {
