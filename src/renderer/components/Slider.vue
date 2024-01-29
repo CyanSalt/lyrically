@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { debounce } from 'lodash'
+import { debounce } from 'lodash-es'
 
 let modelValue = $(defineModel<number>({ default: 0 }))
 
