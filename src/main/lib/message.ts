@@ -52,12 +52,6 @@ function handleMessages() {
 }
 
 function handleEvents(frame: BrowserWindow) {
-  frame.on('minimize', () => {
-    frame.webContents.send('update-ref:minimized', true)
-  })
-  frame.on('restore', () => {
-    frame.webContents.send('update-ref:minimized', false)
-  })
   frame.on('maximize', () => {
     frame.webContents.send('update-ref:maximized', true)
   })
