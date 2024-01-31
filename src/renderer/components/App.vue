@@ -713,6 +713,9 @@ function toggleGradient() {
   &.is-active {
     --background-opacity: var(--active-background-opacity);
   }
+  &:active, &.is-active:hover {
+    --background-opacity: calc(var(--active-background-opacity) * 1.5);
+  }
   &.move {
     -webkit-app-region: drag;
   }
