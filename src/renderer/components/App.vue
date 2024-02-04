@@ -407,13 +407,25 @@ const isUsingDarkGradient = $computed(() => {
 function toggleGradient() {
   isGradientEnabled = !isGradientEnabled
 }
+
+watchEffect(() => {
+  if (isGradientEnabled) {
+    isTransparent = false
+  }
+})
+
+watchEffect(() => {
+  if (isTransparent) {
+    isGradientEnabled = false
+  }
+})
 </script>
 
 <template>
   <div
     :class="['app', {
       'is-dark': isDark || isUsingDarkGradient,
-      'is-transparent': isTransparent && !isUsingGradient,
+      'is-transparent': isTransparent,
       'is-immersive': isPlaying && idle,
     }]"
     :style="{ '--picture': pictureURL }"
