@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useDocumentVisibility, useIdle } from '@vueuse/core'
+import { useDocumentVisibility, useIdle, useTitle } from '@vueuse/core'
 import { average } from 'color.js'
 import { colord } from 'colord'
 import { difference, findLastIndex } from 'lodash-es'
@@ -417,6 +417,18 @@ watchEffect(() => {
 watchEffect(() => {
   if (isTransparent) {
     isGradientEnabled = false
+  }
+})
+
+let title = $(useTitle())
+
+watchEffect(() => {
+  if (info) {
+    title = [info.name, info.artists?.join(' & ')]
+      .filter((item): item is string => typeof item === 'string')
+      .join(' - ')
+  } else {
+    title = ''
   }
 })
 </script>
