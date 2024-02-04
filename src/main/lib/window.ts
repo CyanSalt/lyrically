@@ -9,7 +9,7 @@ export function createWindow() {
     width: 960,
     height: 540,
     frame: false,
-    transparent: true,
+    transparent: process.platform === 'darwin',
     vibrancy: 'hud' as const,
     visualEffectState: 'active',
     webPreferences: {
