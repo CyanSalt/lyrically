@@ -471,33 +471,35 @@ function toggleGradient() {
         </div>
       </div>
     </div>
-    <div :class="['searcher', { 'is-resident': !isPlaying }]">
-      <input v-model="keyword" :readonly="isConnected" class="searcher-input" @change="search">
-      <div class="searcher-bar">
-        <div
-          v-if="isConnectable"
-          :class="['control-item', { 'is-active': isConnected }]"
-          @click="connect"
-        >
-          <LucideMusic />
-        </div>
-        <div class="vendor-list">
+    <Transition name="fade">
+      <div v-show="!isPlaying" class="searcher">
+        <input v-model="keyword" :readonly="isConnected" class="searcher-input" @change="search">
+        <div class="searcher-bar">
           <div
-            v-for="(vendor, index) in vendors"
-            :key="vendor.name"
-            :class="['control-item', {
-              'is-active': service === vendor,
-              'is-disabled': !isConnected && !vendor.prepare,
-            }]"
-            :style="{ '--icon': vendorIconURLs[index] }"
-            :data-icon="vendor.icon"
-            @click="activate(vendor)"
+            v-if="isConnectable"
+            :class="['control-item', { 'is-active': isConnected }]"
+            @click="connect"
           >
-            <div class="vendor-icon"></div>
+            <LucideMusic />
+          </div>
+          <div class="vendor-list">
+            <div
+              v-for="(vendor, index) in vendors"
+              :key="vendor.name"
+              :class="['control-item', {
+                'is-active': service === vendor,
+                'is-disabled': !isConnected && !vendor.prepare,
+              }]"
+              :style="{ '--icon': vendorIconURLs[index] }"
+              :data-icon="vendor.icon"
+              @click="activate(vendor)"
+            >
+              <div class="vendor-icon"></div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Transition>
     <Transition name="fade">
       <Slider v-if="data && !isPlaying" v-model="offsetTime" />
     </Transition>
@@ -619,12 +621,8 @@ function toggleGradient() {
   top: 50vh;
   left: 50vw;
   color: var(--foreground);
-  opacity: 0;
   transform: translate(-50%, -50%);
-  transition: color var(--effect-duration), opacity var(--fade-duration);
-  &.is-resident {
-    opacity: 1;
-  }
+  transition: color var(--effect-duration);
 }
 .searcher-input {
   appearance: none;
