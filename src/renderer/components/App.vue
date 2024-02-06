@@ -757,6 +757,7 @@ watchEffect(() => {
   flex-direction: column;
   gap: 0.25em;
   font-size: 0.75em;
+  white-space: nowrap;
   opacity: 0.5;
 }
 .vendor-area {
