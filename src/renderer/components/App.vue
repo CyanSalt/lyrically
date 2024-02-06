@@ -689,6 +689,7 @@ watchEffect(() => {
   min-width: 0;
 }
 .music-picture {
+  --fallback-background: color-mix(in sRGB, var(--foreground) var(--active-background-opacity), var(--background) var(--active-background-opacity));
   position: relative;
   display: flex;
   flex: none;
@@ -703,7 +704,7 @@ watchEffect(() => {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: var(--picture);
+    background-image: var(--picture, linear-gradient(var(--fallback-background), var(--fallback-background)));
     background-size: cover;
     transition: opacity var(--fade-duration);
     pointer-events: none;
