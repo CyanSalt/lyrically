@@ -10,23 +10,23 @@ export function isChineseText(text: string) {
   return length / text.length > 0.25
 }
 
-export type Segmenter = (text: string) => Intl.SegmentData[]
+export interface SegmentData {
+  segment: string,
+  weight?: number,
+}
+
+export type Segmenter = (text: string) => SegmentData[]
 
 export const getChineseSegmenter = memoize<() => Promise<Segmenter>>(async () => {
   const { POSTAG, Segment, useDefault } = await import('segmentit')
   const segmentit = useDefault(new Segment())
   return (text: string) => {
-    let index = 0
-    return (
-      segmentit.doSegment(text) as { w: string, p: number }[]
-    ).map<Intl.SegmentData>(item => {
-      const currentIndex = index
-      index += item.w.length
+    return (segmentit.doSegment(text) as { w: string, p: number }[]).map<SegmentData>(item => {
       return {
         segment: item.w,
-        index: currentIndex,
-        input: text,
-        isWordLike: item.p !== POSTAG.D_X,
+        weight: item.p === POSTAG.D_X ? 0 : (
+          item.p === POSTAG.A_NR ? 0.5 : 1
+        ),
       }
     })
   }
@@ -35,7 +35,12 @@ export const getChineseSegmenter = memoize<() => Promise<Segmenter>>(async () =>
 const segmenter = new Intl.Segmenter([], { granularity: 'word' })
 
 export const defaultSegmenter: Segmenter = (text: string) => {
-  return Array.from(segmenter.segment(text))
+  return Array.from(segmenter.segment(text), item => {
+    return {
+      segment: item.segment,
+      weight: item.isWordLike ? 1 : 0,
+    }
+  })
 }
 
 const escaper = document.createElement('div')

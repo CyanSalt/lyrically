@@ -59,7 +59,10 @@ const durations = $computed(() => {
 function highlightSegments(text: string, segmenter: Segmenter | undefined) {
   if (!segmenter) return text
   const segments = segmenter(text)
-  const lengths = segments.map(item => (item.isWordLike ? item.segment.length : 0))
+  const weights = segments.map(item => item.weight ?? 1)
+  const maxWeight = Math.max(...weights)
+  if (maxWeight <= 0) return text
+  const lengths = segments.map(item => (item.weight === maxWeight ? item.segment.length : 0))
   const maxLength = Math.max(...lengths)
   if (maxLength <= 0) return text
   const maxLengthIndexes = Array.from(lengths.entries())
