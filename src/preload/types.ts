@@ -1,6 +1,7 @@
 import type { IpcRendererEvent } from 'electron'
 
 export interface WorldBridge {
+  appName: string,
   platform: NodeJS.Platform,
   getRef<T>(key: string, token?: string): Promise<T>,
   setRef<T>(key: string, value: T, token?: string): Promise<void>,

@@ -20,6 +20,8 @@ import type { MusicData, MusicInfo, MusicService } from '../vendors/types'
 import GradientAnimation from './GradientAnimation.vue'
 import Slider from './Slider.vue'
 
+const appName = worldBridge.appName
+
 const supportsVibrancy = checkVibrancySupport()
 
 let isDark = $(useDarkMode())
@@ -502,7 +504,7 @@ watchEffect(() => {
       <div class="music-area">
         <div v-if="pictureURL" class="music-picture"></div>
         <div class="music-info">
-          <input v-model="keyword" :readonly="isConnected" class="music-name" @change="search">
+          <input v-model="keyword" :readonly="isConnected" :placeholder="appName" class="music-name" @change="search">
           <div v-if="info" class="music-detail">
             <div class="artists">{{ info.artists?.join(' & ') }}</div>
             <div class="album">{{ info.album }}</div>
@@ -711,6 +713,11 @@ watchEffect(() => {
   transition: border-image-source var(--effect-duration);
   &:read-only {
     border-image-source: linear-gradient(to right, currentColor, transparent);
+  }
+  &::placeholder {
+    color: color-mix(in sRGB, var(--foreground) 25%, transparent);
+    font-style: italic;
+    transition: color var(--effect-duration);
   }
 }
 .music-detail {

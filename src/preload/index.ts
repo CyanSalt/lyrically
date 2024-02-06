@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 import type { WorldBridge } from './types'
 
 const worldBridge: WorldBridge = {
+  appName: ipcRenderer.sendSync('get-name'),
   platform: process.platform,
   getRef(key, token) {
     return ipcRenderer.invoke(`get-ref:${key}`, token)

@@ -1,11 +1,14 @@
 import * as util from 'node:util'
 import applescript from 'applescript'
-import { BrowserWindow, ipcMain, nativeTheme, powerSaveBlocker } from 'electron'
+import { app, BrowserWindow, ipcMain, nativeTheme, powerSaveBlocker } from 'electron'
 import { broadcast } from './frame'
 
 const executeApplescript = util.promisify(applescript.execString)
 
 function handleMessages() {
+  ipcMain.on('get-name', event => {
+    event.returnValue = app.name
+  })
   ipcMain.handle('close', event => {
     const frame = BrowserWindow.fromWebContents(event.sender)
     if (!frame) return
