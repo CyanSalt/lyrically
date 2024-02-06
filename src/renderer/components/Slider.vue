@@ -75,12 +75,12 @@ function reset() {
   &::before {
     content: '';
     position: absolute;
-    top: 50%;
+    bottom: 50%;
     left: 50%;
     margin-left: calc(var(--line-width) / 2);
-    border-width: 0 var(--guide-line-size) calc(var(--guide-line-size) * 2);
+    border-width: calc(var(--guide-line-size) * 2) var(--guide-line-size) 0;
     border-style: solid;
-    border-color: transparent transparent currentColor;
+    border-color: currentColor transparent transparent;
     transform: translateX(-50%);
   }
 }

@@ -498,10 +498,19 @@ watchEffect(() => {
         </div>
       </div>
     </div>
-    <Transition name="fade">
-      <div v-show="!isPlaying" class="searcher">
-        <input v-model="keyword" :readonly="isConnected" class="searcher-input" @change="search">
-        <div class="searcher-bar">
+    <div :class="['player-info', { 'is-resident': !isPlaying }]">
+      <div class="music-area">
+        <div v-if="pictureURL" class="music-picture"></div>
+        <div class="music-info">
+          <input v-model="keyword" :readonly="isConnected" class="music-name" @change="search">
+          <div v-if="info" class="music-detail">
+            <div class="artists">{{ info.artists?.join(' & ') }}</div>
+            <div class="album">{{ info.album }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="vendor-area">
+        <div class="vendor-list">
           <div
             v-if="isConnectable"
             :class="['control-item', { 'is-active': isConnected }]"
@@ -509,24 +518,24 @@ watchEffect(() => {
           >
             <LucideMusic />
           </div>
-          <div class="vendor-list">
-            <div
-              v-for="(vendor, index) in vendors"
-              :key="vendor.name"
-              :class="['control-item', {
-                'is-active': service === vendor,
-                'is-disabled': !isConnected && !vendor.prepare,
-              }]"
-              :style="{ '--icon': vendorIconURLs[index] }"
-              :data-icon="vendor.icon"
-              @click="activate(vendor)"
-            >
-              <div class="vendor-icon"></div>
-            </div>
+        </div>
+        <div class="vendor-list">
+          <div
+            v-for="(vendor, index) in vendors"
+            :key="vendor.name"
+            :class="['control-item', {
+              'is-active': service === vendor,
+              'is-disabled': !isConnected && !vendor.prepare,
+            }]"
+            :style="{ '--icon': vendorIconURLs[index] }"
+            :data-icon="vendor.icon"
+            @click="activate(vendor)"
+          >
+            <div class="vendor-icon"></div>
           </div>
         </div>
       </div>
-    </Transition>
+    </div>
     <Transition name="fade">
       <Slider v-if="data && !isPlaying" v-model="offsetTime" />
     </Transition>
@@ -583,10 +592,16 @@ watchEffect(() => {
   }
   :deep(.slider) {
     position: fixed;
-    bottom: 1em;
+    bottom: 0;
     left: 50%;
-    font-size: calc(var(--icon-size) * 2);
+    color: color-mix(in sRGB, currentColor var(--active-background-opacity), transparent);
+    font-size: var(--icon-size);
     transform: translateX(-50%);
+    transition: color var(--fade-duration);
+    &:hover,
+    .slider.is-active & {
+      color: inherit;
+    }
   }
 }
 @keyframes shake {
@@ -643,43 +658,82 @@ watchEffect(() => {
 .next {
   animation: fade-in var(--lyric-duration) ease-in-out;
 }
-.searcher {
+.player-info {
   position: fixed;
-  top: 50vh;
-  left: 50vw;
+  right: 1em;
+  bottom: 1em;
+  left: 1em;
+  display: flex;
+  gap: 2em;
+  justify-content: space-between;
+  align-items: flex-end;
+  max-width: calc(100vw - 2em);
   color: var(--foreground);
-  transform: translate(-50%, -50%);
-  transition: color var(--effect-duration);
+  font-size: var(--icon-size);
+  opacity: 0;
+  transition: color var(--effect-duration), opacity var(--fade-duration);
+  &:hover,
+  &.is-resident {
+    opacity: 1;
+  }
 }
-.searcher-input {
+.music-area {
+  display: flex;
+  flex: auto;
+  gap: 0.5em;
+  min-width: 0;
+}
+.music-picture {
+  flex: none;
+  width: 5em;
+  height: 5em;
+  background-image: var(--picture);
+  background-size: cover;
+}
+.music-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.music-name {
   appearance: none;
-  width: 50vw;
+  width: 10em;
+  padding: 0;
   border: none;
   border-bottom: 2px solid;
   color: inherit;
   font: inherit;
-  text-align: center;
+  line-height: 2em;
   background: transparent;
   border-image-source: linear-gradient(to right, currentColor, currentColor);
   border-image-slice: 1;
   outline: none;
   transition: border-image-source var(--effect-duration);
   &:read-only {
-    border-image-source: linear-gradient(to right, transparent, currentColor, transparent);
+    border-image-source: linear-gradient(to right, currentColor, transparent);
   }
 }
-.searcher-bar {
+.music-detail {
   display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  font-size: 0.75em;
+  opacity: 0.5;
+}
+.vendor-area {
+  display: flex;
+  flex: 10 10 auto;
+  flex-wrap: wrap;
   gap: 2em;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
-  margin-top: 0.25em;
   font-size: var(--icon-size);
 }
 .vendor-list {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.25em;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
 }
 .vendor-icon {
@@ -698,6 +752,7 @@ watchEffect(() => {
   right: 1em;
   left: 1em;
   display: flex;
+  gap: 2em;
   justify-content: space-between;
   align-items: flex-start;
   max-width: calc(100vw - 2em);
