@@ -27,7 +27,9 @@ const supportsVibrancy = checkVibrancySupport()
 let isDark = $(useDarkMode())
 let isFullscreen = $(useFullscreen())
 let isAlwaysOnTop = $(useAlwaysOnTop())
+
 let isTransparent = $ref(supportsVibrancy)
+let isGradientEnabled = $ref(false)
 
 let isPlaying = $ref(false)
 let currentTime = $ref(0)
@@ -93,6 +95,14 @@ watchEffect(async () => {
 const isLightPicture = $computed(() => {
   if (!pictureColor) return !isDark
   return colord(pictureColor).isLight()
+})
+
+const isUsingGradient = $computed(() => {
+  return isGradientEnabled && Boolean(pictureURL)
+})
+
+const isUsingDarkGradient = $computed(() => {
+  return isUsingGradient && !isLightPicture
 })
 
 let segmenter = $ref<Segmenter>()
@@ -233,7 +243,16 @@ function toggleDarkMode() {
 }
 
 function toggleTransparent() {
-  isTransparent = !isTransparent
+  if (isGradientEnabled) {
+    isGradientEnabled = false
+    isTransparent = true
+  } else {
+    isTransparent = !isTransparent
+  }
+}
+
+function toggleGradient() {
+  isGradientEnabled = !isGradientEnabled
 }
 
 function toggleAlwaysOnTop() {
@@ -397,32 +416,6 @@ useDisplaySleepPrevented(() => {
   return isPlaying && visibility === 'visible'
 })
 
-let isGradientEnabled = $ref(false)
-
-const isUsingGradient = $computed(() => {
-  return isGradientEnabled && Boolean(pictureURL)
-})
-
-const isUsingDarkGradient = $computed(() => {
-  return isUsingGradient && !isLightPicture
-})
-
-function toggleGradient() {
-  isGradientEnabled = !isGradientEnabled
-}
-
-watchEffect(() => {
-  if (isGradientEnabled) {
-    isTransparent = false
-  }
-})
-
-watchEffect(() => {
-  if (isTransparent) {
-    isGradientEnabled = false
-  }
-})
-
 let title = $(useTitle())
 
 watchEffect(() => {
@@ -480,7 +473,7 @@ watchEffect(() => {
         </div>
         <div
           v-if="supportsVibrancy"
-          :class="['control-item', { 'is-active': isTransparent }]"
+          :class="['control-item', { 'is-active': isTransparent && !isGradientEnabled }]"
           @click="toggleTransparent"
         >
           <LucideCloudFog />
