@@ -91,7 +91,7 @@ watchEffect(async () => {
 })
 
 const isLightPicture = $computed(() => {
-  if (!pictureColor) return false
+  if (!pictureColor) return !isDark
   return colord(pictureColor).isLight()
 })
 
@@ -474,10 +474,6 @@ watchEffect(() => {
         <div :class="['control-item', { 'is-active': isAlwaysOnTop }]" @click="toggleAlwaysOnTop">
           <LucidePin />
         </div>
-        <div class="control-item" @click="play">
-          <LucidePause v-if="isPlaying" />
-          <LucidePlay v-else />
-        </div>
       </div>
       <div class="control-area">
         <div class="control-item" @click="toggleDarkMode">
@@ -502,7 +498,10 @@ watchEffect(() => {
     </div>
     <div :class="['player-info', { 'is-resident': !isPlaying }]">
       <div class="music-area">
-        <div v-if="pictureURL" class="music-picture"></div>
+        <div :class="['music-picture', { 'is-inverted': !isLightPicture }]" @click="play">
+          <LucidePause v-if="isPlaying" />
+          <LucidePlay v-else />
+        </div>
         <div class="music-info">
           <input v-model="keyword" :readonly="isConnected" :placeholder="appName" class="music-name" @change="search">
           <div v-if="info" class="music-detail">
@@ -591,6 +590,10 @@ watchEffect(() => {
   }
   &.is-immersive {
     cursor: none;
+  }
+  :deep(.lucide) {
+    width: 1em;
+    height: 1em;
   }
   :deep(.slider) {
     position: fixed;
@@ -686,11 +689,42 @@ watchEffect(() => {
   min-width: 0;
 }
 .music-picture {
+  position: relative;
+  display: flex;
   flex: none;
+  justify-content: center;
+  align-items: center;
   width: 5em;
   height: 5em;
-  background-image: var(--picture);
-  background-size: cover;
+  color: black;
+  transition: color var(--effect-duration);
+  cursor: pointer;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--picture);
+    background-size: cover;
+    transition: opacity var(--fade-duration);
+    pointer-events: none;
+  }
+  &.is-inverted {
+    color: white;
+  }
+  :deep(.lucide) {
+    z-index: 1;
+    font-size: 1.5em;
+    opacity: 0;
+    transition: opacity var(--fade-duration);
+  }
+  &:hover {
+    :deep(.lucide) {
+      opacity: 1;
+    }
+    &::before {
+      opacity: 0.5;
+    }
+  }
 }
 .music-info {
   display: flex;
@@ -805,10 +839,6 @@ watchEffect(() => {
   }
   &.move {
     -webkit-app-region: drag;
-  }
-  :deep(.lucide) {
-    width: 1em;
-    height: 1em;
   }
   .vendor-icon {
     filter: opacity(var(--foreground-opacity));
