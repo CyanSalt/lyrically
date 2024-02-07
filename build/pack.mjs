@@ -2,9 +2,9 @@ import childProcess from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import util from 'node:util'
+import { packager } from '@electron/packager'
 import { rebuild } from '@electron/rebuild'
 import chalk from 'chalk'
-import packager from 'electron-packager'
 import png2icons from 'png2icons'
 import { requireCommonJS } from './utils/common.mjs'
 
@@ -66,7 +66,7 @@ async function generateAppIcon(input, icon, suffix) {
 }
 
 /**
- * @type {import('electron-packager').Options}
+ * @type {import('@electron/packager').Options}
  */
 const options = {
   dir: '.',
@@ -124,8 +124,8 @@ async function compressPackage(dir) {
 }
 
 /**
- * @param {import('electron-packager').Options} packagerOptions
- * @param {import('electron-packager').TargetDefinition[]} [targets]
+ * @param {import('@electron/packager').Options} packagerOptions
+ * @param {import('@electron/packager').TargetDefinition[]} [targets]
  */
 async function runPackager(packagerOptions, targets) {
   const { arch, platform, ...others } = packagerOptions
@@ -165,7 +165,7 @@ async function pack() {
     delete options.platform
     delete options.arch
   }
-  // Run electron-packager
+  // Run @electron/packager
   const appPaths = await runPackager(options, local ? undefined : [
     { arch: 'x64', platform: 'darwin' },
     { arch: 'x64', platform: 'linux' },
