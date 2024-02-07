@@ -587,6 +587,7 @@ watchEffect(() => {
     height: 1em;
   }
   :deep(.slider) {
+    --guide-line-size: min(0.4375em, 8px);
     position: fixed;
     bottom: 0;
     left: 50%;
