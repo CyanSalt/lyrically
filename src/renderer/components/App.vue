@@ -562,7 +562,7 @@ watchEffect(() => {
   --effect-duration: 0.5s;
   --lyric-duration: 1s;
   --interactive-duration: 0.2s;
-  --icon-size: clamp(12px, 5vw, 24px);
+  --icon-size: clamp(12px, 5vmin, 24px);
   --active-background-opacity: 8%;
   position: relative;
   width: 100vw;
