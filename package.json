@@ -1,6 +1,6 @@
 {
   "name": "lyrically",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "productName": "Lyrically",
   "description": "Music player inspired by Lyric Speaker",
   "main": "dist/main/index.js",

@@ -1,5 +1,63 @@
 
 
+## [0.2.0](https://github.com/CyanSalt/lyrically/compare/v0.1.0...v0.2.0) (2024-02-07)
+
+
+### Features
+
+* add always on top ([110e395](https://github.com/CyanSalt/lyrically/commit/110e395a0da28e94ceec7731bea28ffabaa80aa3))
+* add picture ([51de040](https://github.com/CyanSalt/lyrically/commit/51de0403706e872d249f098f25053879e3594214))
+* add title for macOS dock menu ([efa9161](https://github.com/CyanSalt/lyrically/commit/efa9161efb117bd5de07de095944b1ea45509ba1))
+* apple music style gradient ([5a09187](https://github.com/CyanSalt/lyrically/commit/5a0918740c537ec75187d80c72dfe4ded24fd039))
+* auto hide cursor ([c26fca5](https://github.com/CyanSalt/lyrically/commit/c26fca5f57fad2d44e816e103e6b4fe734eef8c7))
+* auto picture color theme ([e8e9339](https://github.com/CyanSalt/lyrically/commit/e8e93390e94c231919cf62aa960a3fd1a5ef8cc0))
+* auto wake up music app ([5e20cc6](https://github.com/CyanSalt/lyrically/commit/5e20cc6b4990185467902ffab5aa6531c209b910))
+* better chinese segmenter ([0d4837f](https://github.com/CyanSalt/lyrically/commit/0d4837fb0e6a882f913ba72c524c2ebd27016229))
+* esc to exit fullscreen ([2202662](https://github.com/CyanSalt/lyrically/commit/220266236a4d6cc88346ef06c7fc05b02ae71fa1))
+* han segments ([7624f50](https://github.com/CyanSalt/lyrically/commit/7624f50bb72baa5a3e873f3516c07ef5886d714f))
+* immersive play or pause button ([9f8408e](https://github.com/CyanSalt/lyrically/commit/9f8408ed1e6ffed4a65b1cb0bfde469aec40ce90))
+* keyword placeholder ([62de1f7](https://github.com/CyanSalt/lyrically/commit/62de1f72e79639f430761cda154876daf3d0236b))
+* multiple artists matching ([7af0829](https://github.com/CyanSalt/lyrically/commit/7af08292aff0e39ff283e527764c7cdf9217981b))
+* offset time ([d5196ac](https://github.com/CyanSalt/lyrically/commit/d5196ac0eaef3c5b7256677312afc841e85d56fd))
+* picture shadow ([eb7b22e](https://github.com/CyanSalt/lyrically/commit/eb7b22e4a6b1f30cb74ff3fd5ede2e78793c02fc))
+* prevent display sleep when visible ([34ccc15](https://github.com/CyanSalt/lyrically/commit/34ccc1507c4bbe01c2440e5215ac9bfeb524ffa6))
+* refine button interactive style ([0bb2827](https://github.com/CyanSalt/lyrically/commit/0bb282732d22bff5d5d326d3c219472f1d311345))
+* responsive icon size ([584028a](https://github.com/CyanSalt/lyrically/commit/584028a3ef03b82c86db994bb78e753083f4761c))
+* space key to play or pause ([698d027](https://github.com/CyanSalt/lyrically/commit/698d027a2a8357714d1b6e0f7b7886c4705aed92))
+* vendor icons ([8bc436f](https://github.com/CyanSalt/lyrically/commit/8bc436f02cc686b0e96756f93ac1de28982a05d0))
+* visible player info ([fa99f39](https://github.com/CyanSalt/lyrically/commit/fa99f39b38da8ae497193a28990575aed7d351c3))
+
+
+### Bug Fixes
+
+* auto sync between connected and disconnected status ([4e20773](https://github.com/CyanSalt/lyrically/commit/4e207738297a4ac09a15d5c392b88878b09fa0ad))
+* close button ([d9acb45](https://github.com/CyanSalt/lyrically/commit/d9acb45f5fa4d2fb031df6aa341b0ae4af2ac733))
+* control bar alignment ([3933f5a](https://github.com/CyanSalt/lyrically/commit/3933f5abc7823bcac11feb76688fe3bf78e1dca4))
+* control bar layout ([62a02e9](https://github.com/CyanSalt/lyrically/commit/62a02e9eb19dc3a0a84f8bfcda646fa56736e447))
+* disable auto running when fetching data ([b287ac2](https://github.com/CyanSalt/lyrically/commit/b287ac259f3c96d9f909001efb3b3bfae3cd418b))
+* fade out style ([9477f69](https://github.com/CyanSalt/lyrically/commit/9477f698f3c014667568ca34007710a9282451fe))
+* frameless window on windows ([216cbab](https://github.com/CyanSalt/lyrically/commit/216cbab927a38371fa792273df08280d9e3ab7ba))
+* gradient mutex ([ce6cb8c](https://github.com/CyanSalt/lyrically/commit/ce6cb8ccc9aa204087cb65af2b1b9cc47ef35398))
+* harmony responsibility ([ac2cf0d](https://github.com/CyanSalt/lyrically/commit/ac2cf0db158cf71356fc9fd4f8e0e58de22e0b55))
+* highlighting style ([8b6afe2](https://github.com/CyanSalt/lyrically/commit/8b6afe265aba383dd36f2549ccc74a5cb563e45f))
+* interactive on playing ([3e9aea2](https://github.com/CyanSalt/lyrically/commit/3e9aea230dc2a6d1bdeef50e6330c4bb32cada46))
+* larger cover picture ([52b69ed](https://github.com/CyanSalt/lyrically/commit/52b69ed990c06589d732abfd072f8b1023ed8c4d))
+* line wrap ([85f08eb](https://github.com/CyanSalt/lyrically/commit/85f08ebaa90fee6e874a0d163c3c83b177ffdb7b))
+* more than 1 next rows ([6199960](https://github.com/CyanSalt/lyrically/commit/6199960cbe4e378b30decb5334dfba11aa18177e))
+* picture placeholder ([cf436ea](https://github.com/CyanSalt/lyrically/commit/cf436eaf8010e8a62d7c231207f894872c9439a0))
+* pointer capture ([4f65c64](https://github.com/CyanSalt/lyrically/commit/4f65c6402ff6693e1e7a1ca2511242765ba74ee0))
+* reduce person name weight ([45b1d3a](https://github.com/CyanSalt/lyrically/commit/45b1d3a005f2344cfaf764908856a5532a8b2a8f))
+* refine highlighting ([511371f](https://github.com/CyanSalt/lyrically/commit/511371f12a36c0f0efdf1f6046520341bc0b204f))
+* reload after disconnecting ([8d61687](https://github.com/CyanSalt/lyrically/commit/8d61687bdf703475f7ddb7fa5df26e9a8fb16482))
+* remove picture shadow ([ee9e628](https://github.com/CyanSalt/lyrically/commit/ee9e6288c0e2bceebb92d512815d1db0006ef3a7))
+* segment splitting ([7253258](https://github.com/CyanSalt/lyrically/commit/7253258faf80c9a0e7eb318f705c208b46d7c4fa))
+* slider control size ([0b83989](https://github.com/CyanSalt/lyrically/commit/0b83989bbb12a87e11ade20a7675c556ff0c4fac))
+* style control item position ([0f56cdd](https://github.com/CyanSalt/lyrically/commit/0f56cdded6268d1558703fcda592139a8d8eceee))
+* update electron packager ([d0285a1](https://github.com/CyanSalt/lyrically/commit/d0285a12954c5874004046e9f444ca0fa9409043))
+* vibrancy compat ([19689b4](https://github.com/CyanSalt/lyrically/commit/19689b417a7ef108eadad524ba87b94aa984d043))
+* visual effects on macOS ([ef7f313](https://github.com/CyanSalt/lyrically/commit/ef7f31351d710dcb548fbb141173a7895ceeebe4))
+* visual style priority ([c6f5f69](https://github.com/CyanSalt/lyrically/commit/c6f5f692f1588aabfa6840a08acb064185a89f05))
+
 ## 0.1.0 (2024-01-17)
 
 
