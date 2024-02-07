@@ -3,7 +3,7 @@ import { useDocumentVisibility, useIdle, useTitle } from '@vueuse/core'
 import { average } from 'color.js'
 import { colord } from 'colord'
 import { difference, findLastIndex } from 'lodash-es'
-import { LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucideMove, LucideMusic, LucidePause, LucidePin, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
+import { LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucideMusic, LucidePause, LucidePin, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
 import seedrandom from 'seedrandom'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
@@ -452,9 +452,6 @@ watchEffect(() => {
     </div>
     <div :class="['control-bar', { 'is-resident': !isPlaying }]">
       <div class="control-area">
-        <div class="control-item move">
-          <LucideMove />
-        </div>
         <div class="control-item" @click="close">
           <LucideX />
         </div>
@@ -466,6 +463,7 @@ watchEffect(() => {
           <LucidePin />
         </div>
       </div>
+      <div class="control-area move"></div>
       <div class="control-area">
         <div class="control-item" @click="toggleDarkMode">
           <LucideSun v-if="isDark" />
@@ -786,7 +784,6 @@ watchEffect(() => {
   right: 1em;
   left: 1em;
   display: flex;
-  gap: 2em;
   justify-content: space-between;
   align-items: flex-start;
   max-width: calc(100vw - 2em);
@@ -805,6 +802,12 @@ watchEffect(() => {
   gap: 0.25em;
   &:last-child {
     justify-content: flex-end;
+  }
+  &.move {
+    flex: 1 1 2em;
+    align-self: stretch;
+    margin-top: -1em;
+    -webkit-app-region: drag;
   }
 }
 .control-item {
@@ -829,9 +832,6 @@ watchEffect(() => {
   }
   &:active, &.is-active:hover {
     --background-opacity: calc(var(--active-background-opacity) * 1.5);
-  }
-  &.move {
-    -webkit-app-region: drag;
   }
   .vendor-icon {
     filter: opacity(var(--foreground-opacity));
