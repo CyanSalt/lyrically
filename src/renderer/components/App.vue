@@ -463,7 +463,8 @@ watchEffect(() => {
           <LucidePin />
         </div>
       </div>
-      <div class="control-area move"></div>
+      <div class="control-area top-move"></div>
+      <div class="control-area center-move"></div>
       <div class="control-area">
         <div class="control-item" @click="toggleDarkMode">
           <LucideSun v-if="isDark" />
@@ -803,10 +804,17 @@ watchEffect(() => {
   &:last-child {
     justify-content: flex-end;
   }
-  &.move {
+  &.top-move {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 1em;
+    -webkit-app-region: drag;
+  }
+  &.center-move {
     flex: 1 1 2em;
     align-self: stretch;
-    margin-top: -1em;
     -webkit-app-region: drag;
   }
 }
