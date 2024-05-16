@@ -16,8 +16,8 @@ export default defineMusicService<{
   singername: string,
   group?: { album_name: string }[],
 }, {
-  url: string,
-}>({
+    url: string,
+  }>({
   name: 'netease',
   icon: KugouIcon,
   async search(keyword) {
