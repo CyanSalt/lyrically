@@ -179,8 +179,9 @@ function generateStyle(lyric: string | undefined, key: string, type: 'edge' | 'i
   const style: CSSProperties = {}
   if (typeof lyric !== 'string') return style
   if (lyric && rng() < 0.2) {
-    style.background = 'var(--foreground)'
-    style.color = 'var(--background)'
+    style.background = 'var(--highlight-background)'
+    style.color = 'var(--highlight-foreground)'
+    style.textShadow = 'none'
   }
   const rand = seedrandom(lyric + key + type)
   if (type === 'outside') {
@@ -434,6 +435,7 @@ watchEffect(() => {
     :class="['app', {
       'is-dark': isDark || isUsingDarkGradient,
       'is-transparent': isTransparent,
+      'is-gradient': isUsingGradient,
       'is-immersive': isPlaying && idle,
     }]"
     :style="{ '--picture': pictureURL }"
@@ -557,6 +559,8 @@ watchEffect(() => {
 .app {
   --foreground: black;
   --background: white;
+  --highlight-foreground: var(--background);
+  --highlight-background: var(--foreground);
   --fade-duration: 0.4s;
   --effect-duration: 0.5s;
   --lyric-duration: 1s;
@@ -568,7 +572,7 @@ watchEffect(() => {
   height: 100vh;
   font-size: 10vmin;
   overflow: hidden;
-  transition: background var(--effect-duration), color var(--effect-duration);
+  transition: background var(--effect-duration), color var(--effect-duration), text-shadow var(--effect-duration);
   &.is-dark {
     --foreground: white;
     --background: black;
@@ -580,6 +584,10 @@ watchEffect(() => {
   }
   &.is-immersive {
     cursor: none;
+  }
+  &.is-gradient {
+    --highlight-foreground: var(--background);
+    --highlight-background: color-mix(in sRGB, var(--foreground) 75%, transparent);
   }
   :deep(.lucide) {
     width: 1em;
@@ -623,6 +631,9 @@ watchEffect(() => {
   &.is-distant {
     opacity: 0.5;
     filter: blur(0.1em);
+  }
+  .app.is-gradient & {
+    text-shadow: 0 0 0.1em color-mix(in sRGB, var(--background) 25%, transparent);
   }
 }
 .lyric {
