@@ -491,8 +491,8 @@ watchEffect(() => {
     <div :class="['player-info', { 'is-resident': !isPlaying }]">
       <div class="music-area">
         <div :class="['music-picture', { 'is-inverted': !isLightPicture }]" @click="play">
-          <LucidePause v-if="isPlaying" />
-          <LucidePlay v-else />
+          <LucidePause v-if="isPlaying" fill="currentColor" />
+          <LucidePlay v-else fill="currentColor" />
         </div>
         <div class="music-info">
           <input v-model="keyword" :readonly="isConnected" :placeholder="appName" class="music-name" @change="search">
