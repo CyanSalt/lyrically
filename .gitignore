@@ -5,6 +5,7 @@ release
 .*cache
 /resources/images/*.ico
 /resources/images/*.icns
+.env
 
 # Log files
 npm-debug.log*
