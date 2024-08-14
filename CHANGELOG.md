@@ -1,5 +1,15 @@
 
 
+## [0.2.1](https://github.com/CyanSalt/lyrically/compare/v0.2.0...v0.2.1) (2024-08-14)
+
+
+### Bug Fixes
+
+* fill play icons ([dc4d156](https://github.com/CyanSalt/lyrically/commit/dc4d156040f4f7997dcdae74091a726130d1681f))
+* gradient mode shadow ([552ae69](https://github.com/CyanSalt/lyrically/commit/552ae698b72faa214533308ab587104c909a2a35))
+* moving area ([372e18a](https://github.com/CyanSalt/lyrically/commit/372e18a62a7be1c76698a185d75df74627afc066))
+* refine dragging area ([7f1f192](https://github.com/CyanSalt/lyrically/commit/7f1f192be4f88b117dfa6ae58df8303958c03389))
+
 ## [0.2.0](https://github.com/CyanSalt/lyrically/compare/v0.1.0...v0.2.0) (2024-02-07)
 
 
