@@ -578,6 +578,9 @@ watchEffect(() => {
     --background: black;
     --active-background-opacity: 16%;
     color: white;
+    :deep(.gradient-animation) {
+      filter: brightness(80%);
+    }
   }
   &:not(.is-transparent) {
     background-color: var(--background);
@@ -585,9 +588,8 @@ watchEffect(() => {
   &.is-immersive {
     cursor: none;
   }
-  &.is-gradient {
-    --highlight-foreground: var(--background);
-    --highlight-background: color-mix(in sRGB, var(--foreground) 75%, transparent);
+  :deep(.gradient-animation) {
+    filter: brightness(125%);
   }
   :deep(.lucide) {
     width: 1em;
@@ -631,9 +633,6 @@ watchEffect(() => {
   &.is-distant {
     opacity: 0.5;
     filter: blur(0.1em);
-  }
-  .app.is-gradient & {
-    text-shadow: 0 0 0.1em color-mix(in sRGB, var(--background) 25%, transparent);
   }
 }
 .lyric {
