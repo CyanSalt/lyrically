@@ -1,6 +1,6 @@
 import * as util from 'node:util'
 import applescript from 'applescript'
-import { app, BrowserWindow, ipcMain, nativeTheme, powerSaveBlocker } from 'electron'
+import { app, BrowserWindow, ipcMain, nativeTheme, powerSaveBlocker, shell } from 'electron'
 import { broadcast } from './frame'
 
 const executeApplescript = util.promisify(applescript.execString)
@@ -51,6 +51,9 @@ function handleMessages() {
   })
   ipcMain.handle('resume-display-sleep', (event, id: number) => {
     return powerSaveBlocker.stop(id)
+  })
+  ipcMain.handle('open-external', (event, url: string) => {
+    shell.openExternal(url)
   })
 }
 

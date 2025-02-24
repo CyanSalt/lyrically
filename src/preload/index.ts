@@ -29,6 +29,9 @@ const worldBridge: WorldBridge = {
       return ipcRenderer.invoke('resume-display-sleep', id)
     }
   },
+  openExternal(url) {
+    ipcRenderer.invoke('open-external', url)
+  },
 }
 
 contextBridge.exposeInMainWorld('worldBridge', worldBridge)

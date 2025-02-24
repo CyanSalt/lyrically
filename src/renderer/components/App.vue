@@ -3,13 +3,14 @@ import { useDocumentVisibility, useIdle, useTitle } from '@vueuse/core'
 import { average } from 'color.js'
 import { colord } from 'colord'
 import { difference, findLastIndex } from 'lodash-es'
-import { LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucideMusic, LucidePause, LucidePin, LucidePlay, LucideSun, LucideX } from 'lucide-vue-next'
+import { LucideAirplay, LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucidePause, LucidePin, LucidePlay, LucideSearch, LucideSun, LucideX } from 'lucide-vue-next'
 import seedrandom from 'seedrandom'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
 import { useAlwaysOnTop, useDarkMode, useDisplaySleepPrevented, useFullscreen } from '../compositions/frame'
 import { useKeyboardShortcuts } from '../compositions/interactive'
 import { checkConnectable, getConnectedData, pauseConnected, playConnected } from '../utils/connection'
+import { checkExternalSearchAvailable, openExternalSearch } from '../utils/external'
 import { checkVibrancySupport } from '../utils/frame'
 import { parseLRC } from '../utils/lrc'
 import type { Segmenter } from '../utils/string'
@@ -299,6 +300,13 @@ function connect() {
   isConnected = !isConnected
 }
 
+const isExternallySearchable = checkExternalSearchAvailable()
+
+function searchExternally() {
+  if (isConnected) return
+  openExternalSearch(keyword)
+}
+
 async function prepare(song: any, detail: any, autoplay = false) {
   music = await service.prepare?.(song, detail)
   if (!music) return
@@ -509,7 +517,14 @@ watchEffect(() => {
             :class="['control-item', { 'is-active': isConnected }]"
             @click="connect"
           >
-            <LucideMusic />
+            <LucideAirplay />
+          </div>
+          <div
+            v-if="isExternallySearchable"
+            :class="['control-item', { 'is-disabled': isConnected }]"
+            @click="searchExternally"
+          >
+            <LucideSearch />
           </div>
         </div>
         <div class="vendor-list">
@@ -567,6 +582,7 @@ watchEffect(() => {
   --interactive-duration: 0.2s;
   --icon-size: clamp(12px, 5vmin, 24px);
   --active-background-opacity: 8%;
+  --colorful-background-filter: brightness(133.3333%);
   position: relative;
   width: 100vw;
   height: 100vh;
@@ -577,10 +593,8 @@ watchEffect(() => {
     --foreground: white;
     --background: black;
     --active-background-opacity: 16%;
+    --colorful-background-filter: brightness(75%);
     color: white;
-    :deep(.gradient-animation) {
-      filter: brightness(80%);
-    }
   }
   &:not(.is-transparent) {
     background-color: var(--background);
@@ -589,7 +603,7 @@ watchEffect(() => {
     cursor: none;
   }
   :deep(.gradient-animation) {
-    filter: brightness(125%);
+    filter: var(--colorful-background-filter);
   }
   :deep(.lucide) {
     width: 1em;
@@ -730,25 +744,18 @@ watchEffect(() => {
 .music-info {
   display: flex;
   flex-direction: column;
-  gap: 0.5em;
+  gap: #{0.75em * 0.25};
 }
 .music-name {
   appearance: none;
   width: 10em;
   padding: 0;
   border: none;
-  border-bottom: 2px solid;
   color: inherit;
   font: inherit;
-  line-height: 2em;
+  font-weight: 500;
   background: transparent;
-  border-image-source: linear-gradient(to right, currentColor, currentColor);
-  border-image-slice: 1;
   outline: none;
-  transition: border-image-source var(--effect-duration);
-  &:read-only {
-    border-image-source: linear-gradient(to right, currentColor, transparent);
-  }
   &::placeholder {
     color: color-mix(in sRGB, var(--foreground) 25%, transparent);
     font-style: italic;
@@ -843,17 +850,17 @@ watchEffect(() => {
   mask-image: paint(smoothie-mask);
   transition: transform var(--interactive-duration), color var(--interactive-duration), background-color var(--interactive-duration);
   cursor: pointer;
-  &:hover {
+  &:not(.is-disabled):hover {
     --background-opacity: var(--active-background-opacity);
     --foreground-opacity: 100%;
   }
-  &:active {
+  &:not(.is-disabled):active {
     transform: scale(0.96);
   }
   &.is-active {
     --background-opacity: var(--active-background-opacity);
   }
-  &:active, &.is-active:hover {
+  &:not(.is-disabled):active, &.is-active:hover {
     --background-opacity: calc(var(--active-background-opacity) * 1.5);
   }
   .vendor-icon {
@@ -861,6 +868,10 @@ watchEffect(() => {
   }
   &.is-active .vendor-icon {
     filter: opacity(1);
+  }
+  &.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 </style>
