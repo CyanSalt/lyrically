@@ -50,6 +50,7 @@
     "eslint": "^9.21.0",
     "lodash-es": "^4.17.21",
     "lucide-vue-next": "^0.475.0",
+    "picocolors": "^1.1.1",
     "png2icons": "^2.0.1",
     "release-it": "^18.1.2",
     "sass": "^1.85.0",

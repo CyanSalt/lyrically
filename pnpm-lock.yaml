@@ -81,6 +81,9 @@ importers:
       lucide-vue-next:
         specifier: ^0.475.0
         version: 0.475.0(vue@3.5.13(typescript@5.7.3))
+      picocolors:
+        specifier: ^1.1.1
+        version: 1.1.1
       png2icons:
         specifier: ^2.0.1
         version: 2.0.1

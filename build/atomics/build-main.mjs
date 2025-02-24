@@ -1,5 +1,4 @@
 import esbuild from 'esbuild'
-import externalNodeModules from '../utils/esbuild-external-node-modules.mjs'
 
 /**
  * @typedef {import('esbuild').BuildOptions} BuildOptions
@@ -13,9 +12,7 @@ export default (versions) => esbuild.build({
   outfile: 'dist/main/index.js',
   bundle: true,
   platform: 'node',
-  plugins: [
-    externalNodeModules(),
-  ],
+  packages: 'external',
   target: `node${versions.node}`,
   define: {
     // Optimization

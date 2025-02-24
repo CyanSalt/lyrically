@@ -17,15 +17,11 @@ export default (versions) => vite.build({
   define: {
     // Optimization
     'process.type': JSON.stringify('renderer'),
-    __VUE_OPTIONS_API__: JSON.stringify(false),
   },
   plugins: [
     vue(),
     reactivityTransform(),
   ],
-  json: {
-    stringify: true,
-  },
   build: {
     outDir: '../../dist/renderer',
     emptyOutDir: true,

@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url'
 import util from 'node:util'
 import { packager } from '@electron/packager'
 import { rebuild } from '@electron/rebuild'
-import chalk from 'chalk'
 import * as dotenv from 'dotenv'
+import picocolors from 'picocolors'
 import png2icons from 'png2icons'
 import { requireCommonJS } from './utils/common.mjs'
 
@@ -19,25 +19,25 @@ const logger = {
    * @param {string} message
    */
   info(message) {
-    console.log(chalk.inverse(chalk.blue(' INFO ')) + ' ' + message)
+    console.log(picocolors.inverse(picocolors.blue(' INFO ')) + ' ' + message)
   },
   /**
    * @param {string} message
    */
   done(message) {
-    console.log(chalk.inverse(chalk.green(' DONE ')) + ' ' + message)
+    console.log(picocolors.inverse(picocolors.green(' DONE ')) + ' ' + message)
   },
   /**
    * @param {string} message
    */
   warn(message) {
-    console.log(chalk.inverse(chalk.yellow(' WARN ')) + ' ' + chalk.yellow(message))
+    console.log(picocolors.inverse(picocolors.yellow(' WARN ')) + ' ' + picocolors.yellow(message))
   },
   /**
    * @param {string} message
    */
   error(message) {
-    console.error(chalk.inverse(chalk.red(' ERROR ')) + ' ' + chalk.red(message))
+    console.error(picocolors.inverse(picocolors.red(' ERROR ')) + ' ' + picocolors.red(message))
   },
 }
 
@@ -167,10 +167,10 @@ async function pack() {
   }
   // Run @electron/packager
   const appPaths = await runPackager(options, local ? undefined : [
-    { arch: 'x64', platform: 'darwin' },
-    { arch: 'x64', platform: 'linux' },
-    { arch: 'x64', platform: 'win32' },
     { arch: 'arm64', platform: 'darwin' },
+    { arch: 'x64', platform: 'darwin' },
+    // { arch: 'x64', platform: 'linux' },
+    // { arch: 'x64', platform: 'win32' },
   ])
   if (!local) {
     const cwd = process.cwd()
@@ -192,6 +192,6 @@ pack().then(
   },
   err => {
     process.exitCode = 1
-    logger.error(err)
+    logger.error(err.stack)
   },
 )
