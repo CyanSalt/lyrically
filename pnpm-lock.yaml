@@ -60,6 +60,9 @@ importers:
       colord:
         specifier: ^2.9.3
         version: 2.9.3
+      corner-smoothie:
+        specifier: ^0.1.5
+        version: 0.1.5
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
@@ -1322,6 +1325,9 @@ packages:
   abbrev@1.1.1:
     resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
 
+  abs-svg-path@0.1.1:
+    resolution: {integrity: sha512-d8XPSGjfyzlXC3Xx891DJRyZfqk5JU0BJrDQcsWomFIV1/BIzPW5HDH5iDdWpqWaav0YVIEzT1RHTwWr0FFshA==}
+
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -1757,6 +1763,9 @@ packages:
   core-js-compat@3.40.0:
     resolution: {integrity: sha512-0XEDpr5y5mijvw8Lbc6E5AkjrHfp7eEoPlu36SWeAbcL8fn1G1ANe8DBlo2XoNN89oVpxWwOjYIPVzR4ZvsKCQ==}
 
+  corner-smoothie@0.1.5:
+    resolution: {integrity: sha512-AUWBs3mhv2xU9J/Qx3+nhkx6dVYWV2luI/Eq0OFrFKSfWi0LTT6eJpf+dD0/+OE+qLcT814QKCsrH+a1LckafQ==}
+
   cosmiconfig@6.0.0:
     resolution: {integrity: sha512-xb3ZL6+L8b9JLLCx3ZdoZy4+2ECphCMo2PwqgP1tlfVq6M6YReyzBJtvWWtbDSpNr9hn96pkCiZqUcFEc+54Qg==}
     engines: {node: '>=8'}
@@ -1795,6 +1804,9 @@ packages:
 
   csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
+
+  curvify-svg-path@1.0.1:
+    resolution: {integrity: sha512-KPGiV4BsH7g6B7C3i9ZFBzgrMRYdMEiL79/y93nWCcYCSuEF/qnJ6e/qJoVHESqrs9zbzB+iX8wgcLwv92z4HQ==}
 
   data-uri-to-buffer@6.0.2:
     resolution: {integrity: sha512-7hvf7/GW8e86rW0ptuwS3OcBGDjIi6SZva7hCyWC0yYry2cOPmLIjXAUHI6DK2HsnwJd9ifmt57i8eV2n4YNpw==}
@@ -1942,6 +1954,9 @@ packages:
   dotenv@16.4.7:
     resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
     engines: {node: '>=12'}
+
+  draw-svg-path@2.0.1:
+    resolution: {integrity: sha512-vyXaPWt+4ze+9mfZn0n8iLIN3aELbk50V6KKtFAgUyeGmakkjPY6UWYKlicK5su6zHORrQeukIYlmaXHevK1fg==}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -2306,6 +2321,9 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  figma-squircle@1.1.0:
+    resolution: {integrity: sha512-3aa6bOurrsybsuYo1TMRuasBpXgVjgnmOUtZ40il6e1dJF2lhTRq89z7oy1uzKDspbH3630rLZD2UvJqXDiktA==}
 
   figures@6.1.0:
     resolution: {integrity: sha512-d+l3qxjSesT4V7v2fh+QnmFnUWv9lSpjarhShNTgBOfA0ttejbQUAlHLitbjkoRiDulW0OPoQPYIGhIC8ohejg==}
@@ -3454,6 +3472,9 @@ packages:
 
   parse-path@7.0.1:
     resolution: {integrity: sha512-6ReLMptznuuOEzLoGEa+I1oWRSj2Zna5jLWC+l6zlfAI4dbbSaIES29ThzuPkbhNahT65dWzfoZEO6cfJw2Ksg==}
+
+  parse-svg-path@0.1.2:
+    resolution: {integrity: sha512-JyPSBnkTJ0AI8GGJLfMXvKq42cj5c006fnLz6fXy6zfoVjJizi8BNTpu8on8ziI1cKy9d9DGNuY17Ce7wuejpQ==}
 
   parse-url@9.2.0:
     resolution: {integrity: sha512-bCgsFI+GeGWPAvAiUv63ZorMeif3/U0zaXABGJbOWt5OH2KCaPHF6S+0ok4aqM9RuIPGyZdx9tR9l13PsW4AYQ==}
@@ -5677,6 +5698,8 @@ snapshots:
 
   abbrev@1.1.1: {}
 
+  abs-svg-path@0.1.1: {}
+
   acorn-jsx@5.3.2(acorn@8.14.0):
     dependencies:
       acorn: 8.14.0
@@ -6164,6 +6187,11 @@ snapshots:
     dependencies:
       browserslist: 4.24.4
 
+  corner-smoothie@0.1.5:
+    dependencies:
+      draw-svg-path: 2.0.1
+      figma-squircle: 1.1.0
+
   cosmiconfig@6.0.0:
     dependencies:
       '@types/parse-json': 4.0.2
@@ -6205,6 +6233,8 @@ snapshots:
   cssesc@3.0.0: {}
 
   csstype@3.1.3: {}
+
+  curvify-svg-path@1.0.1: {}
 
   data-uri-to-buffer@6.0.2: {}
 
@@ -6342,6 +6372,12 @@ snapshots:
   dotenv-expand@10.0.0: {}
 
   dotenv@16.4.7: {}
+
+  draw-svg-path@2.0.1:
+    dependencies:
+      abs-svg-path: 0.1.1
+      curvify-svg-path: 1.0.1
+      parse-svg-path: 0.1.2
 
   dunder-proto@1.0.1:
     dependencies:
@@ -6922,6 +6958,8 @@ snapshots:
   fdir@6.4.3(picomatch@4.0.2):
     optionalDependencies:
       picomatch: 4.0.2
+
+  figma-squircle@1.1.0: {}
 
   figures@6.1.0:
     dependencies:
@@ -8134,6 +8172,8 @@ snapshots:
   parse-path@7.0.1:
     dependencies:
       protocols: 2.0.2
+
+  parse-svg-path@0.1.2: {}
 
   parse-url@9.2.0:
     dependencies:

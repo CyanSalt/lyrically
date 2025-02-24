@@ -830,6 +830,8 @@ watchEffect(() => {
   }
 }
 .control-item {
+  --smoothie-border-radius: 0.5em;
+  --smoothie-border-radius-smoothing: 0.6;
   --background-opacity: 0;
   --foreground-opacity: 50%;
   display: flex;
@@ -839,7 +841,7 @@ watchEffect(() => {
   height: 1.75em;
   color: color-mix(in sRGB, var(--foreground) var(--foreground-opacity), transparent);
   background-color: color-mix(in sRGB, var(--foreground) var(--background-opacity), transparent);
-  border-radius: 0.5em;
+  mask-image: paint(smoothie-mask);
   transition: color var(--interactive-duration), background-color var(--interactive-duration);
   cursor: pointer;
   &:hover {

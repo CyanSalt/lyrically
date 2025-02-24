@@ -43,6 +43,7 @@
     "@vueuse/core": "^12.7.0",
     "color.js": "^1.2.0",
     "colord": "^2.9.3",
+    "corner-smoothie": "^0.1.5",
     "dotenv": "^16.4.7",
     "dotenv-cli": "^8.0.0",
     "electron": "^34.2.0",
