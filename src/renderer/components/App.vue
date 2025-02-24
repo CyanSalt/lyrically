@@ -784,7 +784,7 @@ watchEffect(() => {
   height: 1em;
   background-color: var(--foreground);
   mask-image: var(--icon);
-  transition: background-color var(--effect-duration);
+  transition: background-color var(--effect-duration), filter var(--interactive-duration);
 }
 .audio {
   display: none;
@@ -841,11 +841,14 @@ watchEffect(() => {
   color: color-mix(in sRGB, var(--foreground) var(--foreground-opacity), transparent);
   background-color: color-mix(in sRGB, var(--foreground) var(--background-opacity), transparent);
   mask-image: paint(smoothie-mask);
-  transition: color var(--interactive-duration), background-color var(--interactive-duration);
+  transition: transform var(--interactive-duration), color var(--interactive-duration), background-color var(--interactive-duration);
   cursor: pointer;
   &:hover {
     --background-opacity: var(--active-background-opacity);
     --foreground-opacity: 100%;
+  }
+  &:active {
+    transform: scale(0.96);
   }
   &.is-active {
     --background-opacity: var(--active-background-opacity);
@@ -855,7 +858,6 @@ watchEffect(() => {
   }
   .vendor-icon {
     filter: opacity(var(--foreground-opacity));
-    transition: filter var(--interactive-duration);
   }
   &.is-active .vendor-icon {
     filter: opacity(1);
