@@ -37,7 +37,8 @@ let currentTime = $ref(0)
 let offsetTime = $ref(0)
 let service = $shallowRef<MusicService<any, any>>(KugouService)
 let keyword = $ref('')
-let info = $ref<MusicInfo>()
+let candidates = $ref<any[]>([])
+let selectedIndex = $ref(-1)
 let data = $ref<MusicData<any>>()
 let music = $ref<string>()
 
@@ -46,6 +47,12 @@ let connectedInfo = $ref<MusicInfo>()
 let connectedSong = $ref<any>()
 
 const audio = $ref<HTMLAudioElement>()
+
+const info = $computed(() => {
+  const song = candidates[selectedIndex]
+  if (!song) return undefined
+  return service.transform(song)
+})
 
 const playingTime = $computed(() => currentTime + offsetTime)
 
@@ -80,7 +87,7 @@ function highlightSegments(text: string, segmenter: Segmenter | undefined) {
   }).join('')
 }
 
-const pictureURL = $computed(() => {
+const pictureImage = $computed(() => {
   if (!data || !data.picture) return undefined
   return `url("${data.picture}")`
 })
@@ -99,7 +106,7 @@ const isLightPicture = $computed(() => {
 })
 
 const isUsingGradient = $computed(() => {
-  return isGradientEnabled && Boolean(pictureURL)
+  return isGradientEnabled && Boolean(pictureImage)
 })
 
 const isUsingDarkGradient = $computed(() => {
@@ -120,7 +127,7 @@ watchEffect(async () => {
 
 const lyricHTML = $computed(() => {
   return lyrics.map((lyric, index) => {
-    return pictureURL && !lyric.text.trim() && durations[index] > 5
+    return pictureImage && !lyric.text.trim() && durations[index] > 5
       ? `<div class="picture"></div>`
       : highlightSegments(lyric.text, segmenter)
   })
@@ -325,7 +332,8 @@ async function prepare(song: any, detail: any, autoplay = false) {
 }
 
 function unload() {
-  info = undefined
+  candidates = []
+  selectedIndex = -1
   data = undefined
   music = undefined
   connectedSong = undefined
@@ -333,17 +341,25 @@ function unload() {
 
 async function load(query: string, properties?: MusicInfo) {
   unload()
-  const songs = await service.search(query)
-  const song = songs.find(item => {
+  const result = await service.search(query)
+  if (!result.length) return
+  let matchedIndex = result.findIndex((item, index) => {
     const transformed = service.transform(item)
     if (properties?.album && transformed.album !== properties.album) return false
     if (properties?.artists && difference(properties.artists, transformed.artists ?? []).length) return false
     return true
-  }) ?? songs[0]
-  if (!song) return
-  info = service.transform(song)
+  })
+  if (matchedIndex === -1) {
+    matchedIndex = 0
+  }
+  candidates = result
+  selectedIndex = matchedIndex
+  select(result[matchedIndex], Boolean(properties))
+}
+
+async function select(song: any, connecting = false) {
   data = await service.load(song)
-  if (properties) {
+  if (connecting) {
     connectedSong = song
   } else {
     await prepare(song, data.detail, true)
@@ -354,6 +370,27 @@ function search(event: InputEvent) {
   const query = (event.target as HTMLInputElement).value
   if (query) {
     load(query)
+  }
+}
+
+function toSuffix(values: (string | undefined)[], sep: string, prefix: string) {
+  const suffix = values.filter((item): item is string => typeof item === 'string').join(sep)
+  return suffix ? `${prefix}${suffix}` : ''
+}
+
+async function showCandidates(event: MouseEvent) {
+  if (!candidates.length) return
+  const pickedIndex = await worldBridge.select(candidates.map((song, index) => {
+    const transformed = service.transform(song)
+    return {
+      type: 'radio',
+      label: `${transformed.name}${toSuffix([transformed.artists?.join(' & '), transformed.album], ' ', ' - ')}`,
+      checked: index === selectedIndex,
+    }
+  }), event, selectedIndex)
+  if (pickedIndex !== -1) {
+    selectedIndex = pickedIndex
+    select(candidates[pickedIndex], isConnected)
   }
 }
 
@@ -446,7 +483,10 @@ watchEffect(() => {
       'is-gradient': isUsingGradient,
       'is-immersive': isPlaying && idle,
     }]"
-    :style="{ '--picture': pictureURL }"
+    :style="{
+      '--picture-image': pictureImage,
+      '--picture-color': pictureColor,
+    }"
   >
     <Transition name="fade">
       <GradientAnimation v-if="isUsingGradient" :animated="isPlaying" />
@@ -488,7 +528,7 @@ watchEffect(() => {
           <LucideCloudFog />
         </button>
         <button
-          v-if="pictureURL"
+          v-if="pictureImage"
           :class="['control-item', { 'is-active': isGradientEnabled }]"
           @click="toggleGradient"
         >
@@ -504,10 +544,10 @@ watchEffect(() => {
         </div>
         <div class="music-info">
           <input v-model="keyword" :readonly="isConnected" :placeholder="appName" class="music-name" @change="search">
-          <div v-if="info" class="music-detail">
+          <a v-if="info" class="music-detail" @click="showCandidates">
             <div class="artists">{{ info.artists?.join(' & ') }}</div>
             <div class="album">{{ info.album }}</div>
-          </div>
+          </a>
         </div>
       </div>
       <div class="vendor-area">
@@ -614,7 +654,7 @@ watchEffect(() => {
     position: fixed;
     bottom: 0;
     left: 50%;
-    color: color-mix(in sRGB, currentColor var(--active-background-opacity), transparent);
+    color: color-mix(in oklab, currentColor var(--active-background-opacity), transparent);
     font-size: var(--icon-size);
     transform: translateX(-50%);
     transition: color var(--fade-duration);
@@ -659,7 +699,7 @@ watchEffect(() => {
   :deep(.picture) {
     width: 5em;
     height: 5em;
-    background-image: var(--picture);
+    background-image: var(--picture-image);
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
@@ -703,7 +743,7 @@ watchEffect(() => {
   min-width: 0;
 }
 .music-picture {
-  --fallback-background: color-mix(in sRGB, var(--foreground) var(--active-background-opacity), var(--background) var(--active-background-opacity));
+  --fallback-background: color-mix(in oklab, var(--foreground) var(--active-background-opacity), var(--background) var(--active-background-opacity));
   position: relative;
   display: flex;
   flex: none;
@@ -718,7 +758,7 @@ watchEffect(() => {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: var(--picture, linear-gradient(var(--fallback-background), var(--fallback-background)));
+    background-image: var(--picture-image, linear-gradient(var(--fallback-background), var(--fallback-background)));
     background-size: contain;
     transition: opacity var(--fade-duration);
     pointer-events: none;
@@ -757,7 +797,7 @@ watchEffect(() => {
   background: transparent;
   outline: none;
   &::placeholder {
-    color: color-mix(in sRGB, var(--foreground) 25%, transparent);
+    color: color-mix(in oklab, var(--foreground) 25%, transparent);
     font-style: italic;
     transition: color var(--effect-duration);
   }
@@ -766,9 +806,14 @@ watchEffect(() => {
   display: flex;
   flex-direction: column;
   gap: 0.25em;
+  color: color-mix(in oklab, var(--foreground) 50%, transparent);
   font-size: 0.75em;
   white-space: nowrap;
-  opacity: 0.5;
+  transition: color var(--effect-duration);
+  cursor: pointer;
+  .app.is-gradient & {
+    color: color-mix(in oklab, var(--picture-color) 75%, var(--foreground));
+  }
 }
 .vendor-area {
   display: flex;
@@ -848,9 +893,9 @@ watchEffect(() => {
   height: 1.75em;
   padding: 0;
   border: none;
-  color: color-mix(in sRGB, var(--foreground) var(--foreground-opacity), transparent);
+  color: color-mix(in oklab, var(--foreground) var(--foreground-opacity), transparent);
   font: inherit;
-  background-color: color-mix(in sRGB, var(--foreground) var(--background-opacity), transparent);
+  background-color: color-mix(in oklab, var(--foreground) var(--background-opacity), transparent);
   mask-image: paint(smoothie-mask);
   transition: transform var(--interactive-duration), color var(--interactive-duration), background-color var(--interactive-duration);
   cursor: pointer;

@@ -1,4 +1,4 @@
-import type { IpcRendererEvent } from 'electron'
+import type { IpcRendererEvent, MenuItemConstructorOptions } from 'electron'
 
 export interface WorldBridge {
   appName: string,
@@ -10,4 +10,9 @@ export interface WorldBridge {
   applescript: <T>(script: string) => Promise<T>,
   preventDisplaySleep: () => () => Promise<void>,
   openExternal: (url: string) => void,
+  select: (
+    items: Partial<MenuItemConstructorOptions>[],
+    position: [number, number] | MouseEvent,
+    defaultIndex?: number,
+  ) => Promise<number>,
 }

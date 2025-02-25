@@ -28,7 +28,7 @@ const { animated } = defineProps<{
     position: absolute;
     width: 200vmax;
     height: 200vmax;
-    background-image: var(--picture);
+    background-image: var(--picture-image);
     background-size: 100%;
     background-repeat: no-repeat;
     border-radius: 100vmax;

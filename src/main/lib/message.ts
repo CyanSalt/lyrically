@@ -1,6 +1,7 @@
 import * as util from 'node:util'
 import applescript from 'applescript'
-import { app, BrowserWindow, ipcMain, nativeTheme, powerSaveBlocker, shell } from 'electron'
+import type { MenuItemConstructorOptions, PopupOptions } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, nativeTheme, powerSaveBlocker, shell } from 'electron'
 import { broadcast } from './frame'
 
 const executeApplescript = util.promisify(applescript.execString)
@@ -54,6 +55,28 @@ function handleMessages() {
   })
   ipcMain.handle('open-external', (event, url: string) => {
     shell.openExternal(url)
+  })
+  ipcMain.handle('select-menu', (event, template: Partial<MenuItemConstructorOptions>[], options: PopupOptions) => {
+    const { promise, resolve } = Promise.withResolvers()
+    const frame = BrowserWindow.fromWebContents(event.sender)
+    const menu = Menu.buildFromTemplate(template.map((item, index) => {
+      return {
+        ...item,
+        click: () => {
+          resolve(index)
+        },
+      } satisfies MenuItemConstructorOptions
+    }))
+    menu.popup({
+      ...options,
+      window: frame ?? undefined,
+    })
+    menu.once('menu-will-close', () => {
+      setTimeout(() => {
+        resolve(-1)
+      })
+    })
+    return promise
   })
 }
 

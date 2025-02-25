@@ -4,33 +4,42 @@ import type { WorldBridge } from './types'
 const worldBridge: WorldBridge = {
   appName: ipcRenderer.sendSync('get-name'),
   platform: process.platform,
-  getRef(key, token) {
+  getRef: (key, token) => {
     return ipcRenderer.invoke(`get-ref:${key}`, token)
   },
-  setRef(key, value, token) {
+  setRef: (key, value, token) => {
     return ipcRenderer.invoke(`set-ref:${key}`, value, token)
   },
-  onUpdateRef(key, handler) {
+  onUpdateRef: (key, handler) => {
     ipcRenderer.on(`update-ref:${key}`, handler)
     return () => {
       ipcRenderer.off(`update-ref:${key}`, handler)
     }
   },
-  close() {
+  close: () => {
     ipcRenderer.invoke('close')
   },
-  applescript(script) {
+  applescript: script => {
     return ipcRenderer.invoke('applescript', script)
   },
-  preventDisplaySleep() {
+  preventDisplaySleep: () => {
     const request = ipcRenderer.invoke('prevent-display-sleep')
     return async () => {
       const id = await request
       return ipcRenderer.invoke('resume-display-sleep', id)
     }
   },
-  openExternal(url) {
+  openExternal: url => {
     ipcRenderer.invoke('open-external', url)
+  },
+  select: (items, position, defaultIndex = -1) => {
+    const coords = Array.isArray(position)
+      ? { x: position[0], y: position[1] }
+      : { x: position.clientX, y: position.clientY }
+    return ipcRenderer.invoke('select-menu', items, {
+      positioningItem: defaultIndex,
+      ...coords,
+    })
   },
 }
 
