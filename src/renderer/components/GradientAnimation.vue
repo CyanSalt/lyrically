@@ -5,7 +5,7 @@ const { animated } = defineProps<{
 </script>
 
 <template>
-  <div :class="['gradient-animation', { 'is-animated': animated }]"></div>
+  <div :class="['gradient-animation', { 'is-animated': animated }]" aria-hidden="true"></div>
 </template>
 
 <style lang="scss" scoped>

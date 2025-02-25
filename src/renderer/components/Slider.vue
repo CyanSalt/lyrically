@@ -41,6 +41,7 @@ function reset() {
   <div
     :class="['slider', { 'is-active': isActive }]"
     :style="{ '--position-offset': `calc(${modelValue * -1} * var(--grid-size))` }"
+    role="slider"
   >
     <div class="control" @pointerdown="start" @dblclick="reset"></div>
     <div class="track"></div>

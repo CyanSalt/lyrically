@@ -460,43 +460,43 @@ watchEffect(() => {
         v-html="lyricHTML[index] ?? ''"
       ></div>
     </div>
-    <div :class="['control-bar', { 'is-resident': !isPlaying }]">
+    <header :class="['control-bar', { 'is-resident': !isPlaying }]">
       <div class="control-area">
-        <div class="control-item" @click="close">
+        <button class="control-item" @click="close">
           <LucideX />
-        </div>
-        <div class="control-item" @click="toggleFullscreen">
+        </button>
+        <button class="control-item" @click="toggleFullscreen">
           <LucideMinimize v-if="isFullscreen" />
           <LucideMaximize v-else />
-        </div>
-        <div :class="['control-item', { 'is-active': isAlwaysOnTop }]" @click="toggleAlwaysOnTop">
+        </button>
+        <button :class="['control-item', { 'is-active': isAlwaysOnTop }]" @click="toggleAlwaysOnTop">
           <LucidePin />
-        </div>
+        </button>
       </div>
       <div class="control-area top-move"></div>
       <div class="control-area center-move"></div>
       <div class="control-area">
-        <div class="control-item" @click="toggleDarkMode">
+        <button class="control-item" @click="toggleDarkMode">
           <LucideSun v-if="isDark" />
           <LucideMoon v-else />
-        </div>
-        <div
+        </button>
+        <button
           v-if="supportsVibrancy"
           :class="['control-item', { 'is-active': isTransparent && !isGradientEnabled }]"
           @click="toggleTransparent"
         >
           <LucideCloudFog />
-        </div>
-        <div
+        </button>
+        <button
           v-if="pictureURL"
           :class="['control-item', { 'is-active': isGradientEnabled }]"
           @click="toggleGradient"
         >
           <LucideBlend />
-        </div>
+        </button>
       </div>
-    </div>
-    <div :class="['player-info', { 'is-resident': !isPlaying }]">
+    </header>
+    <footer :class="['player-info', { 'is-resident': !isPlaying }]">
       <div class="music-area">
         <div :class="['music-picture', { 'is-inverted': !isLightPicture }]" @click="play">
           <LucidePause v-if="isPlaying" fill="currentColor" />
@@ -512,23 +512,23 @@ watchEffect(() => {
       </div>
       <div class="vendor-area">
         <div class="vendor-list">
-          <div
+          <button
             v-if="isConnectable"
             :class="['control-item', { 'is-active': isConnected }]"
             @click="connect"
           >
             <LucideAirplay />
-          </div>
-          <div
+          </button>
+          <button
             v-if="isExternallySearchable"
             :class="['control-item', { 'is-disabled': isConnected }]"
             @click="searchExternally"
           >
             <LucideSearch />
-          </div>
+          </button>
         </div>
         <div class="vendor-list">
-          <div
+          <button
             v-for="(vendor, index) in vendors"
             :key="vendor.name"
             :class="['control-item', {
@@ -540,10 +540,10 @@ watchEffect(() => {
             @click="activate(vendor)"
           >
             <div class="vendor-icon"></div>
-          </div>
+          </button>
         </div>
       </div>
-    </div>
+    </footer>
     <Transition name="fade">
       <Slider v-if="data && !isPlaying" v-model="offsetTime" />
     </Transition>
@@ -840,12 +840,16 @@ watchEffect(() => {
   --smoothie-border-radius-smoothing: 0.6;
   --background-opacity: 0;
   --foreground-opacity: 50%;
+  appearance: none;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 1.75em;
   height: 1.75em;
+  padding: 0;
+  border: none;
   color: color-mix(in sRGB, var(--foreground) var(--foreground-opacity), transparent);
+  font: inherit;
   background-color: color-mix(in sRGB, var(--foreground) var(--background-opacity), transparent);
   mask-image: paint(smoothie-mask);
   transition: transform var(--interactive-duration), color var(--interactive-duration), background-color var(--interactive-duration);
