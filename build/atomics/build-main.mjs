@@ -1,3 +1,4 @@
+import reactivityTransform from '@vue-macros/reactivity-transform/esbuild'
 import esbuild from 'esbuild'
 
 /**
@@ -13,6 +14,9 @@ export default (versions) => esbuild.build({
   bundle: true,
   platform: 'node',
   packages: 'external',
+  plugins: [
+    reactivityTransform(),
+  ],
   target: `node${versions.node}`,
   define: {
     // Optimization
