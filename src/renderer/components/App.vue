@@ -642,6 +642,9 @@ watchEffect(() => {
   &.is-immersive {
     cursor: none;
   }
+  &.is-gradient {
+    --highlight-foreground: var(--picture-color, var(--background));
+  }
   :deep(.gradient-animation) {
     filter: var(--colorful-background-filter);
   }
@@ -684,8 +687,11 @@ watchEffect(() => {
   perspective: 100vmin;
   transition: opacity var(--lyric-duration), filter var(--lyric-duration);
   animation: shake 3s ease-in-out infinite;
+  .app.is-gradient & {
+    opacity: 0.9;
+  }
   &.is-distant {
-    opacity: 0.5;
+    opacity: 0.5 !important;
     filter: blur(0.1em);
   }
 }
@@ -811,9 +817,6 @@ watchEffect(() => {
   white-space: nowrap;
   transition: color var(--effect-duration);
   cursor: pointer;
-  .app.is-gradient & {
-    color: color-mix(in oklab, var(--picture-color) 75%, var(--foreground));
-  }
 }
 .vendor-area {
   display: flex;
