@@ -1,9 +1,16 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import mri from 'mri'
 import type { WorldBridge } from './types'
+
+const args = mri(process.argv)
 
 const worldBridge: WorldBridge = {
   appName: ipcRenderer.sendSync('get-name'),
   platform: process.platform,
+  isNotchAvailable: Boolean(args['lyrically-notch-available']),
+  isNotchWindow: Boolean(args['lyrically-notch-width'] && args['lyrically-notch-height']),
+  notchAreaWidth: Number(args['lyrically-notch-width']) || 0,
+  notchAreaHeight: Number(args['lyrically-notch-height']) || 0,
   getRef: (key, token) => {
     return ipcRenderer.invoke(`get-ref:${key}`, token)
   },
@@ -40,6 +47,15 @@ const worldBridge: WorldBridge = {
       positioningItem: defaultIndex,
       ...coords,
     })
+  },
+  openWindow: () => {
+    ipcRenderer.invoke('open-window')
+  },
+  openNotchWindow: () => {
+    ipcRenderer.invoke('open-notch-window')
+  },
+  setBounds: bounds => {
+    ipcRenderer.invoke('set-bounds', bounds)
   },
 }
 

@@ -1,8 +1,9 @@
 import * as util from 'node:util'
 import applescript from 'applescript'
-import type { MenuItemConstructorOptions, PopupOptions } from 'electron'
+import type { MenuItemConstructorOptions, PopupOptions, Rectangle } from 'electron'
 import { app, BrowserWindow, ipcMain, Menu, nativeTheme, powerSaveBlocker, shell } from 'electron'
 import { broadcast } from './frame'
+import { createNotchWindow, createWindow } from './window'
 
 const executeApplescript = util.promisify(applescript.execString)
 
@@ -77,6 +78,19 @@ function handleMessages() {
       })
     })
     return promise
+  })
+  ipcMain.handle('open-window', () => {
+    createWindow()
+  })
+  ipcMain.handle('open-notch-window', event => {
+    const frame = BrowserWindow.fromWebContents(event.sender)
+    if (!frame) return
+    createNotchWindow(frame)
+  })
+  ipcMain.handle('set-bounds', (event, bound: Rectangle) => {
+    const frame = BrowserWindow.fromWebContents(event.sender)
+    if (!frame) return
+    frame.setBounds(bound, true)
   })
 }
 

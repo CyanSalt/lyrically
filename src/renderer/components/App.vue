@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { useDocumentVisibility, useIdle, useTitle } from '@vueuse/core'
+import { useDocumentVisibility, useIdle, useTitle, useWindowSize } from '@vueuse/core'
 import { average } from 'color.js'
 import { colord } from 'colord'
 import { difference, findLastIndex } from 'lodash-es'
-import { LucideAirplay, LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucidePause, LucidePin, LucidePlay, LucideSearch, LucideSun, LucideX } from 'lucide-vue-next'
+import { LucideAirplay, LucideBlend, LucideChevronsDownUp, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucidePanelTopClose, LucidePanelTopOpen, LucidePause, LucidePin, LucidePlay, LucideSearch, LucideSun, LucideX } from 'lucide-vue-next'
 import seedrandom from 'seedrandom'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
@@ -13,6 +13,7 @@ import { checkConnectable, getConnectedData, pauseConnected, playConnected } fro
 import { checkExternalSearchAvailable, openExternalSearch } from '../utils/external'
 import { checkVibrancySupport } from '../utils/frame'
 import { parseLRC } from '../utils/lrc'
+import { getSVGShape } from '../utils/notch'
 import type { Segmenter } from '../utils/string'
 import { defaultSegmenter, escapeHTML, getChineseSegmenter, isChineseText } from '../utils/string'
 import KugouService from '../vendors/kugou'
@@ -21,7 +22,13 @@ import type { MusicData, MusicInfo, MusicService } from '../vendors/types'
 import GradientAnimation from './GradientAnimation.vue'
 import Slider from './Slider.vue'
 
-const appName = worldBridge.appName
+const {
+  appName,
+  isNotchAvailable,
+  isNotchWindow,
+  notchAreaWidth,
+  notchAreaHeight,
+} = worldBridge
 
 const supportsVibrancy = checkVibrancySupport()
 
@@ -31,6 +38,7 @@ let isAlwaysOnTop = $(useAlwaysOnTop())
 
 let isTransparent = $ref(supportsVibrancy)
 let isGradientEnabled = $ref(false)
+let isCompact = $ref(isNotchWindow)
 
 let isPlaying = $ref(false)
 let currentTime = $ref(0)
@@ -111,6 +119,16 @@ const isUsingGradient = $computed(() => {
 
 const isUsingDarkGradient = $computed(() => {
   return isUsingGradient && !isLightPicture
+})
+
+const {
+  width: innerWidth,
+  height: innerHeight,
+} = $(useWindowSize())
+
+const notchMaskImage = $computed(() => {
+  if (!isNotchWindow) return undefined
+  return getSVGShape(innerWidth - 6 * 2, innerHeight, 12, 6)
 })
 
 let segmenter = $ref<Segmenter>()
@@ -268,6 +286,18 @@ function toggleAlwaysOnTop() {
   isAlwaysOnTop = !isAlwaysOnTop
 }
 
+function toggleCompact() {
+  isCompact = !isCompact
+}
+
+watchEffect(() => {
+  if (isNotchWindow) {
+    worldBridge.setBounds({
+      height: isCompact ? Math.ceil((3.75 + 2 + 1) * 14 + 3 * 12) : notchAreaHeight * 6,
+    })
+  }
+})
+
 function play() {
   if (isConnected) {
     if (isPlaying) {
@@ -312,6 +342,15 @@ const isExternallySearchable = checkExternalSearchAvailable()
 function searchExternally() {
   if (isConnected) return
   openExternalSearch(keyword)
+}
+
+function toggleNotch() {
+  if (isNotchWindow) {
+    worldBridge.openWindow()
+  } else {
+    worldBridge.openNotchWindow()
+  }
+  window.close()
 }
 
 async function prepare(song: any, detail: any, autoplay = false) {
@@ -478,45 +517,63 @@ watchEffect(() => {
 <template>
   <div
     :class="['app', {
-      'is-dark': isDark || isUsingDarkGradient,
+      'is-dark': isDark || isUsingDarkGradient || isNotchWindow,
       'is-transparent': isTransparent,
       'is-gradient': isUsingGradient,
       'is-immersive': isPlaying && idle,
+      'is-notch': isNotchWindow,
+      'is-compact': isCompact,
     }]"
     :style="{
       '--picture-image': pictureImage,
       '--picture-color': pictureColor,
+      '--notch-area-width': `${notchAreaWidth}px`,
+      '--notch-area-height': `${notchAreaHeight}px`,
+      '--notch-mask-image': notchMaskImage,
     }"
   >
     <Transition name="fade">
       <GradientAnimation v-if="isUsingGradient" :animated="isPlaying" />
     </Transition>
-    <div :class="['container', { 'is-distant': !isPlaying }]">
-      <div
-        v-for="(index, order) in indexes"
-        :key="index"
-        :style="styles[order]"
-        :class="[classes[order], 'lyric']"
-        v-html="lyricHTML[index] ?? ''"
-      ></div>
+    <div :class="['container', { 'is-distant': !isPlaying, 'is-compact': isCompact }]">
+      <template v-if="isCompact">
+        <div
+          v-for="(index, order) in indexes"
+          :key="index"
+          :class="[classes[order], 'lyric']"
+        >{{ lyrics[index]?.text ?? '' }}</div>
+      </template>
+      <template v-else>
+        <div
+          v-for="(index, order) in indexes"
+          :key="index"
+          :style="styles[order]"
+          :class="[classes[order], 'lyric']"
+          v-html="lyricHTML[index] ?? ''"
+        ></div>
+      </template>
     </div>
     <header :class="['control-bar', { 'is-resident': !isPlaying }]">
       <div class="control-area">
         <button class="control-item" @click="close">
           <LucideX />
         </button>
-        <button class="control-item" @click="toggleFullscreen">
+        <button v-if="!isNotchWindow" class="control-item" @click="toggleFullscreen">
           <LucideMinimize v-if="isFullscreen" />
           <LucideMaximize v-else />
         </button>
-        <button :class="['control-item', { 'is-active': isAlwaysOnTop }]" @click="toggleAlwaysOnTop">
+        <button v-if="isNotchAvailable" class="control-item" @click="toggleNotch">
+          <LucidePanelTopOpen v-if="isNotchWindow" />
+          <LucidePanelTopClose v-else />
+        </button>
+        <button v-if="!isNotchWindow" :class="['control-item', { 'is-active': isAlwaysOnTop }]" @click="toggleAlwaysOnTop">
           <LucidePin />
         </button>
       </div>
       <div class="control-area top-move"></div>
       <div class="control-area center-move"></div>
       <div class="control-area">
-        <button class="control-item" @click="toggleDarkMode">
+        <button v-if="!isNotchWindow" class="control-item" @click="toggleDarkMode">
           <LucideSun v-if="isDark" />
           <LucideMoon v-else />
         </button>
@@ -534,6 +591,13 @@ watchEffect(() => {
         >
           <LucideBlend />
         </button>
+        <button
+          v-if="isNotchWindow"
+          :class="['control-item', { 'is-active': isCompact }]"
+          @click="toggleCompact"
+        >
+          <LucideChevronsDownUp />
+        </button>
       </div>
     </header>
     <footer :class="['player-info', { 'is-resident': !isPlaying }]">
@@ -546,7 +610,7 @@ watchEffect(() => {
           <input v-model="keyword" :readonly="isConnected" :placeholder="appName" class="music-name" @change="search">
           <a v-if="info" class="music-detail" @click="showCandidates">
             <div class="artists">{{ info.artists?.join(' & ') }}</div>
-            <div class="album">{{ info.album }}</div>
+            <div v-if="!isCompact" class="album">{{ info.album }}</div>
           </a>
         </div>
       </div>
@@ -620,10 +684,12 @@ watchEffect(() => {
   --effect-duration: 0.5s;
   --lyric-duration: 1s;
   --interactive-duration: 0.2s;
-  --icon-size: clamp(12px, 5vmin, 24px);
+  --icon-size: clamp(14px, 5vmin, 24px);
   --active-background-opacity: 8%;
   --colorful-background-filter: brightness(133.3333%);
+  --notch-x-offset: 0px;
   position: relative;
+  box-sizing: border-box;
   width: 100vw;
   height: 100vh;
   font-size: 10vmin;
@@ -644,6 +710,11 @@ watchEffect(() => {
   }
   &.is-gradient {
     --highlight-foreground: var(--picture-color, var(--background));
+  }
+  &.is-notch {
+    --notch-x-offset: 6px;
+    padding: 0 var(--notch-x-offset);
+    mask-image: var(--notch-mask-image);
   }
   :deep(.gradient-animation) {
     filter: var(--colorful-background-filter);
@@ -682,17 +753,27 @@ watchEffect(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;
-  height: 100vh;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
   perspective: 100vmin;
   transition: opacity var(--lyric-duration), filter var(--lyric-duration);
   animation: shake 3s ease-in-out infinite;
   .app.is-gradient & {
     opacity: 0.9;
   }
-  &.is-distant {
+  &.is-distant:not(.is-compact) {
     opacity: 0.5 !important;
     filter: blur(0.1em);
+  }
+  &.is-compact {
+    justify-content: flex-start;
+    padding-inline: var(--icon-size);
+    padding-top: calc(#{1.75 + 2 * 1} * var(--icon-size));
+    padding-bottom: calc(#{3 + 2 * 1} * var(--icon-size));
+    font-weight: 500;
+    font-size: 14px;
+    animation: none;
   }
 }
 .lyric {
@@ -725,20 +806,21 @@ watchEffect(() => {
 }
 .player-info {
   position: fixed;
-  right: 1em;
+  right: calc(1em + var(--notch-x-offset));
   bottom: 1em;
-  left: 1em;
+  left: calc(1em + var(--notch-x-offset));
   display: flex;
   gap: 2em;
   justify-content: space-between;
   align-items: flex-end;
-  max-width: calc(100vw - 2em);
+  max-width: calc(100vw - 2 * calc(1em + var(--notch-x-offset)));
   color: var(--foreground);
   font-size: var(--icon-size);
   opacity: 0;
   transition: color var(--effect-duration), opacity var(--fade-duration);
   &:hover,
-  &.is-resident {
+  &.is-resident,
+  .app.is-compact & {
     opacity: 1;
   }
 }
@@ -747,9 +829,12 @@ watchEffect(() => {
   flex: auto;
   gap: 0.5em;
   min-width: 0;
+  .app.is-compact & {
+    font-size: min(1em, 12px);
+  }
 }
 .music-picture {
-  --fallback-background: color-mix(in oklab, var(--foreground) var(--active-background-opacity), var(--background) var(--active-background-opacity));
+  --fallback-background: color-mix(in oklab, var(--foreground) var(--active-background-opacity), transparent);
   position: relative;
   display: flex;
   flex: none;
@@ -760,6 +845,7 @@ watchEffect(() => {
   color: black;
   transition: color var(--effect-duration);
   cursor: pointer;
+  container-type: size;
   &::before {
     content: '';
     position: absolute;
@@ -772,9 +858,13 @@ watchEffect(() => {
   &.is-inverted {
     color: white;
   }
+  .app.is-compact & {
+    width: 3em;
+    height: 3em;
+  }
   :deep(.lucide) {
     z-index: 1;
-    font-size: 1.5em;
+    font-size: max(30cqmin, var(--icon-size));
     opacity: 0;
     transition: opacity var(--fade-duration);
   }
@@ -807,6 +897,9 @@ watchEffect(() => {
     font-style: italic;
     transition: color var(--effect-duration);
   }
+  .app.is-notch & {
+    width: 8em;
+  }
 }
 .music-detail {
   display: flex;
@@ -817,6 +910,9 @@ watchEffect(() => {
   white-space: nowrap;
   transition: color var(--effect-duration);
   cursor: pointer;
+  .app.is-compact & {
+    font-size: calc(1em - 1px);
+  }
 }
 .vendor-area {
   display: flex;
@@ -833,6 +929,10 @@ watchEffect(() => {
   gap: 0.25em;
   justify-content: flex-end;
   align-items: center;
+  transition: opacity var(--fade-duration);
+  .app.is-compact .player-info:not(.is-resident, :hover) & {
+    opacity: 0;
+  }
 }
 .vendor-icon {
   width: 1em;
@@ -847,12 +947,12 @@ watchEffect(() => {
 .control-bar {
   position: fixed;
   top: 1em;
-  right: 1em;
-  left: 1em;
+  right: calc(1em + var(--notch-x-offset));
+  left: calc(1em + var(--notch-x-offset));
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  max-width: calc(100vw - 2em);
+  max-width: calc(100vw - 2 * calc(1em + var(--notch-x-offset)));
   color: var(--foreground);
   font-size: var(--icon-size);
   opacity: 0;
@@ -875,12 +975,16 @@ watchEffect(() => {
     right: 0;
     left: 0;
     height: 1em;
-    -webkit-app-region: drag;
+    .app:not(.is-notch) & {
+      -webkit-app-region: drag;
+    }
   }
   &.center-move {
     flex: 1 1 2em;
     align-self: stretch;
-    -webkit-app-region: drag;
+    .app:not(.is-notch) & {
+      -webkit-app-region: drag;
+    }
   }
 }
 .control-item {

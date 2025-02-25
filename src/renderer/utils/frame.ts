@@ -1,3 +1,3 @@
 export function checkVibrancySupport() {
-  return worldBridge.platform === 'darwin'
+  return worldBridge.platform === 'darwin' && !worldBridge.isNotchWindow
 }
