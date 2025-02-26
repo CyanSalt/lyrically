@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.1](https://github.com/CyanSalt/lyrically/compare/v0.3.0...v0.3.1) (2025-02-26)
+
+### Bug Fixes
+
+* osx validation ([2a76a53](https://github.com/CyanSalt/lyrically/commit/2a76a53601566b2218d2105888bf2624ba45d575))
+
 ## [0.3.0](https://github.com/CyanSalt/lyrically/compare/v0.2.1...v0.3.0) (2025-02-26)
 
 ### Features
