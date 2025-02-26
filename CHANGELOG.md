@@ -1,4 +1,24 @@
+# Changelog
 
+## [0.3.0](https://github.com/CyanSalt/lyrically/compare/v0.2.1...v0.3.0) (2025-02-26)
+
+### Features
+
+* active scaling ([d34d373](https://github.com/CyanSalt/lyrically/commit/d34d3732101b72347ac0f982801c4789a44e30a7))
+* add corner smoothing ([1e920ef](https://github.com/CyanSalt/lyrically/commit/1e920ef9a226a5880a57ba39436ae5ab7a66ba4d))
+* candidates ([9b97d11](https://github.com/CyanSalt/lyrically/commit/9b97d119960975d430869e20ae494e0772a58d2e))
+* collapsable notch ([236fc76](https://github.com/CyanSalt/lyrically/commit/236fc76a1d437a6e31f879d0d2a283aa323d48cd))
+* expose compact mode ([5beec8c](https://github.com/CyanSalt/lyrically/commit/5beec8c000541855d4e8925068978082d474ce3c))
+* gradient brightness ([7252ee7](https://github.com/CyanSalt/lyrically/commit/7252ee7b596a1ff68d0527bea4ca0d91d8fdeb0b))
+* highlight color in gradient ([9ecb6d8](https://github.com/CyanSalt/lyrically/commit/9ecb6d86b2b302186f12da9263497e1469f39b21))
+* notch and compact mode ([99de93f](https://github.com/CyanSalt/lyrically/commit/99de93f67df10e027bd8264e430f82005676ef55))
+* search externally ([3c23898](https://github.com/CyanSalt/lyrically/commit/3c2389821d8c9becd04f2fbe1bc5dfe1a13a29e6))
+
+### Bug Fixes
+
+* a11y ([8d26640](https://github.com/CyanSalt/lyrically/commit/8d2664054c13441a6903243103e5c5155c7d4748))
+* clean dom ([4583b6a](https://github.com/CyanSalt/lyrically/commit/4583b6a98f5086a297d463bee44e2a9706799200))
+* replace notch icon ([98a6cd6](https://github.com/CyanSalt/lyrically/commit/98a6cd6b0bdbaf371a03dca5fdfc85fe32d7fdbf))
 
 ## [0.2.1](https://github.com/CyanSalt/lyrically/compare/v0.2.0...v0.2.1) (2024-08-14)
 
