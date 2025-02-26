@@ -3,7 +3,7 @@ import { useDocumentVisibility, useIdle, useTitle, useWindowSize } from '@vueuse
 import { average } from 'color.js'
 import { colord } from 'colord'
 import { difference, findLastIndex } from 'lodash-es'
-import { LucideAirplay, LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucidePanelTopClose, LucidePanelTopOpen, LucidePause, LucidePin, LucidePlay, LucideRotate3D, LucideSearch, LucideSun, LucideX } from 'lucide-vue-next'
+import { LucideAirplay, LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucidePanelTopClose, LucidePause, LucidePictureInPicture, LucidePin, LucidePlay, LucideRotate3D, LucideSearch, LucideSun, LucideX } from 'lucide-vue-next'
 import seedrandom from 'seedrandom'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
@@ -571,7 +571,7 @@ watchEffect(() => {
             <LucideMaximize v-else />
           </button>
           <button v-if="isNotchAvailable" class="control-item" @click="toggleNotch">
-            <LucidePanelTopOpen v-if="isNotchWindow" />
+            <LucidePictureInPicture v-if="isNotchWindow" />
             <LucidePanelTopClose v-else />
           </button>
           <button v-if="!isNotchWindow" :class="['control-item', { 'is-active': isAlwaysOnTop }]" @click="toggleAlwaysOnTop">
