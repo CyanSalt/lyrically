@@ -158,7 +158,14 @@ async function pack() {
     && env.APPLE_TEAM_ID
   ) {
     logger.info('Will sign and notarize for macOS')
-    options.osxSign = {}
+    options.osxSign = {
+      /** {@link https://github.com/electron/notarize/issues/185} */
+      optionsForFile: filePath => {
+        return {
+          entitlements: './build/entitlements.plist',
+        }
+      },
+    }
     options.osxNotarize = {
       appleId: env.APPLE_ID,
       appleIdPassword: env.APPLE_ID_PASSWORD,
