@@ -39,6 +39,7 @@ let isAlwaysOnTop = $(useAlwaysOnTop())
 let isTransparent = $ref(supportsVibrancy)
 let isGradientEnabled = $ref(false)
 let isCompact = $ref(isNotchWindow)
+let isCollapsed = $ref(false)
 
 let isPlaying = $ref(false)
 let currentTime = $ref(0)
@@ -290,12 +291,16 @@ function toggleCompact() {
   isCompact = !isCompact
 }
 
+function toggleCollapsed() {
+  isCollapsed = !isCollapsed
+}
+
 watchEffect(() => {
   if (isNotchWindow) {
     const iconHeight = notchAreaHeight / (1 + 1.75)
     const compactHeight = Math.ceil((3.75 + 5 + 2) * iconHeight)
     worldBridge.setBounds({
-      height: isCompact ? compactHeight : notchAreaHeight * 6,
+      height: isCollapsed ? notchAreaHeight : (isCompact ? compactHeight : notchAreaHeight * 6),
     })
   }
 })
@@ -537,121 +542,124 @@ watchEffect(() => {
     <Transition name="fade">
       <GradientAnimation v-if="isUsingGradient" :animated="isPlaying" />
     </Transition>
-    <div :class="['container', { 'is-distant': !isPlaying, 'is-compact': isCompact }]">
-      <template v-if="isCompact">
-        <div
-          v-for="(index, order) in indexes"
-          :key="index"
-          :class="[classes[order], 'lyric']"
-        >{{ lyrics[index]?.text ?? '' }}</div>
-      </template>
-      <template v-else>
-        <div
-          v-for="(index, order) in indexes"
-          :key="index"
-          :style="styles[order]"
-          :class="[classes[order], 'lyric']"
-          v-html="lyricHTML[index] ?? ''"
-        ></div>
-      </template>
-    </div>
-    <header :class="['control-bar', { 'is-resident': !isPlaying }]">
-      <div class="control-area">
-        <button class="control-item" @click="close">
-          <LucideX />
-        </button>
-        <button v-if="!isNotchWindow" class="control-item" @click="toggleFullscreen">
-          <LucideMinimize v-if="isFullscreen" />
-          <LucideMaximize v-else />
-        </button>
-        <button v-if="isNotchAvailable" class="control-item" @click="toggleNotch">
-          <LucidePanelTopOpen v-if="isNotchWindow" />
-          <LucidePanelTopClose v-else />
-        </button>
-        <button v-if="!isNotchWindow" :class="['control-item', { 'is-active': isAlwaysOnTop }]" @click="toggleAlwaysOnTop">
-          <LucidePin />
-        </button>
+    <template v-if="!isCollapsed">
+      <div :class="['container', { 'is-distant': !isPlaying }]">
+        <template v-if="isCompact">
+          <div
+            v-for="(index, order) in indexes"
+            :key="index"
+            :class="[classes[order], 'lyric']"
+          >{{ lyrics[index]?.text ?? '' }}</div>
+        </template>
+        <template v-else>
+          <div
+            v-for="(index, order) in indexes"
+            :key="index"
+            :style="styles[order]"
+            :class="[classes[order], 'lyric']"
+            v-html="lyricHTML[index] ?? ''"
+          ></div>
+        </template>
       </div>
-      <div class="control-area top-move"></div>
-      <div class="control-area center-move"></div>
-      <div class="control-area">
-        <button v-if="!isNotchWindow" class="control-item" @click="toggleDarkMode">
-          <LucideSun v-if="isDark" />
-          <LucideMoon v-else />
-        </button>
-        <button
-          v-if="supportsVibrancy"
-          :class="['control-item', { 'is-active': isTransparent && !isGradientEnabled }]"
-          @click="toggleTransparent"
-        >
-          <LucideCloudFog />
-        </button>
-        <button
-          :class="['control-item', { 'is-active': !isCompact }]"
-          @click="toggleCompact"
-        >
-          <LucideRotate3D />
-        </button>
-        <button
-          v-if="pictureImage"
-          :class="['control-item', { 'is-active': isGradientEnabled }]"
-          @click="toggleGradient"
-        >
-          <LucideBlend />
-        </button>
-      </div>
-    </header>
-    <footer :class="['player-info', { 'is-resident': !isPlaying }]">
-      <div class="music-area">
-        <div :class="['music-picture', { 'is-inverted': !isLightPicture }]" @click="play">
-          <LucidePause v-if="isPlaying" fill="currentColor" />
-          <LucidePlay v-else fill="currentColor" />
-        </div>
-        <div class="music-info">
-          <input v-model="keyword" :readonly="isConnected" :placeholder="appName" class="music-name" @change="search">
-          <a v-if="info" class="music-detail" @click="showCandidates">
-            <div class="artists">{{ info.artists?.join(' & ') }}</div>
-            <div v-if="!isCompact" class="album">{{ info.album }}</div>
-          </a>
-        </div>
-      </div>
-      <div class="vendor-area">
-        <div class="vendor-list">
-          <button
-            v-if="isConnectable"
-            :class="['control-item', { 'is-active': isConnected }]"
-            @click="connect"
-          >
-            <LucideAirplay />
+      <header :class="['control-bar', { 'is-resident': !isPlaying }]">
+        <div class="control-area">
+          <button class="control-item" @click="close">
+            <LucideX />
           </button>
-          <button
-            v-if="isExternallySearchable"
-            :class="['control-item', { 'is-disabled': isConnected }]"
-            @click="searchExternally"
-          >
-            <LucideSearch />
+          <button v-if="!isNotchWindow" class="control-item" @click="toggleFullscreen">
+            <LucideMinimize v-if="isFullscreen" />
+            <LucideMaximize v-else />
+          </button>
+          <button v-if="isNotchAvailable" class="control-item" @click="toggleNotch">
+            <LucidePanelTopOpen v-if="isNotchWindow" />
+            <LucidePanelTopClose v-else />
+          </button>
+          <button v-if="!isNotchWindow" :class="['control-item', { 'is-active': isAlwaysOnTop }]" @click="toggleAlwaysOnTop">
+            <LucidePin />
           </button>
         </div>
-        <div class="vendor-list">
+        <div class="control-area top-move"></div>
+        <div class="control-area center-move"></div>
+        <div class="control-area">
+          <button v-if="!isNotchWindow" class="control-item" @click="toggleDarkMode">
+            <LucideSun v-if="isDark" />
+            <LucideMoon v-else />
+          </button>
           <button
-            v-for="(vendor, index) in vendors"
-            :key="vendor.name"
-            :class="['control-item', {
-              'is-active': service === vendor,
-              'is-disabled': !isConnected && !vendor.prepare,
-            }]"
-            :style="{ '--icon': vendorIconURLs[index] }"
-            :data-icon="vendor.icon"
-            @click="activate(vendor)"
+            v-if="supportsVibrancy"
+            :class="['control-item', { 'is-active': isTransparent && !isGradientEnabled }]"
+            @click="toggleTransparent"
           >
-            <div class="vendor-icon"></div>
+            <LucideCloudFog />
+          </button>
+          <button
+            :class="['control-item', { 'is-active': !isCompact }]"
+            @click="toggleCompact"
+          >
+            <LucideRotate3D />
+          </button>
+          <button
+            v-if="pictureImage"
+            :class="['control-item', { 'is-active': isGradientEnabled }]"
+            @click="toggleGradient"
+          >
+            <LucideBlend />
           </button>
         </div>
-      </div>
-    </footer>
-    <Transition name="fade">
-      <Slider v-if="data && !isPlaying" v-model="offsetTime" />
-    </Transition>
+      </header>
+      <footer :class="['player-info', { 'is-resident': !isPlaying }]">
+        <div class="music-area">
+          <div :class="['music-picture', { 'is-inverted': !isLightPicture }]" @click="play">
+            <LucidePause v-if="isPlaying" fill="currentColor" />
+            <LucidePlay v-else fill="currentColor" />
+          </div>
+          <div class="music-info">
+            <input v-model="keyword" :readonly="isConnected" :placeholder="appName" class="music-name" @change="search">
+            <a v-if="info" class="music-detail" @click="showCandidates">
+              <div class="artists">{{ info.artists?.join(' & ') }}</div>
+              <div v-if="!isCompact" class="album">{{ info.album }}</div>
+            </a>
+          </div>
+        </div>
+        <div class="vendor-area">
+          <div class="vendor-list">
+            <button
+              v-if="isConnectable"
+              :class="['control-item', { 'is-active': isConnected }]"
+              @click="connect"
+            >
+              <LucideAirplay />
+            </button>
+            <button
+              v-if="isExternallySearchable"
+              :class="['control-item', { 'is-disabled': isConnected }]"
+              @click="searchExternally"
+            >
+              <LucideSearch />
+            </button>
+          </div>
+          <div class="vendor-list">
+            <button
+              v-for="(vendor, index) in vendors"
+              :key="vendor.name"
+              :class="['control-item', {
+                'is-active': service === vendor,
+                'is-disabled': !isConnected && !vendor.prepare,
+              }]"
+              :style="{ '--icon': vendorIconURLs[index] }"
+              :data-icon="vendor.icon"
+              @click="activate(vendor)"
+            >
+              <div class="vendor-icon"></div>
+            </button>
+          </div>
+        </div>
+      </footer>
+      <Transition name="fade">
+        <Slider v-if="data && !isPlaying" v-model="offsetTime" />
+      </Transition>
+    </template>
+    <button v-if="isNotchWindow" class="notch-action" @click="toggleCollapsed"></button>
     <audio
       ref="audio"
       :src="music"
@@ -751,6 +759,21 @@ watchEffect(() => {
     transform: rotate3d(1, 1, 1, 2deg);
   }
 }
+.notch-action {
+  --smoothie-border-radius: 12px;
+  --smoothie-border-radius-smoothing: 0.6;
+  appearance: none;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: var(--notch-area-width);
+  height: var(--notch-area-height);
+  padding: 0;
+  border: none;
+  background: transparent;
+  mask-image: paint(smoothie-mask);
+  transform: translateX(-50%);
+}
 .container {
   display: flex;
   justify-content: center;
@@ -764,11 +787,11 @@ watchEffect(() => {
   .app.is-gradient & {
     opacity: 0.9;
   }
-  &.is-distant:not(.is-compact) {
-    opacity: 0.5 !important;
+  .app:not(.is-compact) &.is-distant {
+    opacity: 0.5;
     filter: blur(0.1em);
   }
-  &.is-compact {
+  .app.is-compact & {
     justify-content: flex-start;
     padding-inline: var(--icon-size);
     padding-top: calc(#{1.75 + 2 * 1} * var(--icon-size));
