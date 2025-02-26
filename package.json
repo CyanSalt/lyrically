@@ -12,7 +12,7 @@
     "release": "dotenv release-it --",
     "lint:script": "eslint --cache --fix './**/*.{cjs,js,mjs,ts,vue}'",
     "lint:style": "stylelint --ignore-path .gitignore --cache --fix ./**/*.{css,scss,vue}",
-    "lint": "npm run lint:script && npm run lint:style"
+    "lint": "pnpm run lint:script && pnpm run lint:style"
   },
   "repository": {
     "type": "git",
