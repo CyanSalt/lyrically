@@ -647,7 +647,6 @@ watchEffect(() => {
                 'is-disabled': !isConnected && !vendor.prepare,
               }]"
               :style="{ '--icon': vendorIconURLs[index] }"
-              :data-icon="vendor.icon"
               @click="activate(vendor)"
             >
               <div class="vendor-icon"></div>
