@@ -77,8 +77,7 @@ export function createNotchWindow(parent?: BrowserWindow) {
   if (!notch) return createWindow()
   const spreadSize = 6
   const width = notch.bounds.width * 2
-  // const height = notch.bounds.height * 6
-  const compactHeight = Math.ceil((3.75 + 2 + 1) * 14 + 3 * 12)
+  const height = notch.bounds.height
   const frame = new BrowserWindow({
     show: false,
     title: app.name,
@@ -86,10 +85,9 @@ export function createNotchWindow(parent?: BrowserWindow) {
     y: notch.bounds.y,
     width: width + spreadSize * 2,
     // height,
-    height: compactHeight,
+    height,
     minWidth: notch.bounds.width + spreadSize * 2,
-    // minHeight: notch.bounds.height,
-    minHeight: compactHeight,
+    minHeight: notch.bounds.height,
     frame: false,
     transparent: true,
     visualEffectState: 'active',

@@ -3,7 +3,7 @@ import { useDocumentVisibility, useIdle, useTitle, useWindowSize } from '@vueuse
 import { average } from 'color.js'
 import { colord } from 'colord'
 import { difference, findLastIndex } from 'lodash-es'
-import { LucideAirplay, LucideBlend, LucideChevronsDownUp, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucidePanelTopClose, LucidePanelTopOpen, LucidePause, LucidePin, LucidePlay, LucideSearch, LucideSun, LucideX } from 'lucide-vue-next'
+import { LucideAirplay, LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucidePanelTopClose, LucidePanelTopOpen, LucidePause, LucidePin, LucidePlay, LucideRotate3D, LucideSearch, LucideSun, LucideX } from 'lucide-vue-next'
 import seedrandom from 'seedrandom'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
@@ -292,8 +292,10 @@ function toggleCompact() {
 
 watchEffect(() => {
   if (isNotchWindow) {
+    const iconHeight = notchAreaHeight / (1 + 1.75)
+    const compactHeight = Math.ceil((3.75 + 5 + 2) * iconHeight)
     worldBridge.setBounds({
-      height: isCompact ? Math.ceil((3.75 + 2 + 1) * 14 + 3 * 12) : notchAreaHeight * 6,
+      height: isCompact ? compactHeight : notchAreaHeight * 6,
     })
   }
 })
@@ -585,18 +587,17 @@ watchEffect(() => {
           <LucideCloudFog />
         </button>
         <button
+          :class="['control-item', { 'is-active': !isCompact }]"
+          @click="toggleCompact"
+        >
+          <LucideRotate3D />
+        </button>
+        <button
           v-if="pictureImage"
           :class="['control-item', { 'is-active': isGradientEnabled }]"
           @click="toggleGradient"
         >
           <LucideBlend />
-        </button>
-        <button
-          v-if="isNotchWindow"
-          :class="['control-item', { 'is-active': isCompact }]"
-          @click="toggleCompact"
-        >
-          <LucideChevronsDownUp />
         </button>
       </div>
     </header>
@@ -713,6 +714,7 @@ watchEffect(() => {
   }
   &.is-notch {
     --notch-x-offset: 6px;
+    --icon-size: calc(var(--notch-area-height) / #{1 + 1.75});
     padding: 0 var(--notch-x-offset);
     mask-image: var(--notch-mask-image);
   }
@@ -772,7 +774,7 @@ watchEffect(() => {
     padding-top: calc(#{1.75 + 2 * 1} * var(--icon-size));
     padding-bottom: calc(#{3 + 2 * 1} * var(--icon-size));
     font-weight: 500;
-    font-size: 14px;
+    font-size: max(1em, 14px);
     animation: none;
   }
 }
@@ -829,9 +831,6 @@ watchEffect(() => {
   flex: auto;
   gap: 0.5em;
   min-width: 0;
-  .app.is-compact & {
-    font-size: min(1em, 12px);
-  }
 }
 .music-picture {
   --fallback-background: color-mix(in oklab, var(--foreground) var(--active-background-opacity), transparent);
