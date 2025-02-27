@@ -96,17 +96,22 @@ function highlightSegments(text: string, segmenter: Segmenter | undefined) {
   }).join('')
 }
 
+const pictureURL = $computed(() => {
+  if (!data) return undefined
+  return data.picture
+})
+
 const pictureImage = $computed(() => {
-  if (!data || !data.picture) return undefined
-  return `url("${data.picture}")`
+  if (!pictureURL) return undefined
+  return `url("${pictureURL}")`
 })
 
 let pictureColor = $ref<string>()
 
 watchEffect(async () => {
   pictureColor = undefined
-  if (!data || !data.picture) return
-  pictureColor = await average(data.picture, { format: 'hex' }) as string
+  if (!pictureURL) return
+  pictureColor = await average(pictureURL, { format: 'hex' }) as string
 })
 
 const isLightPicture = $computed(() => {
@@ -540,7 +545,7 @@ watchEffect(() => {
     }"
   >
     <Transition name="fade">
-      <GradientAnimation v-if="isUsingGradient" :animated="isPlaying" />
+      <GradientAnimation v-if="isUsingGradient" :picture="pictureURL" :animated="isPlaying" />
     </Transition>
     <template v-if="!isCollapsed">
       <div :class="['container', { 'is-distant': !isPlaying }]">

@@ -1,11 +1,48 @@
 <script lang="ts" setup>
-const { animated } = defineProps<{
+import { useImage } from '@vueuse/core'
+import { watchEffect } from 'vue'
+
+const { picture, animated } = defineProps<{
+  picture?: string,
   animated?: boolean,
 }>()
+
+const {
+  isReady,
+  state: image,
+} = $(useImage(() => ({
+  src: picture ?? '',
+})))
+
+const canvas = new OffscreenCanvas(32, 32)
+const context = canvas.getContext('2d')!
+
+let pixelatedURL = $ref<string>()
+watchEffect(async onInvalidate => {
+  if (isReady && image) {
+    context.drawImage(image, 0, 0, canvas.width, canvas.height)
+    const blob = await canvas.convertToBlob()
+    const url = URL.createObjectURL(blob)
+    pixelatedURL = url
+    onInvalidate(() => {
+      pixelatedURL = undefined
+      URL.revokeObjectURL(url)
+    })
+  }
+})
+
+const pictureImage = $computed(() => {
+  if (!pixelatedURL) return undefined
+  return `url("${pixelatedURL}")`
+})
 </script>
 
 <template>
-  <div :class="['gradient-animation', { 'is-animated': animated }]" aria-hidden="true"></div>
+  <div
+    :class="['gradient-animation', { 'is-animated': animated }]"
+    :style="{ '--picture-image': pictureImage }"
+    aria-hidden="true"
+  ></div>
 </template>
 
 <style lang="scss" scoped>
