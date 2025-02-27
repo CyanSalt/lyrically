@@ -63,6 +63,7 @@ function handleMessages() {
     const menu = Menu.buildFromTemplate(template.map((item, index) => {
       return {
         ...item,
+        label: item.label?.replace(/(?!<&)&(?![A-Z&])/g, '&&'),
         click: () => {
           resolve(index)
         },
