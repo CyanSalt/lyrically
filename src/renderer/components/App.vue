@@ -263,6 +263,8 @@ const vendorIconURLs = $computed(() => {
   return vendors.map(vendor => `url("${vendor.icon}")`)
 })
 
+const placeholder = $computed(() => `${appName}.`)
+
 function close() {
   worldBridge.close()
 }
@@ -619,7 +621,13 @@ watchEffect(() => {
             <LucidePlay v-else fill="currentColor" />
           </div>
           <div class="music-info">
-            <input v-model="keyword" :readonly="isConnected" :placeholder="appName" class="music-name" @change="search">
+            <input
+              v-model="keyword"
+              :readonly="isConnected"
+              :placeholder="placeholder"
+              class="music-name"
+              @change="search"
+            >
             <a v-if="info" class="music-detail" @click="showCandidates">
               <div class="artists">{{ info.artists?.join(' & ') }}</div>
               <div v-if="!isCompact" class="album">{{ info.album }}</div>
@@ -910,7 +918,6 @@ watchEffect(() => {
 }
 .music-name {
   appearance: none;
-  width: 10em;
   padding: 0;
   border: none;
   color: inherit;
@@ -918,13 +925,11 @@ watchEffect(() => {
   font-weight: 500;
   background: transparent;
   outline: none;
+  field-sizing: content;
   &::placeholder {
     color: color-mix(in oklab, var(--foreground) 25%, transparent);
     font-style: italic;
     transition: color var(--effect-duration);
-  }
-  .app.is-notch & {
-    width: 8em;
   }
 }
 .music-detail {
