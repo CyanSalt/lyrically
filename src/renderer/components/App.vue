@@ -370,7 +370,6 @@ async function prepare(song: any, detail: any, autoplay = false) {
   if (!music) return
   if (autoplay) {
     currentTime = 0
-    offsetTime = 0
   }
   await nextTick()
   if (audio) {
@@ -388,6 +387,7 @@ function unload() {
   data = undefined
   music = undefined
   connectedSong = undefined
+  offsetTime = 0
 }
 
 async function load(query: string, properties?: MusicInfo) {
