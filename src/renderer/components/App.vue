@@ -58,6 +58,7 @@ let connectedSong = $ref<any>()
 const audio = $ref<HTMLAudioElement>()
 
 const info = $computed(() => {
+  if (isConnected && connectedInfo) return connectedInfo
   const song = candidates[selectedIndex]
   if (!song) return undefined
   return service.transform(song)
@@ -97,6 +98,8 @@ function highlightSegments(text: string, segmenter: Segmenter | undefined) {
 }
 
 const pictureURL = $computed(() => {
+  const artwork = info?.artwork
+  if (artwork) return URL.createObjectURL(artwork)
   if (!data) return undefined
   return data.picture
 })
