@@ -434,13 +434,19 @@ function toSuffix(values: (string | undefined)[], sep: string, prefix: string) {
   return suffix ? `${prefix}${suffix}` : ''
 }
 
+const listFormat = new Intl.ListFormat()
+
+function formatList(values: string[] | undefined) {
+  return Array.isArray(values) ? listFormat.format(values) : values
+}
+
 async function showCandidates(event: MouseEvent) {
   if (!candidates.length) return
   const pickedIndex = await worldBridge.select(candidates.map((song, index) => {
     const transformed = service.transform(song)
     return {
       type: 'radio',
-      label: `${transformed.name}${toSuffix([transformed.artists?.join(' & '), transformed.album], ' ', ' - ')}`,
+      label: `${transformed.name}${toSuffix([formatList(transformed.artists), transformed.album], ' ', ' - ')}`,
       checked: index === selectedIndex,
     }
   }), event, selectedIndex)
@@ -522,7 +528,7 @@ let title = $(useTitle())
 
 watchEffect(() => {
   if (info) {
-    title = [info.name, info.artists?.join(' & ')]
+    title = [info.name, formatList(info.artists)]
       .filter((item): item is string => typeof item === 'string')
       .join(' - ')
   } else {
@@ -632,7 +638,7 @@ watchEffect(() => {
               @change="search"
             >
             <a v-if="info" class="music-detail" @click="showCandidates">
-              <div class="artists">{{ info.artists?.join(' & ') }}</div>
+              <div class="artists">{{ formatList(info.artists) }}</div>
               <div v-if="!isCompact" class="album">{{ info.album }}</div>
             </a>
           </div>
@@ -765,13 +771,16 @@ watchEffect(() => {
 }
 @keyframes shake {
   0% {
-    transform: rotate3d(1, 1, 1, 2deg);
+    // transform: rotate3d(1, 1, 1, 2deg);
+    transform: rotate(2deg);
   }
   50% {
-    transform: rotate3d(-1, -1, -1, 2deg);
+    // transform: rotate3d(-1, -1, -1, 2deg);
+    transform: rotate(-2deg);
   }
   100% {
-    transform: rotate3d(1, 1, 1, 2deg);
+    // transform: rotate3d(1, 1, 1, 2deg);
+    transform: rotate(2deg);
   }
 }
 .notch-action {
