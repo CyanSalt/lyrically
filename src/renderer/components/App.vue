@@ -3,14 +3,15 @@ import { useDocumentVisibility, useIdle, useTitle, useWindowSize } from '@vueuse
 import { average } from 'color.js'
 import { colord } from 'colord'
 import { difference, findLastIndex } from 'lodash-es'
-import { LucideAirplay, LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucidePanelTopClose, LucidePause, LucidePictureInPicture, LucidePin, LucidePlay, LucideRotate3D, LucideSearch, LucideSun, LucideX } from 'lucide-vue-next'
+import { LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucidePanelTopClose, LucidePause, LucidePictureInPicture, LucidePin, LucidePlay, LucideRotate3D, LucideSearch, LucideSun, LucideX } from 'lucide-vue-next'
 import seedrandom from 'seedrandom'
+import { siApplemusic } from 'simple-icons'
 import type { CSSProperties } from 'vue'
 import { nextTick, watchEffect } from 'vue'
 import { useAlwaysOnTop, useDarkMode, useDisplaySleepPrevented, useFullscreen } from '../compositions/frame'
 import { useKeyboardShortcuts } from '../compositions/interactive'
 import { checkConnectable, getConnectedData, pauseConnected, playConnected } from '../utils/connection'
-import { checkExternalSearchAvailable, openExternalSearch } from '../utils/external'
+import { checkExternalSearchAvailable, openExternalNowPlaying, openExternalSearch } from '../utils/external'
 import { checkVibrancySupport } from '../utils/frame'
 import { parseLRC } from '../utils/lrc'
 import { getSVGShape } from '../utils/notch'
@@ -37,7 +38,7 @@ let isFullscreen = $(useFullscreen())
 let isAlwaysOnTop = $(useAlwaysOnTop())
 
 let isTransparent = $ref(supportsVibrancy)
-let isGradientEnabled = $ref(false)
+let isGradientEnabled = $ref(!supportsVibrancy)
 let isCompact = $ref(isNotchWindow)
 let isCollapsed = $ref(false)
 
@@ -268,6 +269,10 @@ const vendorIconURLs = $computed(() => {
 
 const placeholder = $computed(() => `${appName}.`)
 
+const applemusicIcon = $computed(() => {
+  return `url("data:image/svg+xml,${encodeURIComponent(siApplemusic.svg)}")`
+})
+
 function close() {
   worldBridge.close()
 }
@@ -357,8 +362,11 @@ function connect() {
 const isExternallySearchable = checkExternalSearchAvailable()
 
 function searchExternally() {
-  if (isConnected) return
-  openExternalSearch(keyword)
+  if (isConnected) {
+    openExternalNowPlaying()
+  } else {
+    openExternalSearch(keyword)
+  }
 }
 
 function toggleNotch() {
@@ -615,7 +623,7 @@ watchEffect(() => {
             <LucideRotate3D />
           </button>
           <button
-            v-if="pictureImage"
+            :disabled="!pictureImage"
             :class="['control-item', { 'is-active': isGradientEnabled }]"
             @click="toggleGradient"
           >
@@ -648,13 +656,14 @@ watchEffect(() => {
             <button
               v-if="isConnectable"
               :class="['control-item', { 'is-active': isConnected }]"
+              :style="{ '--icon': applemusicIcon }"
               @click="connect"
             >
-              <LucideAirplay />
+              <div class="control-icon"></div>
             </button>
             <button
               v-if="isExternallySearchable"
-              :class="['control-item', { 'is-disabled': isConnected }]"
+              class="control-item"
               @click="searchExternally"
             >
               <LucideSearch />
@@ -664,14 +673,14 @@ watchEffect(() => {
             <button
               v-for="(vendor, index) in vendors"
               :key="vendor.name"
+              :disabled="!isConnected && !vendor.prepare"
               :class="['control-item', {
                 'is-active': service === vendor,
-                'is-disabled': !isConnected && !vendor.prepare,
               }]"
               :style="{ '--icon': vendorIconURLs[index] }"
               @click="activate(vendor)"
             >
-              <div class="vendor-icon"></div>
+              <div class="control-icon"></div>
             </button>
           </div>
         </div>
@@ -994,13 +1003,6 @@ watchEffect(() => {
     opacity: 0;
   }
 }
-.vendor-icon {
-  width: 1em;
-  height: 1em;
-  background-color: var(--foreground);
-  mask-image: var(--icon);
-  transition: background-color var(--effect-duration), filter var(--interactive-duration);
-}
 .audio {
   display: none;
 }
@@ -1066,28 +1068,35 @@ watchEffect(() => {
   mask-image: paint(smoothie-mask);
   transition: transform var(--interactive-duration), color var(--interactive-duration), background-color var(--interactive-duration);
   cursor: pointer;
-  &:not(.is-disabled):hover {
+  &:not(:disabled):hover {
     --background-opacity: var(--active-background-opacity);
     --foreground-opacity: 100%;
   }
-  &:not(.is-disabled):active {
+  &:not(:disabled):active {
     transform: scale(0.96);
   }
   &.is-active {
     --background-opacity: var(--active-background-opacity);
   }
-  &:not(.is-disabled):active, &.is-active:hover {
+  &:not(:disabled):active, &:not(:disabled).is-active:hover {
     --background-opacity: calc(var(--active-background-opacity) * 1.5);
   }
-  .vendor-icon {
+  .control-icon {
     filter: opacity(var(--foreground-opacity));
   }
-  &.is-active .vendor-icon {
+  &.is-active .control-icon {
     filter: opacity(1);
   }
-  &.is-disabled {
+  &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
+}
+.control-icon {
+  width: 1em;
+  height: 1em;
+  background-color: var(--foreground);
+  mask-image: var(--icon);
+  transition: background-color var(--effect-duration), filter var(--interactive-duration);
 }
 </style>

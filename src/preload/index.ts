@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import mri from 'mri'
+import semver from 'semver'
 import type { WorldBridge } from './types'
 
 const args = mri(process.argv)
@@ -11,6 +12,9 @@ const worldBridge: WorldBridge = {
   isNotchWindow: Boolean(args['lyrically-notch-width'] && args['lyrically-notch-height']),
   notchAreaWidth: Number(args['lyrically-notch-width']) || 0,
   notchAreaHeight: Number(args['lyrically-notch-height']) || 0,
+  flags: {
+    'disable-vibrancy': semver.satisfies(process.versions.electron, '>=35.0.0 <=35.1.2'),
+  },
   getRef: (key, token) => {
     return ipcRenderer.invoke(`get-ref:${key}`, token)
   },
