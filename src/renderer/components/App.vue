@@ -849,6 +849,10 @@ watchEffect(() => {
     background-size: contain;
     background-repeat: no-repeat;
   }
+  .app.is-compact &::first-letter {
+    font-size: 1.25em;
+    text-transform: uppercase;
+  }
 }
 .prev, .next {
   opacity: 0.25;
