@@ -313,7 +313,7 @@ function toggleCollapsed() {
 watchEffect(() => {
   if (isNotchWindow) {
     const iconHeight = notchAreaHeight / (1 + 1.75)
-    const compactHeight = Math.ceil((1 + 1.75 + 0.5 + 2 + 0.5 + 1.75 + 1) * iconHeight)
+    const compactHeight = Math.ceil(((1 + 1.75 + 1) + 2 + (1 + 3 + 1)) * iconHeight)
     worldBridge.setBounds({
       height: isCollapsed ? notchAreaHeight : (isCompact ? compactHeight : notchAreaHeight * 6),
     })
@@ -827,8 +827,8 @@ watchEffect(() => {
   .app.is-compact & {
     justify-content: flex-start;
     padding-inline: var(--icon-size);
-    padding-top: calc(#{1 + 1.75 + 0.5} * var(--icon-size));
-    padding-bottom: calc(#{0.5 + 1.75 + 1} * var(--icon-size));
+    padding-top: calc(#{1 + 1.75 + 1} * var(--icon-size));
+    padding-bottom: calc(#{1 + 3 + 1} * var(--icon-size));
     font-weight: 500;
     font-size: max(1em, 14px);
     animation: none;
@@ -898,7 +898,7 @@ watchEffect(() => {
   width: 5em;
   height: 5em;
   color: black;
-  transition: color var(--effect-duration), width var(--effect-duration), height var(--effect-duration);
+  transition: color var(--effect-duration);
   cursor: pointer;
   container-type: size;
   &::before {
@@ -914,8 +914,8 @@ watchEffect(() => {
     color: white;
   }
   .app.is-compact & {
-    width: 1.75em;
-    height: 1.75em;
+    width: 3em;
+    height: 3em;
   }
   :deep(.lucide) {
     z-index: 1;
@@ -936,13 +936,6 @@ watchEffect(() => {
   display: flex;
   flex-direction: column;
   gap: #{0.75em * 0.25};
-  .app.is-compact & {
-    flex: auto;
-    flex-direction: row;
-    gap: #{0.75em * 0.5};
-    align-items: center;
-    min-width: 0;
-  }
 }
 .music-name {
   appearance: none;
@@ -959,10 +952,6 @@ watchEffect(() => {
     font-style: italic;
     transition: color var(--effect-duration);
   }
-  .app.is-compact & {
-    flex: 0 1 auto;
-    min-width: 0;
-  }
 }
 .music-detail {
   display: flex;
@@ -974,10 +963,7 @@ watchEffect(() => {
   transition: color var(--effect-duration);
   cursor: pointer;
   .app.is-compact & {
-    flex: 0 2 auto;
-    min-width: 0;
     font-size: calc(1em - 1px);
-    overflow: hidden;
   }
 }
 .vendor-area {

@@ -92,6 +92,9 @@ function handleMessages() {
     const frame = BrowserWindow.fromWebContents(event.sender)
     if (!frame) return
     frame.setBounds(bound, true)
+    if (process.platform === 'darwin') {
+      frame.invalidateShadow()
+    }
   })
 }
 
