@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.4.0](https://github.com/CyanSalt/lyrically/compare/v0.3.1...v0.4.0) (2025-04-10)
+
+### Features
+
+* compact variant style ([1697369](https://github.com/CyanSalt/lyrically/commit/1697369244d4f98475099742d31c99f6391b6250))
+* update to electron 35 ([91c909d](https://github.com/CyanSalt/lyrically/commit/91c909d8a1a0f5b73036b38ae176e60ef7a5101c))
+* use apple music data when connected ([532e2a5](https://github.com/CyanSalt/lyrically/commit/532e2a52d23c86e8db0f45e8148ed4461f90d45b))
+
+### Bug Fixes
+
+* label charater ([05ee9ec](https://github.com/CyanSalt/lyrically/commit/05ee9ecd6ba0ae868d302ecdc733eda0bbc79c7a))
+* list format ([1fa4d74](https://github.com/CyanSalt/lyrically/commit/1fa4d74a668f72417a4804037585fedebf5e540f))
+* name sizing ([b4be458](https://github.com/CyanSalt/lyrically/commit/b4be458b59354cf000497c2ce3a43ada7caf4c56))
+* offset time following songs ([88feef5](https://github.com/CyanSalt/lyrically/commit/88feef5fef1ac313b56a398b1d2e28dc0bc6aaf3))
+* pixelate gradient background ([5cc3d91](https://github.com/CyanSalt/lyrically/commit/5cc3d917706c170d0faf8ee375e22382346a3dc7))
+* recover notch size ([3d6f823](https://github.com/CyanSalt/lyrically/commit/3d6f823ef4ae867bccc15ee6c1137a6344b5f4fc))
+* reduce notch size ([a3bcfb7](https://github.com/CyanSalt/lyrically/commit/a3bcfb79c659a3e24e8e4772d29af399bd587101))
+
 ## [0.3.1](https://github.com/CyanSalt/lyrically/compare/v0.3.0...v0.3.1) (2025-02-26)
 
 ### Bug Fixes
