@@ -435,6 +435,9 @@ function search(event: InputEvent) {
   if (query) {
     load(query)
   }
+  if (isConnected && connectedInfo) {
+    keyword = connectedInfo.name
+  }
 }
 
 function toSuffix(values: (string | undefined)[], sep: string, prefix: string) {
@@ -640,7 +643,6 @@ watchEffect(() => {
           <div class="music-info">
             <input
               v-model="keyword"
-              :readonly="isConnected"
               :placeholder="placeholder"
               class="music-name"
               @change="search"
