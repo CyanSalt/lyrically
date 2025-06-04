@@ -7,6 +7,7 @@ export interface WorldBridge {
   isNotchWindow: boolean,
   notchAreaWidth: number,
   notchAreaHeight: number,
+  initialState: any,
   flags: Record<string, boolean>,
   getRef: <T>(key: string, token?: string) => Promise<T>,
   setRef: <T>(key: string, value: T, token?: string) => Promise<void>,
@@ -20,7 +21,7 @@ export interface WorldBridge {
     position: [number, number] | MouseEvent,
     defaultIndex?: number,
   ) => Promise<number>,
-  openWindow: () => void,
-  openNotchWindow: () => void,
+  openWindow: (state?: unknown) => void,
+  openNotchWindow: (state?: unknown) => void,
   setBounds: (rect: Partial<Rectangle>) => void,
 }

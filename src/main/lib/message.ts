@@ -80,13 +80,13 @@ function handleMessages() {
     })
     return promise
   })
-  ipcMain.handle('open-window', () => {
-    createWindow()
+  ipcMain.handle('open-window', (event, state: unknown) => {
+    createWindow(state)
   })
-  ipcMain.handle('open-notch-window', event => {
+  ipcMain.handle('open-notch-window', (event, state: unknown) => {
     const frame = BrowserWindow.fromWebContents(event.sender)
     if (!frame) return
-    createNotchWindow(frame)
+    createNotchWindow(frame, state)
   })
   ipcMain.handle('set-bounds', (event, bound: Rectangle) => {
     const frame = BrowserWindow.fromWebContents(event.sender)

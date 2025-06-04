@@ -11,6 +11,7 @@ const worldBridge: WorldBridge = {
   isNotchWindow: Boolean(args['lyrically-notch-width'] && args['lyrically-notch-height']),
   notchAreaWidth: Number(args['lyrically-notch-width']) || 0,
   notchAreaHeight: Number(args['lyrically-notch-height']) || 0,
+  initialState: args['lyrically-state'] ? JSON.parse(args['lyrically-state']) : undefined,
   flags: {},
   getRef: (key, token) => {
     return ipcRenderer.invoke(`get-ref:${key}`, token)
@@ -49,11 +50,11 @@ const worldBridge: WorldBridge = {
       ...coords,
     })
   },
-  openWindow: () => {
-    ipcRenderer.invoke('open-window')
+  openWindow: state => {
+    ipcRenderer.invoke('open-window', state)
   },
-  openNotchWindow: () => {
-    ipcRenderer.invoke('open-notch-window')
+  openNotchWindow: state => {
+    ipcRenderer.invoke('open-notch-window', state)
   },
   setBounds: bounds => {
     ipcRenderer.invoke('set-bounds', bounds)

@@ -46,7 +46,7 @@ function getDisplayNotch(rect?: Rectangle) {
   }
 }
 
-export function createWindow() {
+export function createWindow(initialState?: unknown) {
   const frame = new BrowserWindow({
     show: false,
     title: app.name,
@@ -60,6 +60,7 @@ export function createWindow() {
       preload: path.resolve(__dirname, '../preload/index.js'),
       additionalArguments: [
         ...(getDisplayNotch() ? ['--lyrically-notch-available'] : []),
+        ...(initialState ? [`--lyrically-state=${JSON.stringify(initialState)}`] : []),
       ],
     },
   })
@@ -72,9 +73,9 @@ export function createWindow() {
   return frame
 }
 
-export function createNotchWindow(parent?: BrowserWindow) {
+export function createNotchWindow(parent?: BrowserWindow, initialState?: unknown) {
   const notch = getDisplayNotch(parent?.getBounds())
-  if (!notch) return createWindow()
+  if (!notch) return createWindow(initialState)
   const spreadSize = 6
   const width = notch.bounds.width * 2
   const height = notch.bounds.height
@@ -106,6 +107,7 @@ export function createNotchWindow(parent?: BrowserWindow) {
         '--lyrically-notch-available',
         `--lyrically-notch-width=${notch.bounds.width}`,
         `--lyrically-notch-height=${notch.bounds.height}`,
+        ...(initialState ? [`--lyrically-state=${JSON.stringify(initialState)}`] : []),
       ],
     },
   })

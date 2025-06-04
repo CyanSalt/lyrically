@@ -2,12 +2,12 @@
 import { useDocumentVisibility, useIdle, useTitle, useWindowSize } from '@vueuse/core'
 import { average } from 'color.js'
 import { colord } from 'colord'
-import { difference, findLastIndex } from 'lodash-es'
+import { difference, findLastIndex, isEqual } from 'lodash-es'
 import { LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucidePanelTopClose, LucidePause, LucidePictureInPicture, LucidePin, LucidePlay, LucideRotate3D, LucideSearch, LucideSun, LucideX } from 'lucide-vue-next'
 import seedrandom from 'seedrandom'
 import { siApplemusic } from 'simple-icons'
-import type { CSSProperties } from 'vue'
-import { nextTick, watchEffect } from 'vue'
+import type { CSSProperties, Ref } from 'vue'
+import { nextTick, toRaw, watch, watchEffect } from 'vue'
 import { useAlwaysOnTop, useDarkMode, useDisplaySleepPrevented, useFullscreen } from '../compositions/frame'
 import { useKeyboardShortcuts } from '../compositions/interactive'
 import { checkConnectable, getConnectedData, pauseConnected, playConnected } from '../utils/connection'
@@ -30,9 +30,13 @@ const {
   isNotchWindow,
   notchAreaWidth,
   notchAreaHeight,
+  initialState,
 } = worldBridge
 
+console.log('initialState', initialState)
+
 const supportsVibrancy = checkVibrancySupport()
+const isConnectable = checkConnectable()
 
 let isDark = $(useDarkMode())
 let isFullscreen = $(useFullscreen())
@@ -46,7 +50,7 @@ let isCollapsed = $ref(false)
 let isPlaying = $ref(false)
 let currentTime = $ref(0)
 let offsetTime = $ref(0)
-let service = $shallowRef<MusicService<any, any>>(KugouService)
+let vendor = $ref<string>()
 let keyword = $ref('')
 let candidates = $ref<any[]>([])
 let selectedIndex = $ref(-1)
@@ -57,7 +61,140 @@ let isConnected = $ref(false)
 let connectedInfo = $ref<MusicInfo>()
 let connectedSong = $ref<any>()
 
+const defaultState = {
+  isTransparent: supportsVibrancy,
+  isGradientEnabled: !supportsVibrancy,
+  isCompact: isNotchWindow,
+  isCollapsed: false,
+  isPlaying: false,
+  currentTime: 0,
+  offsetTime: 0,
+  // eslint-disable-next-line vue/no-ref-object-reactivity-loss
+  vendor: undefined as typeof vendor,
+  keyword: '',
+  candidates: [],
+  selectedIndex: -1,
+  // eslint-disable-next-line vue/no-ref-object-reactivity-loss
+  data: undefined as typeof data,
+  music: '',
+  isConnected: false,
+  // eslint-disable-next-line vue/no-ref-object-reactivity-loss
+  connectedInfo: undefined as typeof connectedInfo,
+  // eslint-disable-next-line vue/no-ref-object-reactivity-loss
+  connectedSong: undefined as typeof connectedSong,
+}
+
+function mergeState<T extends object>(state: T, values: { [K in keyof T]: Ref<T[K]> }, defaults: Partial<T>) {
+  for (const [key, value] of Object.entries<Ref<unknown>>(values)) {
+    const raw = toRaw(value.value)
+    if (!(key in defaults) || !isEqual(raw, defaults[key])) {
+      state[key] = raw
+    }
+  }
+}
+
+function setDefaults<T extends object>(values: { [K in keyof T]: Ref<T[K]> }, defaults: Partial<T>) {
+  for (const [key, value] of Object.entries<Ref<unknown>>(values)) {
+    if (key in defaults) {
+      value.value = defaults[key]
+    }
+  }
+}
+
+function buildState() {
+  const state = {
+    ...initialState,
+  }
+  mergeState(state, $$({
+    isDark,
+    isGradientEnabled,
+    isCompact,
+    isPlaying,
+    currentTime,
+    offsetTime,
+    vendor,
+    keyword,
+    candidates,
+    selectedIndex,
+    data,
+    music,
+  }), defaultState)
+  if (isNotchWindow) {
+    mergeState(state, $$({
+      isCollapsed,
+    }), defaultState)
+  } else {
+    mergeState(state, $$({
+      isFullscreen,
+      isAlwaysOnTop,
+    }), defaultState)
+  }
+  if (supportsVibrancy) {
+    mergeState(state, $$({
+      isTransparent,
+    }), defaultState)
+  }
+  if (isConnectable) {
+    mergeState(state, $$({
+      isConnected,
+      connectedInfo,
+      connectedSong,
+    }), defaultState)
+  }
+  return state
+}
+
+if (initialState) {
+  setDefaults($$({
+    isDark,
+    isGradientEnabled,
+    isCompact,
+    isPlaying,
+    currentTime,
+    offsetTime,
+    vendor,
+    keyword,
+    candidates,
+    selectedIndex,
+    data,
+    music,
+  }), initialState)
+  if (isNotchWindow) {
+    setDefaults($$({
+      isCollapsed,
+    }), initialState)
+  } else {
+    setDefaults($$({
+      isFullscreen,
+      isAlwaysOnTop,
+    }), initialState)
+  }
+  if (supportsVibrancy) {
+    setDefaults($$({
+      isTransparent,
+      isAlwaysOnTop,
+    }), initialState)
+  }
+  if (isConnectable) {
+    setDefaults($$({
+      isConnected,
+      connectedInfo,
+      connectedSong,
+    }), initialState)
+  }
+}
+
 const audio = $ref<HTMLAudioElement>()
+
+const vendors = [
+  KugouService,
+  NeteaseService,
+  // LrclibService,
+]
+
+const service = $computed<MusicService<any, any>>(() => {
+  return vendors.find(item => item.name === vendor) ?? vendors[0]
+})
 
 const info = $computed(() => {
   if (isConnected && connectedInfo) return connectedInfo
@@ -101,7 +238,7 @@ function highlightSegments(text: string, segmenter: Segmenter | undefined) {
 
 const pictureURL = $computed(() => {
   const artwork = info?.artwork
-  if (artwork) return URL.createObjectURL(artwork)
+  if (artwork) return artwork
   if (!data) return undefined
   return data.picture
 })
@@ -259,14 +396,8 @@ const styles = $computed(() => {
   })
 })
 
-const vendors = [
-  KugouService,
-  NeteaseService,
-  // LrclibService,
-]
-
 const vendorIconURLs = $computed(() => {
-  return vendors.map(vendor => `url("${vendor.icon}")`)
+  return vendors.map(item => `url("${item.icon}")`)
 })
 
 const placeholder = $computed(() => `${appName}.`)
@@ -355,8 +486,6 @@ useKeyboardShortcuts(event => {
   }
 })
 
-const isConnectable = checkConnectable()
-
 function connect() {
   isConnected = !isConnected
 }
@@ -372,10 +501,11 @@ function searchExternally() {
 }
 
 function toggleNotch() {
+  const state = buildState()
   if (isNotchWindow) {
-    worldBridge.openWindow()
+    worldBridge.openWindow(state)
   } else {
-    worldBridge.openNotchWindow()
+    worldBridge.openNotchWindow(state)
   }
   window.close()
 }
@@ -469,13 +599,15 @@ async function showCandidates(event: MouseEvent) {
   }
 }
 
-function activate(vendor: MusicService<any, any>) {
-  const oldService = service
-  service = vendor
-  if (service !== oldService && keyword) {
+function activate(name: string) {
+  vendor = name
+}
+
+watch($$(service), () => {
+  if (keyword) {
     load(keyword, connectedInfo)
   }
-}
+})
 
 function handlePause() {
   isPlaying = false
@@ -675,14 +807,14 @@ watchEffect(() => {
           </div>
           <div class="vendor-list">
             <button
-              v-for="(vendor, index) in vendors"
-              :key="vendor.name"
-              :disabled="!isConnected && !vendor.prepare"
+              v-for="(item, index) in vendors"
+              :key="item.name"
+              :disabled="!isConnected && !item.prepare"
               :class="['control-item', {
-                'is-active': service === vendor,
+                'is-active': service === item,
               }]"
               :style="{ '--icon': vendorIconURLs[index] }"
-              @click="activate(vendor)"
+              @click="activate(item.name)"
             >
               <div class="control-icon"></div>
             </button>

@@ -3,7 +3,7 @@ export interface MusicInfo {
   name: string,
   artists?: string[],
   album?: string,
-  artwork?: Blob,
+  artwork?: string,
 }
 
 export interface MusicData<T = never> {

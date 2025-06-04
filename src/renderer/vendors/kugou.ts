@@ -18,7 +18,7 @@ export default defineMusicService<{
 }, {
     url: string,
   }>({
-  name: 'netease',
+  name: 'kugou',
   icon: KugouIcon,
   async search(keyword) {
     const result = await fetch(
