@@ -33,8 +33,6 @@ const {
   initialState,
 } = worldBridge
 
-console.log('initialState', initialState)
-
 const supportsVibrancy = checkVibrancySupport()
 const isConnectable = checkConnectable()
 
