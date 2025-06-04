@@ -1,3 +1,4 @@
+import type { IpcRendererEvent } from 'electron'
 import { contextBridge, ipcRenderer } from 'electron'
 import mri from 'mri'
 import type { WorldBridge } from './types'
@@ -58,6 +59,19 @@ const worldBridge: WorldBridge = {
   },
   setBounds: bounds => {
     ipcRenderer.invoke('set-bounds', bounds)
+  },
+  onNotification: (name, callback) => {
+    const id = ipcRenderer.invoke('subscribe-notification', name)
+    const listener = (event: IpcRendererEvent, notified: string) => {
+      if (notified === name) {
+        callback()
+      }
+    }
+    ipcRenderer.on('notification', listener)
+    return () => {
+      ipcRenderer.off('notification', listener)
+      ipcRenderer.invoke('unsubscribe-notification', id)
+    }
   },
 }
 

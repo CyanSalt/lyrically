@@ -10,7 +10,7 @@ import type { CSSProperties, Ref } from 'vue'
 import { nextTick, toRaw, watch, watchEffect } from 'vue'
 import { useAlwaysOnTop, useDarkMode, useDisplaySleepPrevented, useFullscreen } from '../compositions/frame'
 import { useKeyboardShortcuts } from '../compositions/interactive'
-import { checkConnectable, getConnectedData, pauseConnected, playConnected } from '../utils/connection'
+import { checkConnectable, pauseConnected, playConnected, subscribeConnection } from '../utils/connection'
 import { checkExternalSearchAvailable, openExternalNowPlaying, openExternalSearch } from '../utils/external'
 import { checkVibrancySupport } from '../utils/frame'
 import { parseLRC } from '../utils/lrc'
@@ -298,7 +298,6 @@ const lyricHTML = $computed(() => {
 })
 
 const ANIMATION_TIME = 1
-const CONNECTING_INTERVAL_TIME = 1
 
 const currentIndex = $computed(() => {
   return findLastIndex(lyrics, row => playingTime >= (row.time - ANIMATION_TIME))
@@ -306,11 +305,11 @@ const currentIndex = $computed(() => {
 
 // for performance
 const lastIndex = $computed(() => {
-  return findLastIndex(lyrics, row => playingTime + CONNECTING_INTERVAL_TIME >= (row.time - ANIMATION_TIME))
+  return findLastIndex(lyrics, row => playingTime + ANIMATION_TIME >= (row.time - ANIMATION_TIME))
 })
 
 const firstIndex = $computed(() => {
-  return findLastIndex(lyrics, row => playingTime - CONNECTING_INTERVAL_TIME >= (row.time - ANIMATION_TIME))
+  return findLastIndex(lyrics, row => playingTime - ANIMATION_TIME >= (row.time - ANIMATION_TIME))
 })
 
 const indexes = $computed(() => {
@@ -633,23 +632,27 @@ function reset() {
 
 watchEffect(onInvalidate => {
   if (isConnected) {
-    const timer = setInterval(async () => {
-      const result = await getConnectedData()
-      if (result) {
-        isPlaying = result.isPlaying
-        currentTime = result.currentTime
-        if (!connectedInfo || connectedInfo.key !== result.info.key || connectedInfo.name !== result.info.name) {
-          connectedInfo = result.info
-          keyword = result.info.name
-          load(keyword, connectedInfo)
+    const disconnect = subscribeConnection({
+      onTimeUpdate: time => {
+        currentTime = time
+      },
+      onChange: result => {
+        if (result) {
+          isPlaying = result.isPlaying
+          currentTime = result.currentTime
+          if (!connectedInfo || connectedInfo.key !== result.info.key || connectedInfo.name !== result.info.name) {
+            connectedInfo = result.info
+            keyword = result.info.name
+            load(keyword, connectedInfo)
+          }
+        } else {
+          reset()
+          unload()
         }
-      } else {
-        reset()
-        unload()
-      }
-    }, 1000 * CONNECTING_INTERVAL_TIME)
+      },
+    })
     onInvalidate(() => {
-      clearInterval(timer)
+      disconnect()
     })
   } else {
     reset()

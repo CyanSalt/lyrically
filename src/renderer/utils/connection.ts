@@ -41,7 +41,7 @@ function toDataURL(blob: Blob) {
   })
 }
 
-export async function getConnectedData(): Promise<ConnectedData | undefined> {
+async function getConnectedData(): Promise<ConnectedData | undefined> {
   const result = await worldBridge.applescript<AppleMusicData | undefined>('if application "Music" is running then tell application "Music" to get player state & (get player position) & (get {id, name, artist, album} of current track) & (get raw data of artwork 1 of current track)')
   if (!result) return undefined
   return {
@@ -54,5 +54,66 @@ export async function getConnectedData(): Promise<ConnectedData | undefined> {
       album: result[5],
       artwork: await toDataURL(new Blob([result[6]])),
     },
+  }
+}
+
+async function getConnectedTime(): Promise<number | undefined> {
+  const result = await worldBridge.applescript<number | undefined>('if application "Music" is running then tell application "Music" to get player position')
+  return result
+}
+
+export interface ConnectionSubscription {
+  onTimeUpdate: (time: number) => void,
+  onChange: (data: ConnectedData | undefined) => void,
+}
+
+export function subscribePlayerPosition(onTimeUpdate: ConnectionSubscription['onTimeUpdate'], initialTime: number) {
+  let base = performance.now()
+  let requestId: number
+  const callback: FrameRequestCallback = time => {
+    requestId = requestAnimationFrame(callback)
+    onTimeUpdate(initialTime + (time - base) / 1000)
+  }
+  requestId = requestAnimationFrame(callback)
+  const timer = setInterval(async () => {
+    const time = await getConnectedTime()
+    if (time !== undefined) {
+      initialTime = time
+      base = performance.now()
+      onTimeUpdate(initialTime)
+    }
+  }, 10000)
+  onTimeUpdate(initialTime)
+  return () => {
+    clearInterval(timer)
+    cancelAnimationFrame(requestId)
+  }
+}
+
+export function subscribeConnection({ onTimeUpdate, onChange }: ConnectionSubscription) {
+  // const timer = setInterval(async () => {
+  //   const result = await getConnectedData()
+  //   callback(result)
+  // }, 1000)
+  // return () => {
+  //   clearInterval(timer)
+  // }
+  let unsubscribeTime: (() => void) | undefined
+  const listener = async () => {
+    const result = await getConnectedData()
+    unsubscribeTime?.()
+    if (result?.isPlaying) {
+      unsubscribeTime = subscribePlayerPosition(
+        onTimeUpdate,
+        result.currentTime,
+      )
+    }
+    onChange(result)
+  }
+  const unsubscribe = worldBridge.onNotification('com.apple.iTunes.playerInfo', listener)
+  listener()
+  return () => {
+    unsubscribeTime?.()
+    unsubscribe()
   }
 }

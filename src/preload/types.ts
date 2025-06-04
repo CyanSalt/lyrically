@@ -24,4 +24,5 @@ export interface WorldBridge {
   openWindow: (state?: unknown) => void,
   openNotchWindow: (state?: unknown) => void,
   setBounds: (rect: Partial<Rectangle>) => void,
+  onNotification: (event: string, callback: () => void, immediate?: boolean) => () => void,
 }

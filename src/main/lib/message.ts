@@ -1,7 +1,7 @@
 import * as util from 'node:util'
 import applescript from 'applescript'
 import type { MenuItemConstructorOptions, PopupOptions, Rectangle } from 'electron'
-import { app, BrowserWindow, ipcMain, Menu, nativeTheme, powerSaveBlocker, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, nativeTheme, powerSaveBlocker, shell, systemPreferences } from 'electron'
 import { broadcast } from './frame'
 import { createNotchWindow, createWindow } from './window'
 
@@ -95,6 +95,14 @@ function handleMessages() {
     if (process.platform === 'darwin') {
       frame.invalidateShadow()
     }
+  })
+  ipcMain.handle('subscribe-notification', (event, name) => {
+    return systemPreferences.subscribeNotification(name, () => {
+      event.sender.send('notification', name)
+    })
+  })
+  ipcMain.handle('unsubscribe-notification', (event, id) => {
+    systemPreferences.unsubscribeNotification(id)
   })
 }
 
