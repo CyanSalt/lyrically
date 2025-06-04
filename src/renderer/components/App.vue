@@ -18,6 +18,7 @@ import { getSVGShape } from '../utils/notch'
 import type { Segmenter } from '../utils/string'
 import { defaultSegmenter, escapeHTML, getChineseSegmenter, isChineseText } from '../utils/string'
 import KugouService from '../vendors/kugou'
+// import LrclibService from '../vendors/lrclib'
 import NeteaseService from '../vendors/netease'
 import type { MusicData, MusicInfo, MusicService } from '../vendors/types'
 import GradientAnimation from './GradientAnimation.vue'
@@ -261,6 +262,7 @@ const styles = $computed(() => {
 const vendors = [
   KugouService,
   NeteaseService,
+  // LrclibService,
 ]
 
 const vendorIconURLs = $computed(() => {
