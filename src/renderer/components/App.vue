@@ -263,10 +263,6 @@ const isUsingGradient = $computed(() => {
   return isGradientEnabled && Boolean(pictureImage)
 })
 
-const isUsingDarkGradient = $computed(() => {
-  return isUsingGradient && !isLightPicture
-})
-
 const {
   width: innerWidth,
   height: innerHeight,
@@ -686,7 +682,7 @@ watchEffect(() => {
 <template>
   <div
     :class="['app', {
-      'is-dark': isDark || isUsingDarkGradient || isNotchWindow,
+      'is-dark': isUsingGradient ? !isLightPicture : isDark || isNotchWindow,
       'is-transparent': isTransparent,
       'is-gradient': isUsingGradient,
       'is-immersive': isPlaying && idle,
@@ -1047,7 +1043,9 @@ watchEffect(() => {
     position: absolute;
     inset: 0;
     background-image: var(--picture-image, linear-gradient(var(--fallback-background), var(--fallback-background)));
+    background-position: center;
     background-size: contain;
+    background-repeat: no-repeat;
     transition: opacity var(--fade-duration);
     pointer-events: none;
   }
@@ -1060,7 +1058,7 @@ watchEffect(() => {
   }
   :deep(.lucide) {
     z-index: 1;
-    font-size: max(30cqmin, var(--icon-size));
+    font-size: max(30cqmin, calc(1.5 * var(--icon-size)));
     opacity: 0;
     transition: opacity var(--fade-duration);
   }

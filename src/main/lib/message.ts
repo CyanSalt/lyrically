@@ -97,9 +97,14 @@ function handleMessages() {
     }
   })
   ipcMain.handle('subscribe-notification', (event, name) => {
-    return systemPreferences.subscribeNotification(name, () => {
+    let id: number
+    event.sender.on('destroyed', () => {
+      systemPreferences.unsubscribeNotification(id)
+    })
+    id = systemPreferences.subscribeNotification(name, () => {
       event.sender.send('notification', name)
     })
+    return id
   })
   ipcMain.handle('unsubscribe-notification', (event, id) => {
     systemPreferences.unsubscribeNotification(id)
