@@ -91,29 +91,29 @@ export function subscribePlayerPosition(onTimeUpdate: ConnectionSubscription['on
 }
 
 export function subscribeConnection({ onTimeUpdate, onChange }: ConnectionSubscription) {
-  // const timer = setInterval(async () => {
-  //   const result = await getConnectedData()
-  //   callback(result)
-  // }, 1000)
-  // return () => {
-  //   clearInterval(timer)
-  // }
-  let unsubscribeTime: (() => void) | undefined
-  const listener = async () => {
+  const timer = setInterval(async () => {
     const result = await getConnectedData()
-    unsubscribeTime?.()
-    if (result?.isPlaying) {
-      unsubscribeTime = subscribePlayerPosition(
-        onTimeUpdate,
-        result.currentTime,
-      )
-    }
     onChange(result)
-  }
-  const unsubscribe = worldBridge.onNotification('com.apple.iTunes.playerInfo', listener)
-  listener()
+  }, 1000)
   return () => {
-    unsubscribeTime?.()
-    unsubscribe()
+    clearInterval(timer)
   }
+  // let unsubscribeTime: (() => void) | undefined
+  // const listener = async () => {
+  //   const result = await getConnectedData()
+  //   unsubscribeTime?.()
+  //   if (result?.isPlaying) {
+  //     unsubscribeTime = subscribePlayerPosition(
+  //       onTimeUpdate,
+  //       result.currentTime,
+  //     )
+  //   }
+  //   onChange(result)
+  // }
+  // const unsubscribe = worldBridge.onNotification('com.apple.iTunes.playerInfo', listener)
+  // listener()
+  // return () => {
+  //   unsubscribeTime?.()
+  //   unsubscribe()
+  // }
 }
