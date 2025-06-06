@@ -42,10 +42,3 @@ export const defaultSegmenter: Segmenter = (text: string) => {
     }
   })
 }
-
-const escaper = document.createElement('div')
-
-export function escapeHTML(text: string) {
-  escaper.textContent = text
-  return escaper.innerHTML
-}

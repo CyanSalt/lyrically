@@ -16,7 +16,7 @@ import { checkVibrancySupport } from '../utils/frame'
 import { parseLRC } from '../utils/lrc'
 import { getSVGShape } from '../utils/notch'
 import type { Segmenter } from '../utils/string'
-import { defaultSegmenter, escapeHTML, getChineseSegmenter, isChineseText } from '../utils/string'
+import { defaultSegmenter, getChineseSegmenter, isChineseText } from '../utils/string'
 import KugouService from '../vendors/kugou'
 // import LrclibService from '../vendors/lrclib'
 import NeteaseService from '../vendors/netease'
@@ -215,23 +215,45 @@ const durations = $computed(() => {
   })
 })
 
-function highlightSegments(text: string, segmenter: Segmenter | undefined) {
-  if (!segmenter) return text
+interface BaseLyricNode {
+  type: string,
+}
+
+interface PictureLyricNode extends BaseLyricNode {
+  type: 'picture',
+}
+
+interface TextLyricNode extends BaseLyricNode {
+  type: 'text',
+  text: string,
+  highlight: boolean,
+}
+
+type LyricNode = PictureLyricNode | TextLyricNode
+
+function createTextLyricNode(text: string, highlight?: boolean): TextLyricNode {
+  return {
+    type: 'text',
+    text,
+    highlight: highlight ?? false,
+  }
+}
+
+function highlightSegments(text: string, segmenter: Segmenter | undefined): LyricNode[] {
+  if (!segmenter) return [createTextLyricNode(text)]
   const segments = segmenter(text)
   const weights = segments.map(item => item.weight ?? 1)
   const maxWeight = Math.max(...weights)
-  if (maxWeight <= 0) return text
+  if (maxWeight <= 0) return [createTextLyricNode(text)]
   const lengths = segments.map(item => (item.weight === maxWeight ? item.segment.length : 0))
   const maxLength = Math.max(...lengths)
-  if (maxLength <= 0) return text
+  if (maxLength <= 0) return [createTextLyricNode(text)]
   const maxLengthIndexes = Array.from(lengths.entries())
     .filter(([index, value]) => value === maxLength)
     .map(([index, item]) => index)
   const rv = seedrandom(text)()
   const luckyIndex = maxLengthIndexes[Math.floor(rv * maxLengthIndexes.length)]
-  return segments.map((item, index) => {
-    return index === luckyIndex ? `<strong>${escapeHTML(item.segment)}</strong>` : escapeHTML(item.segment)
-  }).join('')
+  return segments.map((item, index) => createTextLyricNode(item.segment, index === luckyIndex))
 }
 
 const pictureURL = $computed(() => {
@@ -285,10 +307,10 @@ watchEffect(async () => {
   }
 })
 
-const lyricHTML = $computed(() => {
-  return lyrics.map((lyric, index) => {
+const lyricNodes = $computed(() => {
+  return lyrics.map<LyricNode[]>((lyric, index) => {
     return pictureImage && !lyric.text.trim() && durations[index] > 5
-      ? `<div class="picture"></div>`
+      ? [{ type: 'picture' }]
       : highlightSegments(lyric.text, segmenter)
   })
 })
@@ -325,7 +347,7 @@ const indexes = $computed(() => {
   return Array.from({ length: toIndex - fromIndex + 1 }, (_, index) => firstIndex + index)
 })
 
-const classes = $computed(() => {
+const basicClasses = $computed(() => {
   return indexes.map(index => {
     if (index < currentIndex) return 'prev'
     if (index > currentIndex) return 'next'
@@ -341,15 +363,21 @@ const types = $computed(() => {
   })
 })
 
+const schemeClasses = $computed(() => {
+  return indexes.map(index => {
+    const lyric = lyrics[index]?.text
+    const key = String(index)
+    const rand = seedrandom(lyric + key)
+    if (typeof lyric !== 'string') return 'normal'
+    return lyric && rand() < 0.2
+      ? 'highlight'
+      : 'normal'
+  })
+})
+
 function generateStyle(lyric: string | undefined, key: string, type: 'edge' | 'inside' | 'outside') {
-  const rng = seedrandom(lyric + key)
   const style: CSSProperties = {}
   if (typeof lyric !== 'string') return style
-  if (lyric && rng() < 0.2) {
-    style.background = 'var(--highlight-background)'
-    style.color = 'var(--highlight-foreground)'
-    style.textShadow = 'none'
-  }
   const rand = seedrandom(lyric + key + type)
   if (type === 'outside') {
     const x = (n => (n > 0 ? 50 : -50) + n * 50)(rand() * 2 - 1) // -100 ~ -50, 50 ~ 100
@@ -682,7 +710,7 @@ watchEffect(() => {
 <template>
   <div
     :class="['app', {
-      'is-dark': isUsingGradient ? !isLightPicture : isDark || isNotchWindow,
+      'is-dark': isDark || isUsingGradient || isNotchWindow,
       'is-transparent': isTransparent,
       'is-gradient': isUsingGradient,
       'is-immersive': isPlaying && idle,
@@ -706,7 +734,7 @@ watchEffect(() => {
           <div
             v-for="(index, order) in indexes"
             :key="index"
-            :class="[classes[order], 'lyric']"
+            :class="[basicClasses[order], schemeClasses[order], 'lyric']"
           >{{ lyrics[index]?.text ?? '' }}</div>
         </template>
         <template v-else>
@@ -714,9 +742,14 @@ watchEffect(() => {
             v-for="(index, order) in indexes"
             :key="index"
             :style="styles[order]"
-            :class="[classes[order], 'lyric']"
-            v-html="lyricHTML[index] ?? ''"
-          ></div>
+            :class="[basicClasses[order], schemeClasses[order], 'lyric']"
+          >
+            <template v-for="(node, nodeIndex) in lyricNodes[index] ?? []" :key="nodeIndex">
+              <div v-if="node.type === 'picture'" class="picture"></div>
+              <strong v-else-if="node.highlight">{{ node.text }}</strong>
+              <template v-else>{{ node.text }}</template>
+            </template>
+          </div>
         </template>
       </div>
       <header :class="['control-bar', { 'is-resident': !isPlaying }]">
@@ -881,7 +914,7 @@ watchEffect(() => {
     cursor: none;
   }
   &.is-gradient {
-    --highlight-foreground: var(--picture-color, var(--background));
+    --highlight-foreground: oklab(from var(--picture-color,) calc(l * 80%) a b);
   }
   &.is-notch {
     --notch-x-offset: 6px;
@@ -901,7 +934,7 @@ watchEffect(() => {
     position: fixed;
     bottom: 0;
     left: 50%;
-    color: color-mix(in oklab, currentColor var(--active-background-opacity), transparent);
+    color: rgb(from currentColor r g b / var(--active-background-opacity));
     font-size: var(--icon-size);
     transform: translateX(-50%);
     transition: color var(--fade-duration);
@@ -969,6 +1002,7 @@ watchEffect(() => {
 }
 .lyric {
   position: absolute;
+  font-weight: 500;
   transition: background var(--effect-duration), color var(--effect-duration), transform var(--lyric-duration) ease-in-out, opacity var(--lyric-duration) ease-in-out, filter var(--lyric-duration) ease-in-out;
   :deep(strong) {
     font-weight: 900;
@@ -990,6 +1024,11 @@ watchEffect(() => {
 .prev, .next {
   opacity: 0.25;
   filter: blur(0.075em);
+}
+.highlight {
+  color: var(--highlight-foreground);
+  text-shadow: none;
+  background: var(--highlight-background);
 }
 @keyframes fade-in {
   from {
@@ -1026,7 +1065,7 @@ watchEffect(() => {
   min-width: 0;
 }
 .music-picture {
-  --fallback-background: color-mix(in oklab, var(--foreground) var(--active-background-opacity), transparent);
+  --fallback-background: rgb(from var(--foreground) r g b / var(--active-background-opacity));
   position: relative;
   display: flex;
   flex: none;
@@ -1087,7 +1126,7 @@ watchEffect(() => {
   outline: none;
   field-sizing: content;
   &::placeholder {
-    color: color-mix(in oklab, var(--foreground) 25%, transparent);
+    color: rgb(from var(--foreground) r g b / 25%);
     font-style: italic;
     transition: color var(--effect-duration);
   }
@@ -1096,7 +1135,7 @@ watchEffect(() => {
   display: flex;
   flex-direction: column;
   gap: 0.25em;
-  color: color-mix(in oklab, var(--foreground) 50%, transparent);
+  color: rgb(from var(--foreground) r g b / 50%);
   font-size: 0.75em;
   white-space: nowrap;
   transition: color var(--effect-duration);
@@ -1187,9 +1226,9 @@ watchEffect(() => {
   height: 1.75em;
   padding: 0;
   border: none;
-  color: color-mix(in oklab, var(--foreground) var(--foreground-opacity), transparent);
+  color: rgb(from var(--foreground) r g b / var(--foreground-opacity));
   font: inherit;
-  background-color: color-mix(in oklab, var(--foreground) var(--background-opacity), transparent);
+  background-color: rgb(from var(--foreground) r g b / var(--background-opacity));
   mask-image: paint(smoothie-mask);
   transition: transform var(--interactive-duration), color var(--interactive-duration), background-color var(--interactive-duration);
   cursor: pointer;

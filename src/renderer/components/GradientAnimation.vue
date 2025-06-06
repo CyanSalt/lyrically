@@ -69,7 +69,7 @@ const pictureImage = $computed(() => {
     background-size: 100%;
     background-repeat: no-repeat;
     border-radius: 100vmax;
-    filter: blur(2em);
+    filter: blur(2em) brightness(75%);
     animation: rotate 30s linear infinite paused;
   }
   &.is-animated::before,
