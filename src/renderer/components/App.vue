@@ -417,6 +417,24 @@ const styles = $computed(() => {
   })
 })
 
+function generateCompactStyle(type: 'edge' | 'inside' | 'outside') {
+  const style: CSSProperties = {}
+  if (type === 'outside') {
+    style.transform = `translate(0.5em, 0.5em)`
+  } else if (type === 'edge') {
+    style.transform = `translate(0.25em, 0.25em)`
+  } else {
+    // pass
+  }
+  return style
+}
+
+const compactStyles = $computed(() => {
+  return indexes.map((index, order) => {
+    return generateCompactStyle(types[order])
+  })
+})
+
 const vendorIconURLs = $computed(() => {
   return vendors.map(item => `url("${item.icon}")`)
 })
@@ -734,6 +752,7 @@ watchEffect(() => {
           <div
             v-for="(index, order) in indexes"
             :key="index"
+            :style="compactStyles[order]"
             :class="[basicClasses[order], schemeClasses[order], 'lyric']"
           >{{ lyrics[index]?.text ?? '' }}</div>
         </template>
@@ -1024,6 +1043,9 @@ watchEffect(() => {
 .prev, .next {
   opacity: 0.25;
   filter: blur(0.075em);
+}
+.app.is-compact .prev {
+  opacity: 0;
 }
 .highlight {
   color: var(--highlight-foreground);
