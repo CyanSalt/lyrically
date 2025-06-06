@@ -734,6 +734,7 @@ watchEffect(() => {
       'is-immersive': isPlaying && idle,
       'is-notch': isNotchWindow,
       'is-compact': isCompact,
+      'is-collapsed': isCollapsed,
     }]"
     :style="{
       '--picture-image': pictureImage,
@@ -817,59 +818,61 @@ watchEffect(() => {
           </button>
         </div>
       </header>
-      <footer :class="['player-info', { 'is-resident': !isPlaying }]">
-        <div class="music-area">
-          <div :class="['music-picture', { 'is-inverted': !isLightPicture }]" @click="play">
-            <LucidePause v-if="isPlaying" fill="currentColor" />
-            <LucidePlay v-else fill="currentColor" />
-          </div>
-          <div class="music-info">
-            <input
-              v-model="keyword"
-              :placeholder="placeholder"
-              class="music-name"
-              @change="search"
-            >
-            <a v-if="info" class="music-detail" @click="showCandidates">
-              <div class="artists">{{ formatList(info.artists) }}</div>
-              <div v-if="!isCompact" class="album">{{ info.album }}</div>
-            </a>
-          </div>
+    </template>
+    <footer :class="['player-info', { 'is-resident': !isPlaying }]">
+      <div class="music-area">
+        <div :class="['music-picture', { 'is-inverted': !isLightPicture }]" @click="play">
+          <LucidePause v-if="isPlaying" fill="currentColor" />
+          <LucidePlay v-else fill="currentColor" />
         </div>
-        <div class="vendor-area">
-          <div class="vendor-list">
-            <button
-              v-if="isConnectable"
-              :class="['control-item', { 'is-active': isConnected }]"
-              :style="{ '--icon': applemusicIcon }"
-              @click="connect"
-            >
-              <div class="control-icon"></div>
-            </button>
-            <button
-              v-if="isExternallySearchable"
-              class="control-item"
-              @click="searchExternally"
-            >
-              <LucideSearch />
-            </button>
-          </div>
-          <div class="vendor-list">
-            <button
-              v-for="(item, index) in vendors"
-              :key="item.name"
-              :disabled="!isConnected && !item.prepare"
-              :class="['control-item', {
-                'is-active': service === item,
-              }]"
-              :style="{ '--icon': vendorIconURLs[index] }"
-              @click="activate(item.name)"
-            >
-              <div class="control-icon"></div>
-            </button>
-          </div>
+        <div v-if="!isCollapsed" class="music-info">
+          <input
+            v-model="keyword"
+            :placeholder="placeholder"
+            class="music-name"
+            @change="search"
+          >
+          <a v-if="info" class="music-detail" @click="showCandidates">
+            <div class="artists">{{ formatList(info.artists) }}</div>
+            <div v-if="!isCompact" class="album">{{ info.album }}</div>
+          </a>
         </div>
-      </footer>
+      </div>
+      <div v-if="!isCollapsed" class="vendor-area">
+        <div class="vendor-list">
+          <button
+            v-if="isConnectable"
+            :class="['control-item', { 'is-active': isConnected }]"
+            :style="{ '--icon': applemusicIcon }"
+            @click="connect"
+          >
+            <div class="control-icon"></div>
+          </button>
+          <button
+            v-if="isExternallySearchable"
+            class="control-item"
+            @click="searchExternally"
+          >
+            <LucideSearch />
+          </button>
+        </div>
+        <div class="vendor-list">
+          <button
+            v-for="(item, index) in vendors"
+            :key="item.name"
+            :disabled="!isConnected && !item.prepare"
+            :class="['control-item', {
+              'is-active': service === item,
+            }]"
+            :style="{ '--icon': vendorIconURLs[index] }"
+            @click="activate(item.name)"
+          >
+            <div class="control-icon"></div>
+          </button>
+        </div>
+      </div>
+    </footer>
+    <template v-if="!isCollapsed">
       <Transition name="fade">
         <Slider v-if="data && !isPlaying" v-model="offsetTime" />
       </Transition>
@@ -940,6 +943,9 @@ watchEffect(() => {
     --icon-size: calc(var(--notch-area-height) / #{1 + 1.75});
     padding: 0 var(--notch-x-offset);
     mask-image: var(--notch-mask-image);
+  }
+  &.is-collapsed {
+    --icon-size: calc(var(--notch-area-height) * 2 / 3 / 1.75);
   }
   :deep(.gradient-animation) {
     filter: var(--colorful-background-filter);
@@ -1073,11 +1079,14 @@ watchEffect(() => {
   color: var(--foreground);
   font-size: var(--icon-size);
   opacity: 0;
-  transition: color var(--effect-duration), opacity var(--fade-duration);
+  transition: color var(--effect-duration), opacity var(--fade-duration), bottom var(--interactive-duration);
   &:hover,
   &.is-resident,
   .app.is-compact & {
     opacity: 1;
+  }
+  .app.is-collapsed & {
+    bottom: calc((var(--notch-area-height) - var(--icon-size) * 1.75) / 2);
   }
 }
 .music-area {
@@ -1095,7 +1104,6 @@ watchEffect(() => {
   align-items: center;
   width: 5em;
   height: 5em;
-  color: black;
   transition: color var(--effect-duration);
   cursor: pointer;
   container-type: size;
@@ -1107,7 +1115,7 @@ watchEffect(() => {
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
-    transition: opacity var(--fade-duration);
+    transition: opacity var(--fade-duration), width var(--interactive-duration), height var(--interactive-duration);
     pointer-events: none;
   }
   &.is-inverted {
@@ -1117,9 +1125,13 @@ watchEffect(() => {
     width: 3em;
     height: 3em;
   }
+  .app.is-collapsed & {
+    width: calc(var(--icon-size) * 1.75);
+    height: calc(var(--icon-size) * 1.75);
+  }
   :deep(.lucide) {
     z-index: 1;
-    font-size: max(30cqmin, calc(1.5 * var(--icon-size)));
+    font-size: max(30cqmin, calc(var(--icon-size) * 1.5));
     opacity: 0;
     transition: opacity var(--fade-duration);
   }
