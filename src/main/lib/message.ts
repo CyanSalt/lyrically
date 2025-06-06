@@ -96,18 +96,25 @@ function handleMessages() {
       frame.invalidateShadow()
     }
   })
+  let unsubscribeMap = new Map<number, () => void>()
   ipcMain.handle('subscribe-notification', (event, name) => {
     let id: number
-    event.sender.on('destroyed', () => {
+    const unsubscribe = () => {
+      event.sender.off('destroyed', unsubscribe)
       systemPreferences.unsubscribeNotification(id)
-    })
+    }
+    event.sender.on('destroyed', unsubscribe)
     id = systemPreferences.subscribeNotification(name, () => {
       event.sender.send('notification', name)
     })
+    unsubscribeMap.set(id, unsubscribe)
     return id
   })
   ipcMain.handle('unsubscribe-notification', (event, id) => {
-    systemPreferences.unsubscribeNotification(id)
+    const unsubscribe = unsubscribeMap.get(id)
+    if (unsubscribe) {
+      unsubscribe()
+    }
   })
 }
 
