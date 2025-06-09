@@ -948,7 +948,7 @@ watchEffect(() => {
     mask-image: var(--notch-mask-image);
   }
   &.is-collapsed {
-    --icon-size: calc(var(--notch-area-height) * 2 / 3 / 1.75);
+    --icon-size: calc(var(--notch-area-height) / 3);
   }
   :deep(.gradient-animation) {
     filter: var(--colorful-background-filter);
