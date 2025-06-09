@@ -39,11 +39,15 @@ function handleMessages() {
   ipcMain.handle('get-ref:dark-mode', () => {
     return nativeTheme.shouldUseDarkColors
   })
+  ipcMain.handle('get-ref:high-contrast-mode', () => {
+    return nativeTheme.shouldUseHighContrastColors
+  })
   ipcMain.handle('set-ref:dark-mode', (event, value: boolean) => {
     nativeTheme.themeSource = value ? 'dark' : 'light'
   })
   nativeTheme.on('updated', () => {
     broadcast('update-ref:dark-mode', nativeTheme.shouldUseDarkColors)
+    broadcast('update-ref:high-contrast-mode', nativeTheme.shouldUseHighContrastColors)
   })
   ipcMain.handle('applescript', (event, script: string) => {
     return executeApplescript(script).catch(() => undefined)

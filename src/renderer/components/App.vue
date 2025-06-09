@@ -8,7 +8,7 @@ import seedrandom from 'seedrandom'
 import { siApplemusic } from 'simple-icons'
 import type { CSSProperties, Ref } from 'vue'
 import { nextTick, toRaw, watch, watchEffect } from 'vue'
-import { useAlwaysOnTop, useDarkMode, useDisplaySleepPrevented, useFullscreen } from '../compositions/frame'
+import { useAlwaysOnTop, useDarkMode, useDisplaySleepPrevented, useFullscreen, useHighContrastMode } from '../compositions/frame'
 import { useKeyboardShortcuts } from '../compositions/interactive'
 import { checkConnectable, pauseConnected, playConnected, subscribeConnection } from '../utils/connection'
 import { checkExternalSearchAvailable, openExternalNowPlaying, openExternalSearch } from '../utils/external'
@@ -37,11 +37,14 @@ const supportsVibrancy = checkVibrancySupport()
 const isConnectable = checkConnectable()
 
 let isDark = $(useDarkMode())
+let isHighContrast = $(useHighContrastMode())
 let isFullscreen = $(useFullscreen())
 let isAlwaysOnTop = $(useAlwaysOnTop())
 
-let isTransparent = $ref(supportsVibrancy)
-let isGradientEnabled = $ref(!supportsVibrancy)
+// eslint-disable-next-line vue/no-ref-object-reactivity-loss
+let isTransparent = $ref(!isHighContrast && supportsVibrancy)
+// eslint-disable-next-line vue/no-ref-object-reactivity-loss
+let isGradientEnabled = $ref(!isHighContrast && !supportsVibrancy)
 let isCompact = $ref(isNotchWindow)
 let isCollapsed = $ref(false)
 

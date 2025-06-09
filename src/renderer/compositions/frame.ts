@@ -15,6 +15,10 @@ export const useDarkMode = memoize(() => {
   return injectIPC('dark-mode', false)
 })
 
+export const useHighContrastMode = memoize(() => {
+  return injectIPC('high-contrast-mode', false)
+})
+
 export function useDisplaySleepPrevented(refOrGetter: MaybeRefOrGetter<boolean>) {
   return watchEffect(async onInvalidate => {
     if (toValue(refOrGetter)) {
