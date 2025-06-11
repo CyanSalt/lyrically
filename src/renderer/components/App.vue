@@ -998,6 +998,7 @@ watchEffect(() => {
   padding: 0;
   border: none;
   background: transparent;
+  border-radius: var(--smoothie-border-radius);
   mask-image: paint(smoothie-mask);
   transform: translateX(-50%);
 }
@@ -1266,6 +1267,7 @@ watchEffect(() => {
   color: rgb(from var(--foreground) r g b / var(--foreground-opacity));
   font: inherit;
   background-color: rgb(from var(--foreground) r g b / var(--background-opacity));
+  border-radius: var(--smoothie-border-radius);
   mask-image: paint(smoothie-mask);
   transition: transform var(--interactive-duration), color var(--interactive-duration), background-color var(--interactive-duration);
   cursor: pointer;
