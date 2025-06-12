@@ -1280,6 +1280,7 @@ watchEffect(() => {
   }
   &.is-active {
     --background-opacity: var(--active-background-opacity);
+    --foreground-opacity: 100%;
   }
   &:not(:disabled):active, &:not(:disabled).is-active:hover {
     --background-opacity: calc(var(--active-background-opacity) * 1.5);
