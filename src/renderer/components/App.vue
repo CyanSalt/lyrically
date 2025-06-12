@@ -1315,13 +1315,25 @@ watchEffect(() => {
   background-color: rgb(from var(--foreground) r g b / var(--background-opacity));
   border-radius: var(--smoothie-border-radius);
   mask-image: paint(smoothie-mask);
-  transition: transform var(--interactive-duration), color var(--interactive-duration), background-color var(--interactive-duration), box-shadow var(--interactive-duration), font-size var(--bouncing-duration) cubic-bezier(0.175, 0.885, 0.32, 2.2);
+  transition: transform var(--interactive-duration), color var(--interactive-duration), background-color var(--interactive-duration), font-size var(--bouncing-duration) cubic-bezier(0.175, 0.885, 0.32, 2.2);
   cursor: pointer;
+  &::before {
+    transition: filter var(--interactive-duration);
+  }
+  &::after {
+    transition: box-shadow var(--interactive-duration);
+  }
   .app.is-liquid & {
     &::before {
       content: '';
       position: absolute;
       inset: 0;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: calc(0.5em + 3px);
     }
   }
   &.is-active {
@@ -1329,10 +1341,12 @@ watchEffect(() => {
     --foreground-opacity: 100%;
     .app.is-liquid & {
       background-color: rgb(255 255 255 / 25%);
-      box-shadow: rgb(255 255 255 / 50%) -0.5px -0.5px 0.5px 0.5px inset, rgb(255 255 255 / 50%) 1px 1px 1px 0px inset;
       &::before {
         filter: url('#glass-distortion');
         backdrop-filter: blur(3px);
+      }
+      &::after {
+        box-shadow: rgb(255 255 255 / 50%) -0.5px -0.5px 0.5px 0.5px inset, rgb(255 255 255 / 50%) 1px 1px 1px 0px inset;
       }
     }
   }
