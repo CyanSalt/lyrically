@@ -11,17 +11,23 @@ const deactivate = debounce(() => {
   isActive = false
 }, 500)
 
+function snap(value: number, step = 1, precision = 0.05) {
+  const scaled = value / step
+  const divisible = Math.round(scaled)
+  return Math.abs(value - divisible) < precision ? divisible * step : value
+}
+
 function start(startingEvent: PointerEvent) {
   let initialValue = modelValue
   isActive = true
   const target = startingEvent.target as HTMLElement
   target.setPointerCapture(startingEvent.pointerId)
   function handleMove(movingEvent: PointerEvent) {
-    modelValue = initialValue + (startingEvent.clientX - movingEvent.clientX) / GRID_SIZE
+    modelValue = initialValue + snap((startingEvent.clientX - movingEvent.clientX) / GRID_SIZE)
   }
   function handleStop(stoppingEvent: PointerEvent) {
     deactivate()
-    modelValue = initialValue + (startingEvent.clientX - stoppingEvent.clientX) / GRID_SIZE
+    modelValue = initialValue + snap((startingEvent.clientX - stoppingEvent.clientX) / GRID_SIZE)
     target.releasePointerCapture(startingEvent.pointerId)
     window.removeEventListener('pointermove', handleMove)
     window.removeEventListener('pointerup', handleStop)
