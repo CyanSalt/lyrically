@@ -44,7 +44,7 @@ let isAlwaysOnTop = $(useAlwaysOnTop())
 // eslint-disable-next-line vue/no-ref-object-reactivity-loss
 let isTransparent = $ref(!isHighContrast && supportsVibrancy)
 // eslint-disable-next-line vue/no-ref-object-reactivity-loss
-let isGradientEnabled = $ref(!isHighContrast && !supportsVibrancy)
+let isGradientEnabled = $ref(!isHighContrast)
 let isCompact = $ref(isNotchWindow)
 let isCollapsed = $ref(false)
 
@@ -63,8 +63,10 @@ let connectedInfo = $ref<MusicInfo>()
 let connectedSong = $ref<any>()
 
 const defaultState = {
-  isTransparent: supportsVibrancy,
-  isGradientEnabled: !supportsVibrancy,
+  // eslint-disable-next-line vue/no-ref-object-reactivity-loss
+  isTransparent: !isHighContrast && supportsVibrancy,
+  // eslint-disable-next-line vue/no-ref-object-reactivity-loss
+  isGradientEnabled: !isHighContrast,
   isCompact: isNotchWindow,
   isCollapsed: false,
   isPlaying: false,
@@ -461,12 +463,7 @@ function toggleDarkMode() {
 }
 
 function toggleTransparent() {
-  if (isGradientEnabled) {
-    isGradientEnabled = false
-    isTransparent = true
-  } else {
-    isTransparent = !isTransparent
-  }
+  isTransparent = !isTransparent
 }
 
 function toggleGradient() {
@@ -801,7 +798,8 @@ watchEffect(() => {
           </button>
           <button
             v-if="supportsVibrancy"
-            :class="['control-item', { 'is-active': isTransparent && !isGradientEnabled }]"
+            :disabled="isGradientEnabled"
+            :class="['control-item', { 'is-active': isTransparent }]"
             @click="toggleTransparent"
           >
             <LucideCloudFog />
@@ -813,7 +811,6 @@ watchEffect(() => {
             <LucideRotate3D />
           </button>
           <button
-            :disabled="!pictureImage"
             :class="['control-item', { 'is-active': isGradientEnabled }]"
             @click="toggleGradient"
           >
