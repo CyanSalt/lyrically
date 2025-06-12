@@ -1350,11 +1350,13 @@ watchEffect(() => {
       }
     }
   }
-  &:not(:disabled):hover,
-  .app.is-liquid &:not(:disabled):hover {
+  &:not(:disabled):hover {
     --foreground-opacity: 100%;
-    font-size: 1.08em;
+    &.is-active {
+      font-size: 1.08em;
+    }
     .app.is-liquid & {
+      --foreground-opacity: 100%;
       background-color: rgb(255 255 255 / 25%);
     }
   }
