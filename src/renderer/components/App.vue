@@ -738,6 +738,7 @@ watchEffect(() => {
       'is-notch': isNotchWindow,
       'is-compact': isCompact,
       'is-collapsed': isCollapsed,
+      'is-liquid': isDark || isUsingGradient,
     }]"
     :style="{
       '--picture-image': pictureImage,
@@ -747,6 +748,45 @@ watchEffect(() => {
       '--notch-mask-image': notchMaskImage,
     }"
   >
+    <svg class="defs">
+      <filter
+        id="glass-distortion"
+        x="0%"
+        y="0%"
+        width="100%"
+        height="100%"
+        filterUnits="objectBoundingBox"
+      >
+        <feTurbulence type="fractalNoise" baseFrequency="0.001 0.005" numOctaves="1" seed="17" result="turbulence" />
+        <!-- Liked Seeds: 5, 14, 17 -->
+        <feComponentTransfer in="turbulence" result="mapped">
+          <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
+          <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
+          <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
+        </feComponentTransfer>
+        <feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
+        <feSpecularLighting
+          in="softMap"
+          surfaceScale="5"
+          specularConstant="1"
+          specularExponent="100"
+          lighting-color="white"
+          result="specLight"
+        >
+          <fePointLight x="-200" y="-200" z="300" />
+        </feSpecularLighting>
+        <feComposite
+          in="specLight"
+          operator="arithmetic"
+          k1="0"
+          k2="1"
+          k3="1"
+          k4="0"
+          result="litImage"
+        />
+        <feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
     <Transition name="fade">
       <GradientAnimation v-if="isUsingGradient" :picture="pictureURL" :animated="isPlaying" />
     </Transition>
@@ -914,6 +954,7 @@ watchEffect(() => {
   --effect-duration: 0.5s;
   --lyric-duration: 1s;
   --interactive-duration: 0.2s;
+  --bouncing-duration: 0.4s;
   --icon-size: clamp(14px, 5vmin, 24px);
   --active-background-opacity: 8%;
   --colorful-background-filter: brightness(133.3333%);
@@ -956,6 +997,7 @@ watchEffect(() => {
   :deep(.lucide) {
     width: 1em;
     height: 1em;
+    transition: color var(--interactive-duration);
   }
   :deep(.slider) {
     --guide-line-size: min(0.4375em, 8px);
@@ -985,6 +1027,9 @@ watchEffect(() => {
     // transform: rotate3d(1, 1, 1, 2deg);
     transform: rotate(2deg);
   }
+}
+.defs {
+  display: none;
 }
 .notch-action {
   --smoothie-border-radius: 12px;
@@ -1188,7 +1233,7 @@ watchEffect(() => {
   flex-wrap: wrap;
   gap: 2em;
   justify-content: flex-end;
-  align-items: center;
+  align-items: flex-end;
   font-size: var(--icon-size);
   .app.is-compact & {
     flex: none;
@@ -1199,7 +1244,7 @@ watchEffect(() => {
   flex-wrap: wrap;
   gap: 0.25em;
   justify-content: flex-end;
-  align-items: center;
+  align-items: flex-end;
   transition: opacity var(--fade-duration);
   .app.is-compact .player-info:not(.is-resident, :hover) & {
     opacity: 0;
@@ -1257,6 +1302,7 @@ watchEffect(() => {
   --background-opacity: 0;
   --foreground-opacity: 50%;
   appearance: none;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1269,18 +1315,37 @@ watchEffect(() => {
   background-color: rgb(from var(--foreground) r g b / var(--background-opacity));
   border-radius: var(--smoothie-border-radius);
   mask-image: paint(smoothie-mask);
-  transition: transform var(--interactive-duration), color var(--interactive-duration), background-color var(--interactive-duration);
+  transition: transform var(--interactive-duration), color var(--interactive-duration), background-color var(--interactive-duration), box-shadow var(--interactive-duration), font-size var(--bouncing-duration) cubic-bezier(0.175, 0.885, 0.32, 2.2);
   cursor: pointer;
-  &:not(:disabled):hover {
-    --background-opacity: var(--active-background-opacity);
-    --foreground-opacity: 100%;
-  }
-  &:not(:disabled):active {
-    transform: scale(0.96);
+  .app.is-liquid & {
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+    }
   }
   &.is-active {
     --background-opacity: var(--active-background-opacity);
     --foreground-opacity: 100%;
+    .app.is-liquid & {
+      background-color: rgb(255 255 255 / 25%);
+      box-shadow: rgb(255 255 255 / 50%) -0.5px -0.5px 0.5px 0.5px inset, rgb(255 255 255 / 50%) 1px 1px 1px 0px inset;
+      &::before {
+        filter: url('#glass-distortion');
+        backdrop-filter: blur(3px);
+      }
+    }
+  }
+  &:not(:disabled):hover,
+  .app.is-liquid &:not(:disabled):hover {
+    --foreground-opacity: 100%;
+    font-size: 1.08em;
+    .app.is-liquid & {
+      background-color: rgb(255 255 255 / 25%);
+    }
+  }
+  &:not(:disabled):active {
+    transform: scale(0.96);
   }
   &:not(:disabled):active, &:not(:disabled).is-active:hover {
     --background-opacity: calc(var(--active-background-opacity) * 1.5);
