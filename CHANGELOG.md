@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.5.0](https://github.com/CyanSalt/lyrically/compare/v0.4.0...v0.5.0) (2025-06-13)
+
+### Features
+
+* add lrclib vendor ([06244a3](https://github.com/CyanSalt/lyrically/commit/06244a335d8ad7ac129f9bcaf37a8d87fc19b0ba))
+* always dark in gradient ([86ce564](https://github.com/CyanSalt/lyrically/commit/86ce56434acbc93b64519363b7bf61a58bdc11c8))
+* compact animation ([e5316c3](https://github.com/CyanSalt/lyrically/commit/e5316c3df2b9a7d207e459812f2001ae0bb4f516))
+* preserve state between windows ([8a8eab6](https://github.com/CyanSalt/lyrically/commit/8a8eab6ff93ad351b54285aa69120a1f61c6287b))
+* show cover when collapsed ([04b1349](https://github.com/CyanSalt/lyrically/commit/04b1349a07c331b1f57a64f66f2fe7e3e3d6b442))
+* slider snapping ([50b637b](https://github.com/CyanSalt/lyrically/commit/50b637bcd761b37fecd2023c6d632cbe29fb7cff))
+
+### Bug Fixes
+
+* active foreground ([9c1e91e](https://github.com/CyanSalt/lyrically/commit/9c1e91e66b633effa0ffaaf5b4769f5313be340a))
+* border-radius ([d74e2ba](https://github.com/CyanSalt/lyrically/commit/d74e2ba62a0890d5e16a446b3954595840cd0b5b))
+* collapsed cover size ([b92d508](https://github.com/CyanSalt/lyrically/commit/b92d508a1bbaf64bb4f1a99ea36ca2e14628c3bb))
+* enable gradient by default ([c34f2d5](https://github.com/CyanSalt/lyrically/commit/c34f2d53cce61edac8a2ef55d82bb7064b3a7533))
+* high contrast ([350cdb2](https://github.com/CyanSalt/lyrically/commit/350cdb2c505bc81fb54bf332a103e83e17cd0656))
+* make lyric searchable even if connected ([7352737](https://github.com/CyanSalt/lyrically/commit/7352737b1847d745248193dfb8ef437cfb36cc76))
+* memory leak ([3829068](https://github.com/CyanSalt/lyrically/commit/3829068484641a25478ac2db959729a30c8597a2))
+* revert to loop ([e4238bf](https://github.com/CyanSalt/lyrically/commit/e4238bf85a2bf82af3e75c214c1fe090d82f3fc7))
+* use system notification ([980dd4b](https://github.com/CyanSalt/lyrically/commit/980dd4b318e2d7c996246076cc7670856f432a85))
+* web contents listener ([bf30829](https://github.com/CyanSalt/lyrically/commit/bf30829ac7ffb06daabf8c3b3e728f43504acd2a))
+
 ## [0.4.0](https://github.com/CyanSalt/lyrically/compare/v0.3.1...v0.4.0) (2025-04-10)
 
 ### Features
