@@ -789,9 +789,9 @@ watchEffect(() => {
             <LucidePin />
           </button>
         </div>
-        <div class="control-area top-move"></div>
-        <div class="control-area center-move"></div>
-        <div class="control-area">
+        <div class="move-area top-move"></div>
+        <div class="move-area center-move"></div>
+        <div class="control-area right-hand">
           <button v-if="!isNotchWindow" class="control-item" @click="toggleDarkMode">
             <LucideSun v-if="isDark" />
             <LucideMoon v-else />
@@ -839,7 +839,7 @@ watchEffect(() => {
         </div>
       </div>
       <div v-if="!isCollapsed" class="vendor-area">
-        <div class="vendor-list">
+        <div class="control-area right-hand vendor-list">
           <button
             v-if="isConnectable"
             :class="['control-item', { 'is-active': isConnected }]"
@@ -856,7 +856,7 @@ watchEffect(() => {
             <LucideSearch />
           </button>
         </div>
-        <div class="vendor-list">
+        <div class="control-area right-hand vendor-list">
           <button
             v-for="(item, index) in vendors"
             :key="item.name"
@@ -1192,11 +1192,6 @@ watchEffect(() => {
   }
 }
 .vendor-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25em;
-  justify-content: flex-end;
-  align-items: center;
   transition: opacity var(--fade-duration);
   .app.is-compact .player-info:not(.is-resident, :hover) & {
     opacity: 0;
@@ -1223,12 +1218,9 @@ watchEffect(() => {
     opacity: 1;
   }
 }
-.control-area {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25em;
-  &:last-child {
-    justify-content: flex-end;
+.move-area {
+  .app:not(.is-notch) & {
+    -webkit-app-region: drag;
   }
   &.top-move {
     position: fixed;
@@ -1236,16 +1228,18 @@ watchEffect(() => {
     right: 0;
     left: 0;
     height: 1em;
-    .app:not(.is-notch) & {
-      -webkit-app-region: drag;
-    }
   }
   &.center-move {
     flex: 1 1 2em;
     align-self: stretch;
-    .app:not(.is-notch) & {
-      -webkit-app-region: drag;
-    }
+  }
+}
+.control-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em;
+  &.right-hand {
+    justify-content: flex-end;
   }
 }
 .control-item {
