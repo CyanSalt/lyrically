@@ -574,6 +574,16 @@ function unload() {
   offsetTime = 0
 }
 
+function naturalCompare(a: any, b: any) {
+  if (a > b) {
+    return 1
+  } else if (a < b) {
+    return -1
+  } else {
+    return 0
+  }
+}
+
 async function load(query: string, properties?: MusicInfo) {
   unload()
   const result = await service.search(query)
@@ -584,6 +594,13 @@ async function load(query: string, properties?: MusicInfo) {
     if (properties?.artists && difference(properties.artists, transformed.artists ?? []).length) return false
     return true
   })
+  if (matchedIndex === -1 && properties?.duration) {
+    const matchedEntry = Array.from(result.entries(), ([index, item]) => {
+      const transformed = service.transform(item)
+      return [index, Math.abs((transformed.duration ?? 0) - properties.duration!)] as [number, number]
+    }).sort((a, b) => naturalCompare(a[1], b[1]))[0]
+    matchedIndex = matchedEntry ? matchedEntry[0] : -1
+  }
   if (matchedIndex === -1) {
     matchedIndex = 0
   }

@@ -14,6 +14,7 @@ export default defineMusicService<{
   hash: string,
   songname: string,
   singername: string,
+  duration: number,
   group?: { album_name: string }[],
 }, {
     url: string,
@@ -32,6 +33,7 @@ export default defineMusicService<{
       name: song.songname,
       artists: song.singername.split('、'),
       album: song.group?.[0]?.album_name,
+      duration: song.duration,
     }
   },
   async load(song) {

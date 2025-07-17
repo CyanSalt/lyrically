@@ -3,6 +3,8 @@ export interface MusicInfo {
   name: string,
   artists?: string[],
   album?: string,
+  /** in seconds */
+  duration?: number,
   artwork?: string,
 }
 

@@ -9,6 +9,7 @@ export default defineMusicService<{
   name: string,
   artists?: { name: string }[],
   album?: { name: string },
+  duration: number,
 }>({
   name: 'netease',
   icon: NeteaseIcon,
@@ -24,6 +25,7 @@ export default defineMusicService<{
       name: song.name,
       artists: song.artists?.map(artist => artist.name),
       album: song.album?.name,
+      duration: song.duration / 1000,
     }
   },
   async load(song) {

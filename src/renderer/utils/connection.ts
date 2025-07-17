@@ -25,6 +25,7 @@ export type AppleMusicData = [
   trackName: string,
   trackArtist: string,
   trackAlbum: string,
+  trackDuration: number,
   trackArtwork: Uint8Array,
 ]
 
@@ -42,7 +43,7 @@ function toDataURL(blob: Blob) {
 }
 
 async function getConnectedData(): Promise<ConnectedData | undefined> {
-  const result = await worldBridge.applescript<AppleMusicData | undefined>('if application "Music" is running then tell application "Music" to get player state & (get player position) & (get {id, name, artist, album} of current track) & (get raw data of artwork 1 of current track)')
+  const result = await worldBridge.applescript<AppleMusicData | undefined>('if application "Music" is running then tell application "Music" to get player state & (get player position) & (get {id, name, artist, album, duration} of current track) & (get raw data of artwork 1 of current track)')
   if (!result) return undefined
   return {
     isPlaying: result[0] === 'playing',
@@ -52,7 +53,8 @@ async function getConnectedData(): Promise<ConnectedData | undefined> {
       name: result[3],
       artists: result[4].split(' & '),
       album: result[5],
-      artwork: await toDataURL(new Blob([result[6]])),
+      duration: result[6],
+      artwork: await toDataURL(new Blob([result[7]])),
     },
   }
 }
