@@ -485,7 +485,7 @@ function toggleCollapsed() {
 watchEffect(() => {
   if (isNotchWindow) {
     const iconHeight = notchAreaHeight / (1 + 1.75)
-    const compactHeight = Math.ceil(((1 + 1.75 + 1) + 2 + (1 + 3 + 1)) * iconHeight)
+    const compactHeight = Math.ceil(((1 + 1.75 + 1) + 2 + (1 + 1.75 + 1)) * iconHeight)
     worldBridge.setBounds({
       height: isCollapsed ? notchAreaHeight : (isCompact ? compactHeight : notchAreaHeight * 6),
     })
@@ -944,9 +944,6 @@ watchEffect(() => {
     padding: 0 var(--notch-x-offset);
     mask-image: var(--notch-mask-image);
   }
-  &.is-collapsed {
-    --icon-size: calc(var(--notch-area-height) / 3);
-  }
   :deep(.gradient-animation) {
     filter: var(--colorful-background-filter);
   }
@@ -1018,7 +1015,7 @@ watchEffect(() => {
     justify-content: flex-start;
     padding-inline: var(--icon-size);
     padding-top: calc(#{1 + 1.75 + 1} * var(--icon-size));
-    padding-bottom: calc(#{1 + 3 + 1} * var(--icon-size));
+    padding-bottom: calc(#{1 + 1.75 + 1} * var(--icon-size));
     font-weight: 500;
     font-size: max(1em, 14px);
     animation: none;
@@ -1121,10 +1118,6 @@ watchEffect(() => {
     color: white;
   }
   .app.is-compact & {
-    width: 3em;
-    height: 3em;
-  }
-  .app.is-collapsed & {
     width: 1.75em;
     height: 1.75em;
   }
@@ -1149,6 +1142,12 @@ watchEffect(() => {
   flex-direction: column;
   gap: #{0.75em * 0.25};
   min-width: 0;
+  .app.is-compact & {
+    flex-direction: row;
+    gap: #{0.75em * 0.5};
+    align-items: center;
+    min-width: 0;
+  }
 }
 .music-name {
   appearance: none;
