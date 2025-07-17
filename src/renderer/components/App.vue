@@ -1117,15 +1117,18 @@ watchEffect(() => {
   &.is-inverted {
     color: white;
   }
+  :deep(.lucide) {
+    z-index: 1;
+    font-size: max(30cqmin, 1.5em);
+    opacity: 0;
+    transition: opacity var(--fade-duration);
+  }
   .app.is-compact & {
     width: 1.75em;
     height: 1.75em;
-  }
-  :deep(.lucide) {
-    z-index: 1;
-    font-size: max(30cqmin, calc(var(--icon-size) * 1.5));
-    opacity: 0;
-    transition: opacity var(--fade-duration);
+    :deep(.lucide) {
+      font-size: 1em;
+    }
   }
   &:hover {
     :deep(.lucide) {
