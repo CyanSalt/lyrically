@@ -593,7 +593,16 @@ async function load(query: string, properties?: MusicInfo) {
 }
 
 async function select(song: any, connecting = false) {
-  data = await service.load(song)
+  try {
+    data = await service.load(song)
+  } catch (err) {
+    if (selectedIndex < candidates.length - 1) {
+      const fallbackIndex = selectedIndex + 1
+      selectedIndex = fallbackIndex
+      return select(candidates[fallbackIndex], connecting)
+    }
+    throw err
+  }
   if (connecting) {
     connectedSong = song
   } else {
@@ -1123,7 +1132,8 @@ watchEffect(() => {
     opacity: 0;
     transition: opacity var(--fade-duration);
   }
-  .app.is-compact & {
+  .app.is-compact &,
+  .app.is-collapsed & {
     width: 1.75em;
     height: 1.75em;
     :deep(.lucide) {
