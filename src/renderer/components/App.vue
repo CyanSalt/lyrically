@@ -984,8 +984,6 @@ watchEffect(() => {
   }
 }
 .notch-action {
-  --smoothie-border-radius: 12px;
-  --smoothie-border-radius-smoothing: 0.6;
   appearance: none;
   position: fixed;
   top: 0;
@@ -995,9 +993,9 @@ watchEffect(() => {
   padding: 0;
   border: none;
   background: transparent;
-  border-radius: var(--smoothie-border-radius);
-  mask-image: paint(smoothie-mask);
+  border-radius: 12px;
   transform: translateX(-50%);
+  -electron-corner-smoothing: 60%;
 }
 .container {
   display: flex;
@@ -1243,8 +1241,6 @@ watchEffect(() => {
   }
 }
 .control-item {
-  --smoothie-border-radius: 0.5em;
-  --smoothie-border-radius-smoothing: 0.6;
   --background-opacity: 0;
   --foreground-opacity: 50%;
   appearance: none;
@@ -1258,10 +1254,10 @@ watchEffect(() => {
   color: rgb(from var(--foreground) r g b / var(--foreground-opacity));
   font: inherit;
   background-color: rgb(from var(--foreground) r g b / var(--background-opacity));
-  border-radius: var(--smoothie-border-radius);
-  mask-image: paint(smoothie-mask);
+  border-radius: 0.5em;
   transition: transform var(--interactive-duration), color var(--interactive-duration), background-color var(--interactive-duration);
   cursor: pointer;
+  -electron-corner-smoothing: 60%;
   &:not(:disabled):hover {
     --background-opacity: var(--active-background-opacity);
     --foreground-opacity: 100%;
