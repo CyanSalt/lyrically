@@ -681,14 +681,27 @@ function reset() {
   connectedInfo = undefined
 }
 
+let isTryingConnecting = $ref(false)
+
+if (isConnectable) {
+  isTryingConnecting = true
+  const stop = watchEffect(() => {
+    if (isConnected || data) {
+      isTryingConnecting = false
+      stop()
+    }
+  })
+}
+
 watchEffect(onInvalidate => {
-  if (isConnected) {
+  if (isConnected || isTryingConnecting) {
     const disconnect = subscribeConnection({
       onTimeUpdate: time => {
         currentTime = time
       },
       onChange: result => {
         if (result) {
+          isConnected = true
           isPlaying = result.isPlaying
           currentTime = result.currentTime
           if (!connectedInfo || connectedInfo.key !== result.info.key || connectedInfo.name !== result.info.name) {
