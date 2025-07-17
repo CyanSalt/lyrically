@@ -303,7 +303,7 @@ const notchMaskImage = $computed(() => {
 let segmenter = $ref<Segmenter>()
 
 watchEffect(async () => {
-  const lyricText = lyrics.map(lyric => lyric.text).join('')
+  const lyricText = lyrics.map(lyric => lyric.text).join('\n')
   if (isChineseText(lyricText)) {
     segmenter = undefined
     segmenter = await getChineseSegmenter()
