@@ -1125,8 +1125,8 @@ watchEffect(() => {
     height: 3em;
   }
   .app.is-collapsed & {
-    width: calc(var(--icon-size) * 1.75);
-    height: calc(var(--icon-size) * 1.75);
+    width: 1.75em;
+    height: 1.75em;
   }
   :deep(.lucide) {
     z-index: 1;
@@ -1145,11 +1145,15 @@ watchEffect(() => {
 }
 .music-info {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: #{0.75em * 0.25};
+  min-width: 0;
 }
 .music-name {
   appearance: none;
+  flex: 0 1 auto;
+  min-width: 1em;
   padding: 0;
   border: none;
   color: inherit;
