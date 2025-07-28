@@ -475,7 +475,9 @@ function toggleAlwaysOnTop() {
 }
 
 function toggleCompact() {
-  isCompact = !isCompact
+  document.startViewTransition(() => {
+    isCompact = !isCompact
+  })
 }
 
 function toggleCollapsed() {
@@ -1150,6 +1152,7 @@ watchEffect(() => {
   transition: color var(--effect-duration);
   cursor: pointer;
   container-type: size;
+  view-transition-name: music-picture;
   &::before {
     content: '';
     position: absolute;
