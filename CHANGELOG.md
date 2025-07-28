@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.6.0](https://github.com/CyanSalt/lyrically/compare/v0.5.0...v0.6.0) (2025-07-28)
+
+### Features
+
+* auto connect ([26cd2e5](https://github.com/CyanSalt/lyrically/commit/26cd2e576a675a3b9bd6faa96df0e15d6763c015))
+* retry with candidates ([61f0010](https://github.com/CyanSalt/lyrically/commit/61f00107f64b84ece95ea3c3d7711c5d55efb6be))
+* scale down notch when collapsed ([441e1d3](https://github.com/CyanSalt/lyrically/commit/441e1d38e62dbfd0dbc659f93c8a2591660094dc))
+* select default by duration ([2bda264](https://github.com/CyanSalt/lyrically/commit/2bda264669c484a652f8774e750ddbe30536550c))
+
+### Bug Fixes
+
+* chinese segmenter for latin ([f2252c2](https://github.com/CyanSalt/lyrically/commit/f2252c23d023aa38e7b708e3c31737c1a45b1506))
+* compact style ([6713410](https://github.com/CyanSalt/lyrically/commit/67134106b0dab907ed987fa8d09f87b30f481974))
+* picture icon size ([c88f250](https://github.com/CyanSalt/lyrically/commit/c88f2502db99a4fb88875928264d79ea2a7c9cef))
+* reduce compact size ([cf2a993](https://github.com/CyanSalt/lyrically/commit/cf2a993e6956c96b34e0075e6ba37309bd9bfa3c))
+* view transitions ([6cc0912](https://github.com/CyanSalt/lyrically/commit/6cc0912f2e67d021a7c192449c61ab614f67d3b0))
+
 ## [0.5.0](https://github.com/CyanSalt/lyrically/compare/v0.4.0...v0.5.0) (2025-06-13)
 
 ### Features
