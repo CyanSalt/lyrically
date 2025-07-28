@@ -4,6 +4,16 @@
 
 Music player inspired by Lyric Speaker.
 
+## Installation
+
+[Download the latest version](https://github.com/CyanSalt/lyrically/releases)
+
+It can also be installed via [Homebrew](https://brew.sh/) (especially on macOS)
+
+```shell
+brew install --cask cyansalt/cask/lyrically
+```
+
 ## Screenshots
 
 ### Streamer
