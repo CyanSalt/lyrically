@@ -76,18 +76,16 @@ export function createWindow(initialState?: unknown) {
 export function createNotchWindow(parent?: BrowserWindow, initialState?: unknown) {
   const notch = getDisplayNotch(parent?.getBounds())
   if (!notch) return createWindow(initialState)
-  const spreadSize = 6
-  const width = notch.bounds.width * 2
+  const width = notch.bounds.width
   const height = notch.bounds.height
   const frame = new BrowserWindow({
     show: false,
     title: app.name,
-    x: notch.bounds.x - spreadSize - Math.round((width - notch.bounds.width) / 2),
+    x: notch.bounds.x,
     y: notch.bounds.y,
-    width: width + spreadSize * 2,
-    // height,
+    width,
     height,
-    minWidth: notch.bounds.width + spreadSize * 2,
+    minWidth: notch.bounds.width,
     minHeight: notch.bounds.height,
     frame: false,
     transparent: true,

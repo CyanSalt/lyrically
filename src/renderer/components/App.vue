@@ -487,6 +487,9 @@ watchEffect(() => {
     const iconHeight = notchAreaHeight / (1 + 1.75)
     const compactHeight = Math.ceil(((1 + 1.75 + 1) + 2 + (1 + 1.75 + 1)) * iconHeight)
     worldBridge.setBounds({
+      width: isCollapsed
+        ? Math.ceil((1 + 1.75 + 1) * iconHeight) * 2 + notchAreaWidth + 6 * 2
+        : notchAreaWidth * 2 + 6 * 2,
       height: isCollapsed ? notchAreaHeight : (isCompact ? compactHeight : notchAreaHeight * 6),
     })
   }
@@ -784,7 +787,12 @@ watchEffect(() => {
     }"
   >
     <Transition name="fade">
-      <GradientAnimation v-if="isUsingGradient" :picture="pictureURL" :animated="isPlaying" />
+      <GradientAnimation
+        v-if="isUsingGradient"
+        v-show="isCollapsed ? isPlaying : true"
+        :picture="pictureURL"
+        :animated="isPlaying"
+      />
     </Transition>
     <template v-if="!isCollapsed">
       <div :class="['container', { 'is-distant': !isPlaying }]">
@@ -975,7 +983,7 @@ watchEffect(() => {
     cursor: none;
   }
   &.is-gradient {
-    --highlight-foreground: oklab(from var(--picture-color,) calc(l * 80%) a b);
+    --highlight-foreground: oklab(from var(--picture-color) calc(l * 80%) a b);
   }
   &.is-notch {
     --notch-x-offset: 6px;

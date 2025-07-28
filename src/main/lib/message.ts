@@ -1,7 +1,7 @@
 import * as util from 'node:util'
 import applescript from 'applescript'
 import type { MenuItemConstructorOptions, PopupOptions, Rectangle } from 'electron'
-import { app, BrowserWindow, ipcMain, Menu, nativeTheme, powerSaveBlocker, shell, systemPreferences } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, nativeTheme, powerSaveBlocker, screen, shell, systemPreferences } from 'electron'
 import { broadcast } from './frame'
 import { createNotchWindow, createWindow } from './window'
 
@@ -92,9 +92,13 @@ function handleMessages() {
     if (!frame) return
     createNotchWindow(frame, state)
   })
-  ipcMain.handle('set-bounds', (event, bound: Rectangle) => {
+  ipcMain.handle('set-bounds', (event, bound: Partial<Rectangle>) => {
     const frame = BrowserWindow.fromWebContents(event.sender)
     if (!frame) return
+    if ('width' in bound && !('x' in bound)) {
+      const currentScreen = screen.getDisplayMatching(frame.getBounds())
+      bound.x = (currentScreen.bounds.width - bound.width!) / 2
+    }
     frame.setBounds(bound, true)
     if (process.platform === 'darwin') {
       frame.invalidateShadow()
