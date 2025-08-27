@@ -54,6 +54,7 @@ async function getConnectedData(): Promise<ConnectedData | undefined> {
       artists: result[4].split(' & '),
       album: result[5],
       duration: result[6],
+      // @ts-expect-error conflict between node and dom types
       artwork: await toDataURL(new Blob([result[7]])),
     },
   }

@@ -791,7 +791,7 @@ watchEffect(() => {
     <Transition name="fade">
       <GradientAnimation
         v-if="isUsingGradient"
-        v-show="isCollapsed ? isPlaying : true"
+        v-show="!isCollapsed"
         :picture="pictureURL"
         :animated="isPlaying"
       />
@@ -1177,8 +1177,14 @@ watchEffect(() => {
   .app.is-collapsed & {
     width: 1.75em;
     height: 1.75em;
+    overflow: hidden;
+    border-radius: 0.25em;
+    -electron-corner-smoothing: 60%;
     :deep(.lucide) {
       font-size: 1em;
+    }
+    &::before {
+      background-size: cover;
     }
   }
   &:hover {
