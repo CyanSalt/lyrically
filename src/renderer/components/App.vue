@@ -18,7 +18,7 @@ import { getSVGShape } from '../utils/notch'
 import type { Segmenter } from '../utils/string'
 import { defaultSegmenter, getChineseSegmenter, isChineseText } from '../utils/string'
 import KugouService from '../vendors/kugou'
-// import LrclibService from '../vendors/lrclib'
+import LrclibService from '../vendors/lrclib'
 import NeteaseService from '../vendors/netease'
 import type { MusicData, MusicInfo, MusicService } from '../vendors/types'
 import GradientAnimation from './GradientAnimation.vue'
@@ -192,7 +192,7 @@ const audio = $ref<HTMLAudioElement>()
 const vendors = [
   KugouService,
   NeteaseService,
-  // LrclibService,
+  LrclibService,
 ]
 
 const service = $computed<MusicService<any, any>>(() => {
