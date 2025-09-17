@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0](https://github.com/CyanSalt/lyrically/compare/v0.6.0...v0.7.0) (2025-09-17)
+
+### Features
+
+* add liquid glass highlight ([ad87931](https://github.com/CyanSalt/lyrically/commit/ad879318164a3f63001b826d93996c95ee647a34))
+* enable lrclib vendor ([2fcbf08](https://github.com/CyanSalt/lyrically/commit/2fcbf08ae26238bed08390cec4a861dd3ccc7b86))
+
+### Bug Fixes
+
+* disable gradient when collapsed ([8f7552e](https://github.com/CyanSalt/lyrically/commit/8f7552eb2ff2fc55ca6fd5a58e51e66c2c82afb6))
+* macos tahoe icon ([a59912a](https://github.com/CyanSalt/lyrically/commit/a59912a670af3b34b9304bc716f3d8cda769d56a))
+
 ## [0.6.0](https://github.com/CyanSalt/lyrically/compare/v0.5.0...v0.6.0) (2025-07-28)
 
 ### Features
