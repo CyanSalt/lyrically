@@ -1,0 +1,53 @@
+{
+  "fill" : {
+    "linear-gradient" : [
+      "srgb:1.00000,1.00000,1.00000,1.00000",
+      "display-p3:0.90000,0.90000,0.90000,1.00000"
+    ]
+  },
+  "groups" : [
+    {
+      "blur-material" : null,
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "fill" : {
+            "automatic-gradient" : "srgb:1.00000,1.00000,1.00000,1.00000"
+          },
+          "image-name" : "Text.png",
+          "name" : "Text"
+        },
+        {
+          "fill" : {
+            "automatic-gradient" : "srgb:0.00000,0.00000,0.00000,1.00000"
+          },
+          "glass" : false,
+          "image-name" : "Rect.png",
+          "name" : "Rect"
+        }
+      ],
+      "name" : "Shapes",
+      "position" : {
+        "scale" : 0.8,
+        "translation-in-points" : [
+          59.904909801974114,
+          -38.13011842348813
+        ]
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
