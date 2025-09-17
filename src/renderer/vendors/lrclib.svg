@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
   <g>
-    <text x="128" y="128" text-anchor="middle" alignment-baseline="middle" font-size="160" stroke="#000" stroke-width="16" letter-spacing="16">LL</text>
+    <text x="128" y="128" text-anchor="middle" alignment-baseline="middle" font-size="160" font-family="-apple-system, system-ui, BlinkMacSystemFont" stroke="#000" stroke-width="16" letter-spacing="16">LL</text>
   </g>
 </svg>

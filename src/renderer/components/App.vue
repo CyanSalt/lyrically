@@ -940,6 +940,9 @@ watchEffect(() => {
 </template>
 
 <style lang="scss" scoped>
+:global(:root) {
+  font-family: -apple-system, system-ui, BlinkMacSystemFont;
+}
 :global(body) {
   margin: 0;
 }
@@ -1307,6 +1310,8 @@ watchEffect(() => {
   --background-opacity: 0;
   --foreground-opacity: 50%;
   appearance: none;
+  position: relative;
+  z-index: 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1316,11 +1321,19 @@ watchEffect(() => {
   border: none;
   color: rgb(from var(--foreground) r g b / var(--foreground-opacity));
   font: inherit;
+  overflow: hidden;
   background-color: rgb(from var(--foreground) r g b / var(--background-opacity));
   border-radius: 0.5em;
   transition: transform var(--interactive-duration), color var(--interactive-duration), background-color var(--interactive-duration);
   cursor: pointer;
   -electron-corner-smoothing: 60%;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: calc(0.5em + 2px);
+    transition: box-shadow var(--interactive-duration);
+  }
   &:not(:disabled):hover {
     --background-opacity: var(--active-background-opacity);
     --foreground-opacity: 100%;
@@ -1331,6 +1344,9 @@ watchEffect(() => {
   &.is-active {
     --background-opacity: var(--active-background-opacity);
     --foreground-opacity: 100%;
+    &::after {
+      box-shadow: rgb(255 255 255 / 50%) -0.5px -0.5px 0.5px 0.5px inset, rgb(255 255 255 / 50%) 1px 1px 1px 0px inset;
+    }
   }
   &:not(:disabled):active, &:not(:disabled).is-active:hover {
     --background-opacity: calc(var(--active-background-opacity) * 1.5);
