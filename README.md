@@ -1,6 +1,6 @@
 # Lyrically
 
-<img src="https://raw.githubusercontent.com/CyanSalt/lyrically/master/resources/images/icon.png" width="96">
+<img src="https://cdn.jsdelivr.net/gh/CyanSalt/lyrically@main/resources/images/icon.png" width="96">
 
 Music player inspired by Lyric Speaker.
 
