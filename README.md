@@ -4,6 +4,10 @@
 
 Music player inspired by Lyric Speaker.
 
+> [!NOTE]
+> Music automatically played by Apple Music on macOS Tahoe may not be correctly identified. We are currently unsure what causes this issue.
+> See https://www.macscripter.net/t/scripting-changes-or-lack-thereof-in-macos-tahoe/77173/22
+
 ## Installation
 
 [Download the latest version](https://github.com/CyanSalt/lyrically/releases)
