@@ -113,7 +113,7 @@ export function subscribeConnection({ onTimeUpdate, onChange }: ConnectionSubscr
   //   }
   //   onChange(result)
   // }
-  // const unsubscribe = worldBridge.onNotification('com.apple.iTunes.playerInfo', listener)
+  // const unsubscribe = worldBridge.subscribeNotification('com.apple.iTunes.playerInfo', listener)
   // listener()
   // return () => {
   //   unsubscribeTime?.()

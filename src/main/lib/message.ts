@@ -2,10 +2,21 @@ import * as util from 'node:util'
 import applescript from 'applescript'
 import type { MenuItemConstructorOptions, PopupOptions, Rectangle } from 'electron'
 import { app, BrowserWindow, ipcMain, Menu, nativeTheme, powerSaveBlocker, screen, shell, systemPreferences } from 'electron'
+import { NowPlaying } from 'node-nowplaying'
 import { broadcast } from './frame'
 import { createNotchWindow, createWindow } from './window'
 
 const executeApplescript = util.promisify(applescript.execString)
+
+function createIDGenerator() {
+  let id = 1n
+  return () => {
+    id += 1n
+    return id
+  }
+}
+
+const generateID = createIDGenerator()
 
 function handleMessages() {
   ipcMain.on('get-name', event => {
@@ -109,17 +120,43 @@ function handleMessages() {
     let id: number
     const unsubscribe = () => {
       event.sender.off('destroyed', unsubscribe)
+      unsubscribeMap.delete(id)
       systemPreferences.unsubscribeNotification(id)
     }
-    event.sender.on('destroyed', unsubscribe)
     id = systemPreferences.subscribeNotification(name, () => {
       event.sender.send('notification', name)
     })
+    event.sender.on('destroyed', unsubscribe)
     unsubscribeMap.set(id, unsubscribe)
     return id
   })
   ipcMain.handle('unsubscribe-notification', (event, id) => {
     const unsubscribe = unsubscribeMap.get(id)
+    if (unsubscribe) {
+      unsubscribe()
+    }
+  })
+  let nowPlayingMap = new Map<bigint, NowPlaying>()
+  let unsubscribeNowPlayingMap = new Map<bigint, () => void>()
+  ipcMain.handle('subscribe-now-playing', async event => {
+    let id = generateID()
+    const player = new NowPlaying(message => {
+      event.sender.send('now-playing', message)
+    })
+    await player.subscribe()
+    const unsubscribe = () => {
+      event.sender.off('destroyed', unsubscribe)
+      nowPlayingMap.delete(id)
+      unsubscribeNowPlayingMap.delete(id)
+      player.unsubscribe()
+    }
+    event.sender.on('destroyed', unsubscribe)
+    nowPlayingMap.set(id, player)
+    unsubscribeNowPlayingMap.set(id, unsubscribe)
+    return id
+  })
+  ipcMain.handle('unsubscribe-now-playing', (event, id: bigint) => {
+    const unsubscribe = unsubscribeNowPlayingMap.get(id)
     if (unsubscribe) {
       unsubscribe()
     }

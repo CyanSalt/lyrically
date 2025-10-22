@@ -1,6 +1,7 @@
 import type { IpcRendererEvent } from 'electron'
 import { contextBridge, ipcRenderer } from 'electron'
 import mri from 'mri'
+import type { NowPlayingMessage } from 'node-nowplaying'
 import type { WorldBridge } from './types'
 
 const args = mri(process.argv)
@@ -60,7 +61,7 @@ const worldBridge: WorldBridge = {
   setBounds: bounds => {
     ipcRenderer.invoke('set-bounds', bounds)
   },
-  onNotification: (name, callback) => {
+  subscribeNotification: (name, callback) => {
     const id = ipcRenderer.invoke('subscribe-notification', name)
     const listener = (event: IpcRendererEvent, notified: string) => {
       if (notified === name) {
@@ -71,6 +72,17 @@ const worldBridge: WorldBridge = {
     return () => {
       ipcRenderer.off('notification', listener)
       ipcRenderer.invoke('unsubscribe-notification', id)
+    }
+  },
+  subscribeNowPlaying: callback => {
+    const id = ipcRenderer.invoke('subscribe-now-playing')
+    const listener = (event: IpcRendererEvent, message: NowPlayingMessage) => {
+      callback(message)
+    }
+    ipcRenderer.on('now-playing', listener)
+    return () => {
+      ipcRenderer.off('now-playing', listener)
+      ipcRenderer.invoke('unsubscribe-now-playing', id)
     }
   },
 }

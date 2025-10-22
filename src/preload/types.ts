@@ -1,4 +1,5 @@
 import type { IpcRendererEvent, MenuItemConstructorOptions, Rectangle } from 'electron'
+import type { NowPlayingMessage } from 'node-nowplaying'
 
 export interface WorldBridge {
   appName: string,
@@ -24,5 +25,6 @@ export interface WorldBridge {
   openWindow: (state?: unknown) => void,
   openNotchWindow: (state?: unknown) => void,
   setBounds: (rect: Partial<Rectangle>) => void,
-  onNotification: (event: string, callback: () => void, immediate?: boolean) => () => void,
+  subscribeNotification: (event: string, callback: () => void, immediate?: boolean) => () => void,
+  subscribeNowPlaying: (callback: (message: NowPlayingMessage) => void) => () => void,
 }

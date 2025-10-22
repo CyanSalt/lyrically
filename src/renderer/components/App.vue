@@ -716,6 +716,13 @@ if (isConnectable) {
 }
 
 watchEffect(onInvalidate => {
+  const unsubscribe = worldBridge.subscribeNowPlaying(message => {
+    console.log('Now Playing', message)
+  })
+  onInvalidate(unsubscribe)
+})
+
+watchEffect(onInvalidate => {
   if (isConnected || isTryingConnecting) {
     const disconnect = subscribeConnection({
       onTimeUpdate: time => {

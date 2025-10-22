@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  node-nowplaying:
+    hash: xdck2ww7ias6e4qhw4f2jslltu
+    path: patches/node-nowplaying.patch
+
 importers:
 
   .:
@@ -17,6 +22,9 @@ importers:
       node-mac-notch:
         specifier: github:codebytere/node-mac-notch
         version: https://codeload.github.com/codebytere/node-mac-notch/tar.gz/00d920b4408fe9034fef3a99ddd44f05ebd81b96
+      node-nowplaying:
+        specifier: ^0.1.0
+        version: 0.1.0(patch_hash=xdck2ww7ias6e4qhw4f2jslltu)
       semver:
         specifier: ^7.7.2
         version: 7.7.2
@@ -3253,6 +3261,51 @@ packages:
   node-mac-notch@https://codeload.github.com/codebytere/node-mac-notch/tar.gz/00d920b4408fe9034fef3a99ddd44f05ebd81b96:
     resolution: {tarball: https://codeload.github.com/codebytere/node-mac-notch/tar.gz/00d920b4408fe9034fef3a99ddd44f05ebd81b96}
     version: 1.0.0
+
+  node-nowplaying-darwin-universal@0.1.0:
+    resolution: {integrity: sha512-cSKb8G6HGlo6LeSaX5IDIs3OtPa2IywXuO/n2q9fkNjYiMFI2U6FC1C9xitp2afaKXQeabe3ellS0YWAJAz8MA==}
+    engines: {node: '>= 10.16.0 < 11 || >= 11.8.0 < 12 || >= 12.0.0'}
+    os: [darwin]
+
+  node-nowplaying-linux-arm64-gnu@0.1.0:
+    resolution: {integrity: sha512-t2uIgTHpoV3Da25KtMHJBFsE+4pcEOh4YguCTnTUOFh/SWuIIiqUCGtgcu+p+jZi13/ylbQqqzjpWRJOoe0HxA==}
+    engines: {node: '>= 10.16.0 < 11 || >= 11.8.0 < 12 || >= 12.0.0'}
+    cpu: [arm64]
+    os: [linux]
+
+  node-nowplaying-linux-arm64-musl@0.1.0:
+    resolution: {integrity: sha512-64qRY7R0fdYVnZ3/fcPdrCU7DWHYSnONMJ+Hy5tZfFPr6M2sU0BPr9QPjvdtJRWzFGDp8nT4MdRmbvNQmSq7Ig==}
+    engines: {node: '>= 10.16.0 < 11 || >= 11.8.0 < 12 || >= 12.0.0'}
+    cpu: [arm64]
+    os: [linux]
+
+  node-nowplaying-linux-x64-gnu@0.1.0:
+    resolution: {integrity: sha512-k96tsnnPZlEu5kS1ciTC8gfTXAj2XlH3jmK/BSkkHXLba7uibNfDUSfQ5l9F7uS0PsXGXhqfWvJ1x/0gvBe63w==}
+    engines: {node: '>= 10.16.0 < 11 || >= 11.8.0 < 12 || >= 12.0.0'}
+    cpu: [x64]
+    os: [linux]
+
+  node-nowplaying-linux-x64-musl@0.1.0:
+    resolution: {integrity: sha512-eYrYderF2RBc1szQiw3RvAPBY3ZmThZkPUYNpnlWH+Ctu16lXgYoEsdvgQ33CEYLgxUcx3y2zx4hVN0e3cSasg==}
+    engines: {node: '>= 10.16.0 < 11 || >= 11.8.0 < 12 || >= 12.0.0'}
+    cpu: [x64]
+    os: [linux]
+
+  node-nowplaying-win32-arm64-msvc@0.1.0:
+    resolution: {integrity: sha512-zePqSQ+UJC8IWWYqGP6Do1C75rFzaWam2u/e4aHnwmOgrcen+IfG4WWwZvB+yUTbI58OtSqGT4nyK2bTKDV6ow==}
+    engines: {node: '>= 10.16.0 < 11 || >= 11.8.0 < 12 || >= 12.0.0'}
+    cpu: [arm64]
+    os: [win32]
+
+  node-nowplaying-win32-x64-msvc@0.1.0:
+    resolution: {integrity: sha512-EQ8Fms53UBqRtfVIP5nz/LokVtaHvL/ThmSYEiupXhA8+YX80STUDWZkoHg2B5iFkXqW5DYgji+b28Ydag/NjA==}
+    engines: {node: '>= 10.16.0 < 11 || >= 11.8.0 < 12 || >= 12.0.0'}
+    cpu: [x64]
+    os: [win32]
+
+  node-nowplaying@0.1.0:
+    resolution: {integrity: sha512-YIulVlg3PDVamu0BEGHufL2Glbs+i6Dki/A3mBMsoxhBo87+9QCL2ksd4oqg784Yy+TKsNtP48AuJqHnDu4ZOQ==}
+    engines: {node: '>= 10.16.0 < 11 || >= 11.8.0 < 12 || >= 12.0.0'}
 
   node-releases@2.0.21:
     resolution: {integrity: sha512-5b0pgg78U3hwXkCM8Z9b2FJdPZlr9Psr9V2gQPESdGHqbntyFJKFW4r5TeWGFzafGY3hzs1JC62VEQMbl1JFkw==}
@@ -7761,6 +7814,37 @@ snapshots:
     dependencies:
       bindings: 1.5.0
       node-addon-api: 4.3.0
+
+  node-nowplaying-darwin-universal@0.1.0:
+    optional: true
+
+  node-nowplaying-linux-arm64-gnu@0.1.0:
+    optional: true
+
+  node-nowplaying-linux-arm64-musl@0.1.0:
+    optional: true
+
+  node-nowplaying-linux-x64-gnu@0.1.0:
+    optional: true
+
+  node-nowplaying-linux-x64-musl@0.1.0:
+    optional: true
+
+  node-nowplaying-win32-arm64-msvc@0.1.0:
+    optional: true
+
+  node-nowplaying-win32-x64-msvc@0.1.0:
+    optional: true
+
+  node-nowplaying@0.1.0(patch_hash=xdck2ww7ias6e4qhw4f2jslltu):
+    optionalDependencies:
+      node-nowplaying-darwin-universal: 0.1.0
+      node-nowplaying-linux-arm64-gnu: 0.1.0
+      node-nowplaying-linux-arm64-musl: 0.1.0
+      node-nowplaying-linux-x64-gnu: 0.1.0
+      node-nowplaying-linux-x64-musl: 0.1.0
+      node-nowplaying-win32-arm64-msvc: 0.1.0
+      node-nowplaying-win32-x64-msvc: 0.1.0
 
   node-releases@2.0.21: {}
 
