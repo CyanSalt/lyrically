@@ -6,7 +6,7 @@ Music player inspired by Lyric Speaker.
 
 > [!NOTE]
 > Music automatically played by Apple Music on macOS Tahoe may not be correctly identified. We are currently unsure what causes this issue.
-> See https://www.macscripter.net/t/scripting-changes-or-lack-thereof-in-macos-tahoe/77173/22
+> See https://developer.apple.com/forums/thread/798267
 
 ## Installation
 
