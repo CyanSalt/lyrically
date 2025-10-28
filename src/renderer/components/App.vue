@@ -7,7 +7,7 @@ import { LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon
 import seedrandom from 'seedrandom'
 import { siApplemusic } from 'simple-icons'
 import type { CSSProperties, Ref } from 'vue'
-import { nextTick, toRaw, watch, watchEffect } from 'vue'
+import { nextTick, toRaw, useTemplateRef, watch, watchEffect } from 'vue'
 import { useAlwaysOnTop, useDarkMode, useDisplaySleepPrevented, useFullscreen, useHighContrastMode } from '../compositions/frame'
 import { useKeyboardShortcuts } from '../compositions/interactive'
 import { checkConnectable, pauseConnected, playConnected, subscribeConnection } from '../utils/connection'
@@ -187,7 +187,7 @@ if (initialState) {
   }
 }
 
-const audio = $ref<HTMLAudioElement>()
+const audio = $(useTemplateRef<HTMLAudioElement>('audio'))
 
 const vendors = [
   KugouService,
