@@ -23,6 +23,7 @@ import NeteaseService from '../vendors/netease'
 import type { MusicData, MusicInfo, MusicService } from '../vendors/types'
 import GradientAnimation from './GradientAnimation.vue'
 import Slider from './Slider.vue'
+import WaveformDiagram from './WaveformDiagram.vue'
 
 const {
   appName,
@@ -920,6 +921,9 @@ watchEffect(() => {
           </button>
         </div>
       </div>
+      <div v-else class="diagram-area">
+        <WaveformDiagram :class="{ 'is-playing': isPlaying }" />
+      </div>
     </footer>
     <template v-if="!isCollapsed">
       <Transition name="fade">
@@ -1259,6 +1263,11 @@ watchEffect(() => {
   transition: opacity var(--fade-duration);
   .app.is-compact .player-info:not(.is-resident, :hover) & {
     opacity: 0;
+  }
+}
+.diagram-area {
+  :deep(.waveform-diagram) {
+    font-size: 1.75em;
   }
 }
 .audio {
