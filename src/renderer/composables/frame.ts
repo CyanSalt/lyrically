@@ -1,7 +1,7 @@
 import { memoize } from 'lodash-es'
 import type { MaybeRefOrGetter } from 'vue'
 import { toValue, watchEffect } from 'vue'
-import { injectIPC } from '../utils/compositions'
+import { injectIPC } from '../utils/composables'
 
 export const useFullscreen = memoize(() => {
   return injectIPC('fullscreen', false)
