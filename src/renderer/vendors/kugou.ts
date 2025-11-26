@@ -17,8 +17,8 @@ export default defineMusicService<{
   duration: number,
   group?: { album_name: string }[],
 }, {
-    url: string,
-  }>({
+  url: string,
+}>({
   name: 'kugou',
   icon: KugouIcon,
   async search(keyword) {
