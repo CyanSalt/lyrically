@@ -1,9 +1,7 @@
 {
-  "extends": "@cyansalt/tsconfig/tsconfig.lib.json",
+  "extends": "@cyansalt/tsconfig",
   "compilerOptions": {
-    "composite": true,
-    "noEmit": false,
-    "outDir": ".typescript"
+    "composite": true
   },
   "include": [
     "build",

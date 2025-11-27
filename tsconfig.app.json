@@ -1,10 +1,7 @@
 {
-  "extends": "@cyansalt/tsconfig/tsconfig.app.json",
+  "extends": "@cyansalt/tsconfig",
   "compilerOptions": {
-    "composite": true,
-    "noEmit": false,
-    "rootDir": "src",
-    "outDir": "dist"
+    "composite": true
   },
   "include": [
     "src"
