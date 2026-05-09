@@ -59,7 +59,7 @@
     "color.js": "^1.2.0",
     "colord": "^2.9.3",
     "dotenv": "^17.2.2",
-    "electron": "^38.1.1",
+    "electron": "^42.0.0",
     "esbuild": "^0.28.0",
     "eslint": "^10.3.0",
     "figma-squircle": "^1.1.0",
