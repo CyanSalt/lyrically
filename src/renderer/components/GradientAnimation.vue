@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useImage } from '@vueuse/core'
-import { watchEffect } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 
 const { picture, animated } = defineProps<{
   picture?: string,
@@ -10,30 +10,30 @@ const { picture, animated } = defineProps<{
 const {
   isReady,
   state: image,
-} = $(useImage(() => ({
+} = useImage(() => ({
   src: picture ?? '',
-})))
+}))
 
 const canvas = new OffscreenCanvas(32, 32)
 const context = canvas.getContext('2d')!
 
-let pixelatedURL = $ref<string>()
+const pixelatedURL = ref<string>()
 watchEffect(async onInvalidate => {
-  if (isReady && image) {
-    context.drawImage(image, 0, 0, canvas.width, canvas.height)
+  if (isReady.value && image.value) {
+    context.drawImage(image.value, 0, 0, canvas.width, canvas.height)
     const blob = await canvas.convertToBlob()
     const url = URL.createObjectURL(blob)
-    pixelatedURL = url
+    pixelatedURL.value = url
     onInvalidate(() => {
-      pixelatedURL = undefined
+      pixelatedURL.value = undefined
       URL.revokeObjectURL(url)
     })
   }
 })
 
-const pictureImage = $computed(() => {
-  if (!pixelatedURL) return undefined
-  return `url("${pixelatedURL}")`
+const pictureImage = computed(() => {
+  if (!pixelatedURL.value) return undefined
+  return `url("${pixelatedURL.value}")`
 })
 </script>
 

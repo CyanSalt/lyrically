@@ -1,13 +1,13 @@
 <script lang="ts" setup>
+import { LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucidePanelTopClose, LucidePause, LucidePictureInPicture, LucidePin, LucidePlay, LucideRotate3D, LucideSearch, LucideSun, LucideX } from '@lucide/vue'
 import { useDocumentVisibility, useIdle, useTitle, useWindowSize } from '@vueuse/core'
 import { average } from 'color.js'
 import { colord } from 'colord'
 import { difference, findLastIndex, isEqual } from 'lodash-es'
-import { LucideBlend, LucideCloudFog, LucideMaximize, LucideMinimize, LucideMoon, LucidePanelTopClose, LucidePause, LucidePictureInPicture, LucidePin, LucidePlay, LucideRotate3D, LucideSearch, LucideSun, LucideX } from 'lucide-vue-next'
 import seedrandom from 'seedrandom'
 import { siApplemusic } from 'simple-icons'
 import type { CSSProperties, Ref } from 'vue'
-import { nextTick, toRaw, useTemplateRef, watch, watchEffect } from 'vue'
+import { computed, nextTick, ref, toRaw, useTemplateRef, watch, watchEffect } from 'vue'
 import { useAlwaysOnTop, useDarkMode, useDisplaySleepPrevented, useFullscreen, useHighContrastMode } from '../composables/frame'
 import { useKeyboardShortcuts } from '../composables/interactive'
 import { checkConnectable, pauseConnected, playConnected, subscribeConnection } from '../utils/connection'
@@ -37,55 +37,48 @@ const {
 const supportsVibrancy = checkVibrancySupport()
 const isConnectable = checkConnectable()
 
-let isDark = $(useDarkMode())
-let isHighContrast = $(useHighContrastMode())
-let isFullscreen = $(useFullscreen())
-let isAlwaysOnTop = $(useAlwaysOnTop())
+const isDark = useDarkMode()
+const isHighContrast = useHighContrastMode()
+const isFullscreen = useFullscreen()
+const isAlwaysOnTop = useAlwaysOnTop()
 
-// eslint-disable-next-line vue/no-ref-object-reactivity-loss
-let isTransparent = $ref(!isHighContrast && supportsVibrancy)
-// eslint-disable-next-line vue/no-ref-object-reactivity-loss
-let isGradientEnabled = $ref(!isHighContrast)
-let isCompact = $ref(isNotchWindow)
-let isCollapsed = $ref(false)
+const isTransparent = ref(!isHighContrast.value && supportsVibrancy)
+const isGradientEnabled = ref(!isHighContrast.value)
+const isCompact = ref(isNotchWindow)
+const isCollapsed = ref(false)
 
-let isPlaying = $ref(false)
-let currentTime = $ref(0)
-let offsetTime = $ref(0)
-let vendor = $ref<string>()
-let keyword = $ref('')
-let candidates = $ref<any[]>([])
-let selectedIndex = $ref(-1)
-let data = $ref<MusicData<any>>()
-let music = $ref<string>()
+const isPlaying = ref(false)
+const currentTime = ref(0)
+const offsetTime = ref(0)
+const vendor = ref<string>()
+const keyword = ref('')
+const candidates = ref<any[]>([])
+const selectedIndex = ref(-1)
+const data = ref<MusicData<any>>()
+const music = ref<string>()
 
-let isConnected = $ref(false)
-let connectedInfo = $ref<MusicInfo>()
-let connectedSong = $ref<any>()
+const isConnected = ref(false)
+const connectedInfo = ref<MusicInfo>()
+const connectedSong = ref<any>()
 
 const defaultState = {
-  // eslint-disable-next-line vue/no-ref-object-reactivity-loss
-  isTransparent: !isHighContrast && supportsVibrancy,
-  // eslint-disable-next-line vue/no-ref-object-reactivity-loss
-  isGradientEnabled: !isHighContrast,
+  isTransparent: !isHighContrast.value && supportsVibrancy,
+  isGradientEnabled: !isHighContrast.value,
   isCompact: isNotchWindow,
   isCollapsed: false,
   isPlaying: false,
   currentTime: 0,
   offsetTime: 0,
-  // eslint-disable-next-line vue/no-ref-object-reactivity-loss
-  vendor: undefined as typeof vendor,
+  vendor: undefined as string | undefined,
   keyword: '',
   candidates: [],
   selectedIndex: -1,
-  // eslint-disable-next-line vue/no-ref-object-reactivity-loss
-  data: undefined as typeof data,
+  data: undefined as MusicData<any> | undefined,
   music: '',
   isConnected: false,
-  // eslint-disable-next-line vue/no-ref-object-reactivity-loss
-  connectedInfo: undefined as typeof connectedInfo,
-  // eslint-disable-next-line vue/no-ref-object-reactivity-loss
-  connectedSong: undefined as typeof connectedSong,
+  connectedInfo: undefined as MusicInfo | undefined,
+  // eslint-disable-next-line galaxy/no-as-any
+  connectedSong: undefined as any,
 }
 
 function mergeState<T extends object>(state: T, values: { [K in keyof T]: Ref<T[K]> }, defaults: Partial<T>) {
@@ -109,7 +102,7 @@ function buildState() {
   const state = {
     ...initialState,
   }
-  mergeState(state, $$({
+  mergeState(state, {
     isDark,
     isGradientEnabled,
     isCompact,
@@ -122,34 +115,34 @@ function buildState() {
     selectedIndex,
     data,
     music,
-  }), defaultState)
+  }, defaultState)
   if (isNotchWindow) {
-    mergeState(state, $$({
+    mergeState(state, {
       isCollapsed,
-    }), defaultState)
+    }, defaultState)
   } else {
-    mergeState(state, $$({
+    mergeState(state, {
       isFullscreen,
       isAlwaysOnTop,
-    }), defaultState)
+    }, defaultState)
   }
   if (supportsVibrancy) {
-    mergeState(state, $$({
+    mergeState(state, {
       isTransparent,
-    }), defaultState)
+    }, defaultState)
   }
   if (isConnectable) {
-    mergeState(state, $$({
+    mergeState(state, {
       isConnected,
       connectedInfo,
       connectedSong,
-    }), defaultState)
+    }, defaultState)
   }
   return state
 }
 
 if (initialState) {
-  setDefaults($$({
+  setDefaults({
     isDark,
     isGradientEnabled,
     isCompact,
@@ -162,33 +155,33 @@ if (initialState) {
     selectedIndex,
     data,
     music,
-  }), initialState)
+  }, initialState)
   if (isNotchWindow) {
-    setDefaults($$({
+    setDefaults({
       isCollapsed,
-    }), initialState)
+    }, initialState)
   } else {
-    setDefaults($$({
+    setDefaults({
       isFullscreen,
       isAlwaysOnTop,
-    }), initialState)
+    }, initialState)
   }
   if (supportsVibrancy) {
-    setDefaults($$({
+    setDefaults({
       isTransparent,
       isAlwaysOnTop,
-    }), initialState)
+    }, initialState)
   }
   if (isConnectable) {
-    setDefaults($$({
+    setDefaults({
       isConnected,
       connectedInfo,
       connectedSong,
-    }), initialState)
+    }, initialState)
   }
 }
 
-const audio = $(useTemplateRef<HTMLAudioElement>('audio'))
+const audio = useTemplateRef<HTMLAudioElement>('audio')
 
 const vendors = [
   KugouService,
@@ -196,28 +189,28 @@ const vendors = [
   LrclibService,
 ]
 
-const service = $computed<MusicService<any, any>>(() => {
-  return vendors.find(item => item.name === vendor) ?? vendors[0]
+const service = computed<MusicService<any, any>>(() => {
+  return vendors.find(item => item.name === vendor.value) ?? vendors[0]
 })
 
-const info = $computed(() => {
-  if (isConnected && connectedInfo) return connectedInfo
-  const song = candidates[selectedIndex]
+const info = computed(() => {
+  if (isConnected.value && connectedInfo.value) return connectedInfo.value
+  const song = candidates.value[selectedIndex.value]
   if (!song) return undefined
-  return service.transform(song)
+  return service.value.transform(song)
 })
 
-const playingTime = $computed(() => currentTime + offsetTime)
+const playingTime = computed(() => currentTime.value + offsetTime.value)
 
-const lyrics = $computed(() => {
-  if (!data) return []
-  return parseLRC(data.lyric)
+const lyrics = computed(() => {
+  if (!data.value) return []
+  return parseLRC(data.value.lyric)
 })
 
-const durations = $computed(() => {
-  return lyrics.map((lyric, index) => {
-    if (index === lyrics.length - 1) return 0
-    return lyrics[index + 1].time - lyric.time
+const durations = computed(() => {
+  return lyrics.value.map((lyric, index, array) => {
+    if (index === array.length - 1) return 0
+    return array[index + 1].time - lyric.time
   })
 })
 
@@ -262,116 +255,116 @@ function highlightSegments(text: string, segmenter: Segmenter | undefined): Lyri
   return segments.map((item, index) => createTextLyricNode(item.segment, index === luckyIndex))
 }
 
-const pictureURL = $computed(() => {
-  const artwork = info?.artwork
+const pictureURL = computed(() => {
+  const artwork = info.value?.artwork
   if (artwork) return artwork
-  if (!data) return undefined
-  return data.picture
+  if (!data.value) return undefined
+  return data.value.picture
 })
 
-const pictureImage = $computed(() => {
-  if (!pictureURL) return undefined
-  return `url("${pictureURL}")`
+const pictureImage = computed(() => {
+  if (!pictureURL.value) return undefined
+  return `url("${pictureURL.value}")`
 })
 
-let pictureColor = $ref<string>()
+const pictureColor = ref<string>()
 
 watchEffect(async () => {
-  pictureColor = undefined
-  if (!pictureURL) return
-  pictureColor = await average(pictureURL, { format: 'hex' }) as string
+  pictureColor.value = undefined
+  if (!pictureURL.value) return
+  pictureColor.value = await average(pictureURL.value, { format: 'hex' }) as string
 })
 
-const isLightPicture = $computed(() => {
-  if (!pictureColor) return !isDark
-  return colord(pictureColor).isLight()
+const isLightPicture = computed(() => {
+  if (!pictureColor.value) return !isDark.value
+  return colord(pictureColor.value).isLight()
 })
 
-const isUsingGradient = $computed(() => {
-  return isGradientEnabled && Boolean(pictureImage)
+const isUsingGradient = computed(() => {
+  return isGradientEnabled.value && Boolean(pictureImage.value)
 })
 
 const {
   width: innerWidth,
   height: innerHeight,
-} = $(useWindowSize())
+} = useWindowSize()
 
-const notchMaskImage = $computed(() => {
+const notchMaskImage = computed(() => {
   if (!isNotchWindow) return undefined
-  return getSVGShape(innerWidth - 6 * 2, innerHeight, 12, 6)
+  return getSVGShape(innerWidth.value - 6 * 2, innerHeight.value, 12, 6)
 })
 
-let segmenter = $ref<Segmenter>()
+const segmenter = ref<Segmenter>()
 
 watchEffect(async () => {
-  const lyricText = lyrics.map(lyric => lyric.text).join('\n')
+  const lyricText = lyrics.value.map(lyric => lyric.text).join('\n')
   if (isChineseText(lyricText)) {
-    segmenter = undefined
-    segmenter = await getChineseSegmenter()
+    segmenter.value = undefined
+    segmenter.value = await getChineseSegmenter()
   } else {
-    segmenter = defaultSegmenter
+    segmenter.value = defaultSegmenter
   }
 })
 
-const lyricNodes = $computed(() => {
-  return lyrics.map<LyricNode[]>((lyric, index) => {
-    return pictureImage && !lyric.text.trim() && durations[index] > 5
+const lyricNodes = computed(() => {
+  return lyrics.value.map<LyricNode[]>((lyric, index) => {
+    return pictureImage.value && !lyric.text.trim() && durations.value[index] > 5
       ? [{ type: 'picture' }]
-      : highlightSegments(lyric.text, segmenter)
+      : highlightSegments(lyric.text, segmenter.value)
   })
 })
 
 const ANIMATION_TIME = 1
 
-const currentIndex = $computed(() => {
-  return findLastIndex(lyrics, row => playingTime >= (row.time - ANIMATION_TIME))
+const currentIndex = computed(() => {
+  return findLastIndex(lyrics.value, row => playingTime.value >= (row.time - ANIMATION_TIME))
 })
 
 // for performance
-const lastIndex = $computed(() => {
-  return findLastIndex(lyrics, row => playingTime + ANIMATION_TIME >= (row.time - ANIMATION_TIME))
+const lastIndex = computed(() => {
+  return findLastIndex(lyrics.value, row => playingTime.value + ANIMATION_TIME >= (row.time - ANIMATION_TIME))
 })
 
-const firstIndex = $computed(() => {
-  return findLastIndex(lyrics, row => playingTime - ANIMATION_TIME >= (row.time - ANIMATION_TIME))
+const firstIndex = computed(() => {
+  return findLastIndex(lyrics.value, row => playingTime.value - ANIMATION_TIME >= (row.time - ANIMATION_TIME))
 })
 
-const indexes = $computed(() => {
-  let fromIndex = firstIndex
-  let toIndex = lastIndex
-  if (fromIndex === -1 && currentIndex > 0) {
-    fromIndex = currentIndex - 1
+const indexes = computed(() => {
+  let fromIndex = firstIndex.value
+  let toIndex = lastIndex.value
+  if (fromIndex === -1 && currentIndex.value > 0) {
+    fromIndex = currentIndex.value - 1
   }
   if (toIndex === -1) {
     if (fromIndex === -1) return []
-    toIndex = lyrics.length - 1
+    toIndex = lyrics.value.length - 1
   }
   // `fromIndex` could be equal with `currentIndex`
-  if (toIndex === currentIndex && currentIndex >= 0 && currentIndex < lyrics.length - 1) {
-    toIndex = currentIndex + 1
+  if (toIndex === currentIndex.value && currentIndex.value >= 0 && currentIndex.value < lyrics.value.length - 1) {
+    toIndex = currentIndex.value + 1
   }
-  return Array.from({ length: toIndex - fromIndex + 1 }, (_, index) => firstIndex + index)
+  return Array.from({ length: toIndex - fromIndex + 1 }, (_, index) => firstIndex.value + index)
 })
 
-const basicClasses = $computed(() => {
-  return indexes.map(index => {
-    if (index < currentIndex) return 'prev'
-    if (index > currentIndex) return 'next'
+const basicClasses = computed(() => {
+  return indexes.value.map(index => {
+    if (index < currentIndex.value) return 'prev'
+    if (index > currentIndex.value) return 'next'
     return 'current'
   })
 })
 
-const types = $computed(() => {
-  return indexes.map(index => {
-    if (index < currentIndex) return 'outside'
-    if (index > currentIndex) return 'edge'
+const types = computed(() => {
+  return indexes.value.map(index => {
+    if (index < currentIndex.value) return 'outside'
+    if (index > currentIndex.value) return 'edge'
     return 'inside'
   })
 })
 
-const schemeClasses = $computed(() => {
-  return indexes.map(index => {
-    const lyric = lyrics[index]?.text
+const schemeClasses = computed(() => {
+  return indexes.value.map(index => {
+    const lyric = lyrics.value[index]?.text
     const key = String(index)
     const rand = seedrandom(lyric + key)
     if (typeof lyric !== 'string') return 'normal'
@@ -417,9 +410,9 @@ function generateStyle(lyric: string | undefined, key: string, type: 'edge' | 'i
   return style
 }
 
-const styles = $computed(() => {
-  return indexes.map((index, order) => {
-    return generateStyle(lyrics[index]?.text, String(index), types[order])
+const styles = computed(() => {
+  return indexes.value.map((index, order) => {
+    return generateStyle(lyrics.value[index]?.text, String(index), types.value[order])
   })
 })
 
@@ -435,19 +428,19 @@ function generateCompactStyle(type: 'edge' | 'inside' | 'outside') {
   return style
 }
 
-const compactStyles = $computed(() => {
-  return indexes.map((index, order) => {
-    return generateCompactStyle(types[order])
+const compactStyles = computed(() => {
+  return indexes.value.map((index, order) => {
+    return generateCompactStyle(types.value[order])
   })
 })
 
-const vendorIconURLs = $computed(() => {
+const vendorIconURLs = computed(() => {
   return vendors.map(item => `url("${item.icon}")`)
 })
 
-const placeholder = $computed(() => `${appName}.`)
+const placeholder = computed(() => `${appName}.`)
 
-const applemusicIcon = $computed(() => {
+const applemusicIcon = computed(() => {
   return `url("data:image/svg+xml,${encodeURIComponent(siApplemusic.svg)}")`
 })
 
@@ -456,33 +449,33 @@ function close() {
 }
 
 function toggleFullscreen() {
-  isFullscreen = !isFullscreen
+  isFullscreen.value = !isFullscreen.value
 }
 
 function toggleDarkMode() {
-  isDark = !isDark
+  isDark.value = !isDark.value
 }
 
 function toggleTransparent() {
-  isTransparent = !isTransparent
+  isTransparent.value = !isTransparent.value
 }
 
 function toggleGradient() {
-  isGradientEnabled = !isGradientEnabled
+  isGradientEnabled.value = !isGradientEnabled.value
 }
 
 function toggleAlwaysOnTop() {
-  isAlwaysOnTop = !isAlwaysOnTop
+  isAlwaysOnTop.value = !isAlwaysOnTop.value
 }
 
 function toggleCompact() {
   document.startViewTransition(() => {
-    isCompact = !isCompact
+    isCompact.value = !isCompact.value
   })
 }
 
 function toggleCollapsed() {
-  isCollapsed = !isCollapsed
+  isCollapsed.value = !isCollapsed.value
 }
 
 watchEffect(() => {
@@ -490,29 +483,30 @@ watchEffect(() => {
     const iconHeight = notchAreaHeight / (1 + 1.75)
     const compactHeight = Math.ceil(((1 + 1.75 + 1) + 2 + (1 + 1.75 + 1)) * iconHeight)
     worldBridge.setBounds({
-      width: isCollapsed
+      width: isCollapsed.value
         ? Math.ceil((1 + 1.75 + 1) * iconHeight) * 2 + notchAreaWidth + 6 * 2
         : notchAreaWidth * 2 + 6 * 2,
-      height: isCollapsed ? notchAreaHeight : (isCompact ? compactHeight : notchAreaHeight * 6),
+      height: isCollapsed.value ? notchAreaHeight : (isCompact.value ? compactHeight : notchAreaHeight * 6),
     })
   }
 })
 
 function play() {
-  if (isConnected) {
-    if (isPlaying) {
+  if (isConnected.value) {
+    if (isPlaying.value) {
       pauseConnected()
     } else {
       playConnected()
     }
     return
   }
-  if (!music) return
-  if (!audio) return
-  if (audio.paused) {
-    audio.play()
+  if (!music.value) return
+  const element = audio.value
+  if (!element) return
+  if (element.paused) {
+    element.play()
   } else {
-    audio.pause()
+    element.pause()
   }
 }
 
@@ -525,23 +519,23 @@ useKeyboardShortcuts(event => {
     case 'Escape':
       if (isFullscreen) {
         event.preventDefault()
-        isFullscreen = false
+        isFullscreen.value = false
       }
       break
   }
 })
 
 function connect() {
-  isConnected = !isConnected
+  isConnected.value = !isConnected.value
 }
 
 const isExternallySearchable = checkExternalSearchAvailable()
 
 function searchExternally() {
-  if (isConnected) {
+  if (isConnected.value) {
     openExternalNowPlaying()
   } else {
-    openExternalSearch(keyword)
+    openExternalSearch(keyword.value)
   }
 }
 
@@ -556,28 +550,29 @@ function toggleNotch() {
 }
 
 async function prepare(song: any, detail: any, autoplay = false) {
-  music = await service.prepare?.(song, detail)
-  if (!music) return
+  music.value = await service.value.prepare?.(song, detail)
+  if (!music.value) return
   if (autoplay) {
-    currentTime = 0
+    currentTime.value = 0
   }
   await nextTick()
-  if (audio) {
+  const element = audio.value
+  if (element) {
     if (autoplay) {
-      audio.play()
+      element.play()
     } else {
-      audio.currentTime = currentTime
+      element.currentTime = currentTime.value
     }
   }
 }
 
 function unload() {
-  candidates = []
-  selectedIndex = -1
-  data = undefined
-  music = undefined
-  connectedSong = undefined
-  offsetTime = 0
+  candidates.value = []
+  selectedIndex.value = -1
+  data.value = undefined
+  music.value = undefined
+  connectedSong.value = undefined
+  offsetTime.value = 0
 }
 
 function naturalCompare(a: any, b: any) {
@@ -592,17 +587,17 @@ function naturalCompare(a: any, b: any) {
 
 async function load(query: string, properties?: MusicInfo) {
   unload()
-  const result = await service.search(query)
+  const result = await service.value.search(query)
   if (!result.length) return
   let matchedIndex = result.findIndex((item, index) => {
-    const transformed = service.transform(item)
+    const transformed = service.value.transform(item)
     if (properties?.album && transformed.album !== properties.album) return false
     if (properties?.artists && difference(properties.artists, transformed.artists ?? []).length) return false
     return true
   })
   if (matchedIndex === -1 && properties?.duration) {
     const matchedEntry = Array.from(result.entries(), ([index, item]) => {
-      const transformed = service.transform(item)
+      const transformed = service.value.transform(item)
       return [index, Math.abs((transformed.duration ?? 0) - properties.duration!)] as [number, number]
     }).sort((a, b) => naturalCompare(a[1], b[1]))[0]
     matchedIndex = matchedEntry ? matchedEntry[0] : -1
@@ -610,26 +605,26 @@ async function load(query: string, properties?: MusicInfo) {
   if (matchedIndex === -1) {
     matchedIndex = 0
   }
-  candidates = result
-  selectedIndex = matchedIndex
+  candidates.value = result
+  selectedIndex.value = matchedIndex
   select(result[matchedIndex], Boolean(properties))
 }
 
 async function select(song: any, connecting = false) {
   try {
-    data = await service.load(song)
+    data.value = await service.value.load(song)
   } catch (err) {
-    if (selectedIndex < candidates.length - 1) {
-      const fallbackIndex = selectedIndex + 1
-      selectedIndex = fallbackIndex
-      return select(candidates[fallbackIndex], connecting)
+    if (selectedIndex.value < candidates.value.length - 1) {
+      const fallbackIndex = selectedIndex.value + 1
+      selectedIndex.value = fallbackIndex
+      return select(candidates.value[fallbackIndex], connecting)
     }
     throw err
   }
   if (connecting) {
-    connectedSong = song
+    connectedSong.value = song
   } else {
-    await prepare(song, data.detail, true)
+    await prepare(song, data.value.detail, true)
   }
 }
 
@@ -638,8 +633,8 @@ function search(event: InputEvent) {
   if (query) {
     load(query)
   }
-  if (isConnected && connectedInfo) {
-    keyword = connectedInfo.name
+  if (isConnected.value && connectedInfo.value) {
+    keyword.value = connectedInfo.value.name
   }
 }
 
@@ -655,82 +650,86 @@ function formatList(values: string[] | undefined) {
 }
 
 async function showCandidates(event: MouseEvent) {
-  if (!candidates.length) return
-  const pickedIndex = await worldBridge.select(candidates.map((song, index) => {
-    const transformed = service.transform(song)
+  if (!candidates.value.length) return
+  const pickedIndex = await worldBridge.select(candidates.value.map((song, index) => {
+    const transformed = service.value.transform(song)
     return {
       type: 'radio',
       label: `${transformed.name}${toSuffix([formatList(transformed.artists), transformed.album], ' ', ' - ')}`,
-      checked: index === selectedIndex,
+      checked: index === selectedIndex.value,
     }
-  }), event, selectedIndex)
+  }), event, selectedIndex.value)
   if (pickedIndex !== -1) {
-    selectedIndex = pickedIndex
-    select(candidates[pickedIndex], isConnected)
+    selectedIndex.value = pickedIndex
+    select(candidates.value[pickedIndex], isConnected.value)
   }
 }
 
 function activate(name: string) {
-  vendor = name
+  vendor.value = name
 }
 
-watch($$(service), () => {
-  if (keyword) {
-    load(keyword, connectedInfo)
+watch(service, () => {
+  if (keyword.value) {
+    load(keyword.value, connectedInfo.value)
   }
 })
 
 function handlePause() {
-  isPlaying = false
+  isPlaying.value = false
 }
 
 function handlePlay() {
-  isPlaying = true
-  if (info) {
-    keyword = info.name
+  isPlaying.value = true
+  if (info.value) {
+    keyword.value = info.value.name
   }
 }
 
 function handleTimeUpdate(event: Event) {
-  currentTime = (event.target as HTMLAudioElement).currentTime
+  currentTime.value = (event.target as HTMLAudioElement).currentTime
 }
 
 function handleEnded() {
-  isPlaying = false
+  isPlaying.value = false
 }
 
 function reset() {
-  isPlaying = false
-  connectedInfo = undefined
+  isPlaying.value = false
+  connectedInfo.value = undefined
 }
 
-let isTryingConnecting = $ref(false)
+const isTryingConnecting = ref(false)
 
 if (isConnectable) {
-  isTryingConnecting = true
+  isTryingConnecting.value = true
   const stop = watchEffect(() => {
-    if (isConnected || data) {
-      isTryingConnecting = false
+    if (isConnected.value || data.value) {
+      isTryingConnecting.value = false
       stop()
     }
   })
 }
 
 watchEffect(onInvalidate => {
-  if (isConnected || isTryingConnecting) {
+  if (isConnected.value || isTryingConnecting.value) {
     const disconnect = subscribeConnection({
       onTimeUpdate: time => {
-        currentTime = time
+        currentTime.value = time
       },
       onChange: result => {
         if (result) {
-          isConnected = true
-          isPlaying = result.isPlaying
-          currentTime = result.currentTime
-          if (!connectedInfo || connectedInfo.key !== result.info.key || connectedInfo.name !== result.info.name) {
-            connectedInfo = result.info
-            keyword = result.info.name
-            load(keyword, connectedInfo)
+          isConnected.value = true
+          isPlaying.value = result.isPlaying
+          currentTime.value = result.currentTime
+          if (
+            !connectedInfo.value
+            || connectedInfo.value.key !== result.info.key
+            || connectedInfo.value.name !== result.info.name
+          ) {
+            connectedInfo.value = result.info
+            keyword.value = result.info.name
+            load(keyword.value, connectedInfo.value)
           }
         } else {
           reset()
@@ -743,29 +742,29 @@ watchEffect(onInvalidate => {
     })
   } else {
     reset()
-    if (connectedSong && data) {
-      prepare(connectedSong, data.detail)
-      connectedSong = undefined
+    if (connectedSong.value && data.value) {
+      prepare(connectedSong.value, data.value.detail)
+      connectedSong.value = undefined
     }
   }
 })
 
-let { idle } = $(useIdle(5000))
-const visibility = $(useDocumentVisibility())
+const { idle } = useIdle(5000)
+const visibility = useDocumentVisibility()
 
 useDisplaySleepPrevented(() => {
-  return isPlaying && visibility === 'visible'
+  return isPlaying.value && visibility.value === 'visible'
 })
 
-let title = $(useTitle())
+const title = useTitle()
 
 watchEffect(() => {
-  if (info) {
-    title = [info.name, formatList(info.artists)]
+  if (info.value) {
+    title.value = [info.value.name, formatList(info.value.artists)]
       .filter((item): item is string => typeof item === 'string')
       .join(' - ')
   } else {
-    title = ''
+    title.value = ''
   }
 })
 </script>

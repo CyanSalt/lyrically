@@ -1,14 +1,15 @@
 <script lang="ts" setup>
 import { debounce } from 'lodash-es'
+import { ref } from 'vue'
 
-let modelValue = $(defineModel<number>({ default: 0 }))
+const modelValue = defineModel<number>({ default: 0 })
 
 const GRID_SIZE = 96 // 1in
 
-let isActive = $ref(false)
+const isActive = ref(false)
 
 const deactivate = debounce(() => {
-  isActive = false
+  isActive.value = false
 }, 500)
 
 function snap(value: number, step = 1, precision = 0.05) {
@@ -18,16 +19,16 @@ function snap(value: number, step = 1, precision = 0.05) {
 }
 
 function start(startingEvent: PointerEvent) {
-  let initialValue = modelValue
-  isActive = true
+  const initialValue = modelValue.value
+  isActive.value = true
   const target = startingEvent.target as HTMLElement
   target.setPointerCapture(startingEvent.pointerId)
   function handleMove(movingEvent: PointerEvent) {
-    modelValue = initialValue + snap((startingEvent.clientX - movingEvent.clientX) / GRID_SIZE)
+    modelValue.value = initialValue + snap((startingEvent.clientX - movingEvent.clientX) / GRID_SIZE)
   }
   function handleStop(stoppingEvent: PointerEvent) {
     deactivate()
-    modelValue = initialValue + snap((startingEvent.clientX - stoppingEvent.clientX) / GRID_SIZE)
+    modelValue.value = initialValue + snap((startingEvent.clientX - stoppingEvent.clientX) / GRID_SIZE)
     target.releasePointerCapture(startingEvent.pointerId)
     window.removeEventListener('pointermove', handleMove)
     window.removeEventListener('pointerup', handleStop)
@@ -39,7 +40,7 @@ function start(startingEvent: PointerEvent) {
 }
 
 function reset() {
-  modelValue = 0
+  modelValue.value = 0
 }
 </script>
 

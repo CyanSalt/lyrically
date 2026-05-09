@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url'
 import util from 'node:util'
 import { packager } from '@electron/packager'
 import { rebuild } from '@electron/rebuild'
-import * as dotenv from 'dotenv'
 import picocolors from 'picocolors'
 import png2icons from 'png2icons'
 import { requireCommonJS } from './utils/common.mjs'
@@ -67,10 +66,15 @@ async function generateAppIcon(input, icon, suffix) {
   }
 }
 
-const { parsed: env } = dotenv.config({
-  path: fileURLToPath(import.meta.resolve('../.env')),
-  processEnv: {},
-})
+async function loadEnv() {
+  const file = fileURLToPath(import.meta.resolve('../.env'))
+  try {
+    const content = await fs.promises.readFile(file, 'utf8')
+    return util.parseEnv(content)
+  } catch {
+    return {}
+  }
+}
 
 /**
  * @type {import('@electron/packager').Options}
@@ -151,25 +155,28 @@ async function pack() {
   if (local) {
     delete options.platform
     delete options.arch
-  } else if (
-    env
-    && env.APPLE_ID
-    && env.APPLE_ID_PASSWORD
-    && env.APPLE_TEAM_ID
-  ) {
-    logger.info('Will sign and notarize for macOS')
-    options.osxSign = {
-      /** {@link https://github.com/electron/notarize/issues/185} */
-      optionsForFile: filePath => {
-        return {
-          entitlements: './build/entitlements.plist',
-        }
-      },
-    }
-    options.osxNotarize = {
-      appleId: env.APPLE_ID,
-      appleIdPassword: env.APPLE_ID_PASSWORD,
-      teamId: env.APPLE_TEAM_ID,
+  } else {
+    const env = await loadEnv()
+    if (
+      env
+      && env.APPLE_ID
+      && env.APPLE_ID_PASSWORD
+      && env.APPLE_TEAM_ID
+    ) {
+      logger.info('Will sign and notarize for macOS')
+      options.osxSign = {
+        /** {@link https://github.com/electron/notarize/issues/185} */
+        optionsForFile: filePath => {
+          return {
+            entitlements: './build/entitlements.plist',
+          }
+        },
+      }
+      options.osxNotarize = {
+        appleId: env.APPLE_ID,
+        appleIdPassword: env.APPLE_ID_PASSWORD,
+        teamId: env.APPLE_TEAM_ID,
+      }
     }
   }
   // Run @electron/packager
