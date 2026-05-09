@@ -1,0 +1,9 @@
+nodeLinker: hoisted
+
+allowBuilds:
+  # Prepare binary or other required files
+  '@parcel/watcher': true
+  electron: true
+  esbuild: true
+  node-mac-notch: true
+  unrs-resolver: true

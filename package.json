@@ -24,9 +24,23 @@
     "url": "https://github.com/CyanSalt/lyrically/issues"
   },
   "homepage": "https://github.com/CyanSalt/lyrically#readme",
-  "engines": {
-    "node": "^22.0.0",
-    "pnpm": "^9.0.0"
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24.15.0",
+      "onFail": "error"
+    },
+    "packageManager": [
+      {
+        "name": "pnpm",
+        "version": "^11.0.0",
+        "onFail": "error"
+      },
+      {
+        "name": "npm",
+        "onFail": "ignore"
+      }
+    ]
   },
   "devDependencies": {
     "@cyansalt/eslint-config": "^4.4.2",
