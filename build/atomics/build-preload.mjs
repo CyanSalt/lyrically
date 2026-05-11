@@ -1,9 +1,5 @@
 import esbuild from 'esbuild'
-import externalNodeModules from '../utils/esbuild-external-node-modules.mjs'
-
-/**
- * @typedef {import('esbuild').BuildOptions} BuildOptions
- */
+import pkg from '../../package.json' with { type: 'json' }
 
 /**
  * @param {NodeJS.ProcessVersions} versions
@@ -13,12 +9,11 @@ export default (versions) => esbuild.build({
   outfile: 'dist/preload/index.js',
   bundle: true,
   platform: 'node',
-  plugins: [
-    externalNodeModules({
-      filter: /^electron$/,
-    }),
-  ],
   target: `node${versions.node}`,
+  external: [
+    'electron',
+    ...Object.keys(pkg.dependencies),
+  ],
   define: {
     // Optimization
     'process.type': JSON.stringify('renderer'),

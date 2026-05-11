@@ -1,8 +1,5 @@
 import esbuild from 'esbuild'
-
-/**
- * @typedef {import('esbuild').BuildOptions} BuildOptions
- */
+import pkg from '../../package.json' with { type: 'json' }
 
 /**
  * @param {NodeJS.ProcessVersions} versions
@@ -12,8 +9,11 @@ export default (versions) => esbuild.build({
   outfile: 'dist/main/index.js',
   bundle: true,
   platform: 'node',
-  packages: 'external',
   target: `node${versions.node}`,
+  external: [
+    'electron',
+    ...Object.keys(pkg.dependencies),
+  ],
   define: {
     // Optimization
     'process.type': JSON.stringify('browser'),

@@ -6,9 +6,7 @@ import { parseEnv, promisify, styleText } from 'node:util'
 import { packager } from '@electron/packager'
 import { rebuild } from '@electron/rebuild'
 import png2icons from 'png2icons'
-import { requireCommonJS } from './utils/common.mjs'
-
-const pkg = requireCommonJS(import.meta, '../package.json')
+import pkg from '../package.json' with { type: 'json' }
 
 const execa = promisify(childProcess.exec)
 

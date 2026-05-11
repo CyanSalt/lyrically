@@ -2,10 +2,6 @@ import vue from '@vitejs/plugin-vue'
 import * as vite from 'vite'
 
 /**
- * @typedef {import('vite').InlineConfig} InlineConfig
- */
-
-/**
  * @param {NodeJS.ProcessVersions} versions
  */
 export default (versions) => vite.build({
@@ -16,10 +12,14 @@ export default (versions) => vite.build({
   define: {
     // Optimization
     'process.type': JSON.stringify('renderer'),
+    __VUE_OPTIONS_API__: JSON.stringify(false),
   },
   plugins: [
     vue(),
   ],
+  json: {
+    stringify: true,
+  },
   build: {
     outDir: '../../dist/renderer',
     emptyOutDir: true,
